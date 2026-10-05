@@ -8,6 +8,7 @@ import { DatePicker } from './DatePicker'
 import { Icon } from './Icon'
 import { Popover } from './Popover'
 import { RichEditor, toPlain } from './RichEditor'
+import { NSelect } from './Select'
 
 const PRIORITIES: Priority[] = [5, 3, 1, 0]
 const kb = (n: number | null) => (n == null ? '' : n > 1048576 ? `${(n / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(n / 1024))} KB`)
@@ -207,16 +208,16 @@ export function TaskDetail({ taskId, onClose }: Props) {
 
       <div className="detail-foot">
         <Icon name="list" size={14} />
-        <select value={task.list_id ?? ''} onChange={(e) => save({ list_id: e.target.value || null })}>
+        <NSelect value={task.list_id ?? ''} onChange={(e) => save({ list_id: e.target.value || null })}>
           {data.lists.map((l) => <option key={l.id} value={l.id}>{l.emoji ?? ''} {l.is_inbox ? t('nav.inbox') : l.name}</option>)}
-        </select>
+        </NSelect>
         {gcals.length > 0 && (
           <>
             <Icon name="calendar" size={14} />
-            <select value={task.google_calendar_id ?? ''} onChange={(e) => save({ google_calendar_id: e.target.value || null })} title={t('google.calendar')}>
+            <NSelect value={task.google_calendar_id ?? ''} onChange={(e) => save({ google_calendar_id: e.target.value || null })} title={t('google.calendar')}>
               <option value="">{t('google.noCalendar')}</option>
               {gcals.map((c) => <option key={c.id} value={c.google_calendar_id}>{c.name}</option>)}
-            </select>
+            </NSelect>
           </>
         )}
         <div className="grow" />

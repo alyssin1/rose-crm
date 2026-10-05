@@ -7,6 +7,7 @@ import { signInWithGoogle } from '../lib/supabase'
 import { askPermission, disablePush, enablePush, notificationsSupported, pushActive } from '../lib/notify'
 import { Icon, type IconName } from './Icon'
 import { FeatureCards } from './FeatureCards'
+import { NSelect } from './Select'
 
 type Tab = 'account' | 'features' | 'datetime' | 'appearance' | 'notifications' | 'integrations' | 'backup' | 'about'
 const TABS: { id: Tab; icon: IconName }[] = [
@@ -118,9 +119,9 @@ export function Settings({ session, theme, setTheme, initialTab = 'account', onC
               {row(t('settings.name'), <b>{name}</b>)}
               {row('E-mail', <span>{session.user.email}</span>)}
               {row(t('settings.language'), (
-                <select value={i18n.language.slice(0, 2)} onChange={(e) => { void i18n.changeLanguage(e.target.value); void data.updateProfile({ lang: e.target.value as 'pt' }) }}>
+                <NSelect value={i18n.language.slice(0, 2)} onChange={(e) => { void i18n.changeLanguage(e.target.value); void data.updateProfile({ lang: e.target.value as 'pt' }) }}>
                   {LANGS.map((l) => <option key={l.code} value={l.code}>{l.label}</option>)}
-                </select>
+                </NSelect>
               ))}
             </div>
           )}
@@ -136,20 +137,20 @@ export function Settings({ session, theme, setTheme, initialTab = 'account', onC
           {tab === 'datetime' && (
             <div className="settings-sec">
               {row(t('settings.timeFormat'), (
-                <select value={p?.time_format ?? '24h'} onChange={(e) => data.updateProfile({ time_format: e.target.value as '24h' | '12h' })}>
+                <NSelect value={p?.time_format ?? '24h'} onChange={(e) => data.updateProfile({ time_format: e.target.value as '24h' | '12h' })}>
                   <option value="24h">24 h (13:00)</option><option value="12h">12 h (1:00 PM)</option>
-                </select>
+                </NSelect>
               ))}
               {row(t('settings.dateFormat'), (
-                <select value={p?.date_format ?? 'auto'} onChange={(e) => data.updateProfile({ date_format: e.target.value })}>
+                <NSelect value={p?.date_format ?? 'auto'} onChange={(e) => data.updateProfile({ date_format: e.target.value })}>
                   <option value="auto">{t('settings.dateAuto')}</option>
                   {['DD/MM/YYYY', 'MM/DD/YYYY', 'YYYY-MM-DD'].map((f) => <option key={f}>{f}</option>)}
-                </select>
+                </NSelect>
               ))}
               {row(t('settings.weekStart'), (
-                <select value={p?.week_start ?? 0} onChange={(e) => data.updateProfile({ week_start: Number(e.target.value) })}>
+                <NSelect value={p?.week_start ?? 0} onChange={(e) => data.updateProfile({ week_start: Number(e.target.value) })}>
                   {[0, 1, 6].map((d) => <option key={d} value={d}>{new Intl.DateTimeFormat(i18n.language.slice(0, 2), { weekday: 'long' }).format(new Date(2023, 0, 1 + d))}</option>)}
-                </select>
+                </NSelect>
               ))}
               {row(t('settings.weekNumbers'), <input type="checkbox" checked={!!p?.show_week_numbers} onChange={(e) => data.updateProfile({ show_week_numbers: e.target.checked })} />)}
             </div>
@@ -158,9 +159,9 @@ export function Settings({ session, theme, setTheme, initialTab = 'account', onC
           {tab === 'appearance' && (
             <div className="settings-sec">
               {row(t('settings.theme'), (
-                <select value={theme} onChange={(e) => { setTheme(e.target.value as 'dark' | 'light'); void data.updateProfile({ theme: e.target.value as 'dark' | 'light' }) }}>
+                <NSelect value={theme} onChange={(e) => { setTheme(e.target.value as 'dark' | 'light'); void data.updateProfile({ theme: e.target.value as 'dark' | 'light' }) }}>
                   <option value="dark">{t('settings.dark')}</option><option value="light">{t('settings.light')}</option>
-                </select>
+                </NSelect>
               ))}
             </div>
           )}

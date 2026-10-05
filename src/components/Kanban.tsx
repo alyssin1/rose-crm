@@ -8,6 +8,7 @@ import { Icon } from './Icon'
 import { Popover } from './Popover'
 import { confirmAsk, promptText } from './Dialogs'
 import { openTaskMenu } from './TaskContextMenu'
+import { NSelect } from './Select'
 
 export type KanbanGroup = 'column' | 'date' | 'priority'
 
@@ -98,11 +99,11 @@ export function Kanban({ list, tasks, selectedId, onSelect }: Props) {
       <div className="kanban-bar">
         <label>
           {t('kanban.groupBy')}
-          <select value={group} onChange={(e) => void setGroup(e.target.value as KanbanGroup)}>
+          <NSelect value={group} onChange={(e) => void setGroup(e.target.value as KanbanGroup)}>
             <option value="column">{t('kanban.g.column')}</option>
             <option value="date">{t('kanban.g.date')}</option>
             <option value="priority">{t('kanban.g.priority')}</option>
-          </select>
+          </NSelect>
         </label>
       </div>
 

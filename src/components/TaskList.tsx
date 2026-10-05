@@ -11,6 +11,7 @@ import { Kanban } from './Kanban'
 import { Timeline } from './Timeline'
 import { confirmAsk } from './Dialogs'
 import { openTaskMenu } from './TaskContextMenu'
+import { NSelect } from './Select'
 
 const loadOpts = (key: string): ViewOptions => {
   try {
@@ -240,9 +241,9 @@ function Select({ label, value, onChange, options }: { label: string; value: str
   return (
     <label className="menu-select">
       <span>{label}</span>
-      <select value={value} onChange={(e) => onChange(e.target.value)}>
+      <NSelect value={value} onChange={(e) => onChange(e.target.value)}>
         {options.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-      </select>
+      </NSelect>
     </label>
   )
 }

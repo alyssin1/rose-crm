@@ -7,6 +7,7 @@ import type { Task } from '../lib/types'
 import { Icon } from './Icon'
 import { Popover } from './Popover'
 import { openTaskMenu } from './TaskContextMenu'
+import { NSelect } from './Select'
 
 export type CalMode = 'year' | 'month' | 'week' | 'day' | 'agenda' | 'multiday' | 'multiweek'
 const MODES: CalMode[] = ['year', 'month', 'week', 'day', 'agenda', 'multiday', 'multiweek']
@@ -384,12 +385,12 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
               <button onClick={() => { setShowDone(!showDone); close() }}><Icon name="checkSquare" size={15} /> {t('view.showCompleted')} {showDone && <Icon name="check" size={14} />}</button>
               {mode === 'multiday' && (
                 <label className="menu-select"><span>{t('calendar.days')}</span>
-                  <select value={multiDays} onChange={(e) => setMultiDays(Number(e.target.value))}>{[2, 3, 4, 5, 6].map((n) => <option key={n}>{n}</option>)}</select>
+                  <NSelect value={multiDays} onChange={(e) => setMultiDays(Number(e.target.value))}>{[2, 3, 4, 5, 6].map((n) => <option key={n}>{n}</option>)}</NSelect>
                 </label>
               )}
               {mode === 'multiweek' && (
                 <label className="menu-select"><span>{t('calendar.weeks')}</span>
-                  <select value={multiWeeks} onChange={(e) => setMultiWeeks(Number(e.target.value))}>{[2, 3, 4, 5].map((n) => <option key={n}>{n}</option>)}</select>
+                  <NSelect value={multiWeeks} onChange={(e) => setMultiWeeks(Number(e.target.value))}>{[2, 3, 4, 5].map((n) => <option key={n}>{n}</option>)}</NSelect>
                 </label>
               )}
               <button onClick={() => { close(); window.print() }}><Icon name="print" size={15} /> {t('detail.print')}</button>

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { addDays, hhmm, sameDay, startOfDay, buildRule, parseRule, type Freq } from '../lib/dates'
 import type { Task } from '../lib/types'
 import { Icon } from './Icon'
+import { NSelect } from './Select'
 
 type Patch = Pick<Task, 'due_at' | 'start_at' | 'all_day' | 'reminders' | 'repeat_rule' | 'repeat_from' | 'duration_minutes'>
 
@@ -175,17 +176,17 @@ export function DatePicker({ task, weekStart = 0, onApply, onClose }: Props) {
         </button>
         {open === 'repeat' && (
           <div className="dp-sub col">
-            <select value={freq} onChange={(e) => setFreq(e.target.value as Freq | '')}>
+            <NSelect value={freq} onChange={(e) => setFreq(e.target.value as Freq | '')}>
               <option value="">{t('date.none')}</option>
               {FREQS.map((f) => <option key={f} value={f}>{t(`date.freq.${f}`)}</option>)}
-            </select>
+            </NSelect>
             {freq && (
               <>
                 <label>{t('date.every')} <input type="number" min={1} value={interval} onChange={(e) => setInterval_(Number(e.target.value))} style={{ width: 56 }} /></label>
-                <select value={repeatFrom} onChange={(e) => setRepeatFrom(e.target.value as 'due' | 'completion')}>
+                <NSelect value={repeatFrom} onChange={(e) => setRepeatFrom(e.target.value as 'due' | 'completion')}>
                   <option value="due">{t('date.fromDue')}</option>
                   <option value="completion">{t('date.fromCompletion')}</option>
-                </select>
+                </NSelect>
               </>
             )}
           </div>

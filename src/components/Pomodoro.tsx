@@ -5,6 +5,7 @@ import { fmtClock, fmtDuration, usePomodoro, type Phase } from '../lib/pomodoro'
 import { addDays, startOfDay } from '../lib/dates'
 import { Icon } from './Icon'
 import { Popover } from './Popover'
+import { NSelect } from './Select'
 
 const R = 120
 const C = 2 * Math.PI * R
@@ -100,10 +101,10 @@ export function Pomodoro({ onToggleSidebar }: { onToggleSidebar?: () => void }) 
 
           <label className="pomo-task">
             <Icon name="check" size={14} />
-            <select value={state.taskId ?? ''} onChange={(e) => p.setTask(e.target.value || null)} disabled={running}>
+            <NSelect value={state.taskId ?? ''} onChange={(e) => p.setTask(e.target.value || null)} disabled={running}>
               <option value="">{t('pomo.noTask')}</option>
               {openTasks.map((x) => <option key={x.id} value={x.id}>{x.title || t('task.untitled')}</option>)}
-            </select>
+            </NSelect>
           </label>
 
           <div className="pomo-actions">

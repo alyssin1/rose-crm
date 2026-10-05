@@ -6,6 +6,7 @@ import { viewKey, type FilterDef, type FilterRules, type List, type View } from 
 import { Icon, type IconName } from './Icon'
 import { Popover } from './Popover'
 import { confirmAsk, promptText } from './Dialogs'
+import { NSelect } from './Select'
 
 const SMART: { type: 'all' | 'today' | 'next7' | 'inbox' | 'summary'; icon: IconName }[] = [
   { type: 'all', icon: 'layers' },
@@ -228,10 +229,10 @@ function ListDialog({ list, onClose, onCreated }: { list: List | null; onClose: 
         {data.folders.length > 0 && (
           <>
             <label className="field">{t('folder.title')}</label>
-            <select value={folder} onChange={(e) => setFolder(e.target.value)}>
+            <NSelect value={folder} onChange={(e) => setFolder(e.target.value)}>
               <option value="">{t('folder.none')}</option>
               {data.folders.map((f) => <option key={f.id} value={f.id}>{f.name}</option>)}
-            </select>
+            </NSelect>
           </>
         )}
         <div className="modal-actions">
@@ -290,14 +291,14 @@ function FilterDialog({ filter, onClose }: { filter: FilterDef | null; onClose: 
         )}
 
         <label className="field">{t('filter.date')}</label>
-        <select value={rules.date} onChange={(e) => setRules({ ...rules, date: e.target.value as FilterRules['date'] })}>
+        <NSelect value={rules.date} onChange={(e) => setRules({ ...rules, date: e.target.value as FilterRules['date'] })}>
           {(['any', 'today', 'next7', 'overdue', 'nodate'] as const).map((d) => <option key={d} value={d}>{t(`filter.d.${d}`)}</option>)}
-        </select>
+        </NSelect>
 
         <label className="field">{t('filter.status')}</label>
-        <select value={rules.status} onChange={(e) => setRules({ ...rules, status: e.target.value as FilterRules['status'] })}>
+        <NSelect value={rules.status} onChange={(e) => setRules({ ...rules, status: e.target.value as FilterRules['status'] })}>
           {(['open', 'done', 'all'] as const).map((s) => <option key={s} value={s}>{t(`filter.s.${s}`)}</option>)}
-        </select>
+        </NSelect>
 
         <div className="modal-actions">
           <button onClick={onClose}>{t('common.cancel')}</button>

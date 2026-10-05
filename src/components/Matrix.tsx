@@ -7,6 +7,7 @@ import { Icon } from './Icon'
 import { Popover } from './Popover'
 import { TaskGroups } from './TaskList'
 import { promptText } from './Dialogs'
+import { NSelect } from './Select'
 
 export interface MatrixRules {
   urgentDays: number // urgente = vence em até N dias (atrasadas incluídas)
@@ -91,19 +92,19 @@ export function Matrix({ selectedId, onSelect }: Props) {
               <div className="menu-title">{t('matrix.rules')}</div>
               <label className="menu-select">
                 <span>{t('matrix.urgent')}</span>
-                <select value={rules.urgentDays} onChange={(e) => void setRules({ urgentDays: Number(e.target.value) })}>
+                <NSelect value={rules.urgentDays} onChange={(e) => void setRules({ urgentDays: Number(e.target.value) })}>
                   <option value={0}>{t('matrix.u0')}</option>
                   <option value={1}>{t('matrix.u1')}</option>
                   <option value={3}>{t('matrix.u3')}</option>
                   <option value={7}>{t('matrix.u7')}</option>
-                </select>
+                </NSelect>
               </label>
               <label className="menu-select">
                 <span>{t('matrix.important')}</span>
-                <select value={rules.importantMin} onChange={(e) => void setRules({ importantMin: Number(e.target.value) as 3 | 5 })}>
+                <NSelect value={rules.importantMin} onChange={(e) => void setRules({ importantMin: Number(e.target.value) as 3 | 5 })}>
                   <option value={5}>{t('matrix.i5')}</option>
                   <option value={3}>{t('matrix.i3')}</option>
-                </select>
+                </NSelect>
               </label>
               <label className="menu-check"><input type="checkbox" checked={showDone} onChange={(e) => setShowDone(e.target.checked)} /> {t('view.showCompleted')}</label>
             </div>

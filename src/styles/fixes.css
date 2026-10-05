@@ -164,3 +164,34 @@
 .dp-actions button { height: 30px; padding: 0; font-size: 14px; border-radius: 8px; }
 .dp-actions button:first-child { flex: 1.24; color: color-mix(in srgb, var(--text) 60%, transparent); border-color: color-mix(in srgb, var(--text) 14%, transparent); }
 .dp-actions .btn-primary { flex: 1; color: #fff; }
+
+/* ---------- seletor próprio (substitui o <select> nativo) ---------- */
+.sel-wrap { display: inline-flex; min-width: 0; }
+.sel-btn2 { display: inline-flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 32px; padding: 0 8px 0 12px; font-size: 14px; color: var(--text); background: var(--bg); border: 1px solid var(--border); border-radius: 8px; text-align: left; max-width: 100%; transition: border-color .12s, background .12s; }
+.sel-btn2:hover:not(:disabled) { border-color: color-mix(in srgb, var(--text) 25%, transparent); }
+.sel-btn2.open, .sel-btn2:focus-visible { border-color: var(--accent); outline: 0; }
+.sel-btn2:disabled { opacity: .5; }
+.sel-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sel-label em { font-style: normal; color: var(--text-dim); }
+.sel-chev { flex: none; color: var(--text-dim); transition: transform .15s; }
+.sel-btn2.open .sel-chev { transform: rotate(180deg); }
+.sel-ico { font-style: normal; margin-right: 6px; }
+.sel-panel { position: fixed; z-index: 120; background: var(--bg-elev); border: 1px solid var(--border); border-radius: 12px; padding: 6px; box-shadow: 0 12px 36px rgba(0,0,0,.45); animation: selIn .12s ease-out; }
+@keyframes selIn { from { opacity: 0; translate: 0 -4px; } to { opacity: 1; translate: 0 0; } }
+.sel-list { max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 1px; }
+.sel-search { width: 100%; height: 32px; margin: 0 0 6px; padding: 0 10px; font-size: 13px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; }
+.sel-opt { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 34px; padding: 0 10px; background: none; border: 0; border-radius: 8px; color: var(--text); font-size: 14px; text-align: left; }
+.sel-opt.act { background: var(--bg-hover); }
+.sel-opt.on { color: var(--accent); }
+.sel-txt { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sel-opt small { color: var(--text-dim); }
+.sel-check { flex: none; }
+.sel-none { padding: 8px 10px; color: var(--text-dim); }
+/* variações por contexto: discreto, sem caixa */
+.detail-foot .sel-btn2, .sum-row .sel-btn2, .pomo-task .sel-btn2, .tasks-head .sel-btn2 { background: none; border-color: transparent; }
+.detail-foot .sel-btn2 { min-height: 28px; padding: 0 6px; color: var(--text-dim); }
+.detail-foot .sel-btn2:hover, .sum-row .sel-btn2:hover, .pomo-task .sel-btn2:hover { background: var(--bg-hover); border-color: transparent; }
+.sum-row .sel-btn2 { color: var(--text-dim); min-height: 28px; padding: 0 4px 0 8px; max-width: 170px; }
+.pomo-task .sel-btn2 { max-width: 260px; }
+.settings-row .sel-btn2, .modal .sel-btn2 { min-width: 150px; }
+.modal .sel-wrap { display: flex; } .modal .sel-btn2 { width: 100%; }

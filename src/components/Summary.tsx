@@ -7,6 +7,7 @@ import type { Task } from '../lib/types'
 import { RichEditor, sanitize, toPlain } from './RichEditor'
 import { Icon } from './Icon'
 import { Popover } from './Popover'
+import { NSelect } from './Select'
 
 type RangeKey = 'today' | 'yesterday' | 'week' | 'lastWeek' | 'month' | 'lastMonth' | 'last7' | 'last30'
 type Grouping = 'status' | 'list' | 'date' | 'none'
@@ -151,31 +152,31 @@ export function Summary({ weekStart = 0, onToggleSidebar }: { weekStart?: number
 
         <div className="sum-label">{t('summary.filter')}</div>
         <div className="sum-box">
-          <Row label={t('summary.date')}><select value={range} onChange={(e) => setRange(e.target.value as RangeKey)}>{RANGES.map((r) => <option key={r} value={r}>{t(`summary.r.${r}`)}</option>)}</select></Row>
+          <Row label={t('summary.date')}><NSelect value={range} onChange={(e) => setRange(e.target.value as RangeKey)}>{RANGES.map((r) => <option key={r} value={r}>{t(`summary.r.${r}`)}</option>)}</NSelect></Row>
           <Row label={t('nav.lists')}>
-            <select value={listId} onChange={(e) => setListId(e.target.value)}>
+            <NSelect value={listId} onChange={(e) => setListId(e.target.value)}>
               <option value="">{t('summary.allLists')}</option>
               {data.lists.map((l) => <option key={l.id} value={l.id}>{l.is_inbox ? t('nav.inbox') : l.name}</option>)}
-            </select>
+            </NSelect>
           </Row>
           <Row label={t('filter.status')}>
-            <select value={status} onChange={(e) => setStatus(e.target.value as StatusF)}>
+            <NSelect value={status} onChange={(e) => setStatus(e.target.value as StatusF)}>
               <option value="all">{t('summary.s.all')}</option><option value="done">{t('summary.done')}</option><option value="open">{t('summary.undone')}</option>
-            </select>
+            </NSelect>
           </Row>
           <Row label={t('summary.more')}>
-            <select value={priorityOnly ? 'p' : ''} onChange={(e) => setPriorityOnly(e.target.value === 'p')}>
+            <NSelect value={priorityOnly ? 'p' : ''} onChange={(e) => setPriorityOnly(e.target.value === 'p')}>
               <option value="">{t('summary.none')}</option><option value="p">{t('summary.withPriority')}</option>
-            </select>
+            </NSelect>
           </Row>
         </div>
 
         <div className="sum-label">{t('summary.display')}</div>
         <div className="sum-box">
           <Row label={t('summary.grouping')}>
-            <select value={grouping} onChange={(e) => setGrouping(e.target.value as Grouping)}>
+            <NSelect value={grouping} onChange={(e) => setGrouping(e.target.value as Grouping)}>
               <option value="status">{t('summary.g.status')}</option><option value="list">{t('summary.g.list')}</option><option value="date">{t('summary.g.date')}</option><option value="none">{t('sort.g.none')}</option>
-            </select>
+            </NSelect>
           </Row>
           <Row label={t('summary.fields')}>
             <Popover align="right" trigger={(_o, toggle) => <button className="sel-btn" onClick={toggle}>{t('summary.selected', { n: fields.length })}</button>}>

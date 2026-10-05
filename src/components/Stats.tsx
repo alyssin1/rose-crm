@@ -7,6 +7,7 @@ import { fmtDuration } from '../lib/pomodoro'
 import { tagIdsOf } from '../lib/views'
 import { BarChart, HBars, type Point } from './Charts'
 import { Icon } from './Icon'
+import { NSelect } from './Select'
 
 type Tab = 'overview' | 'tasks' | 'focus' | 'habits'
 const LEVELS = 12
@@ -124,9 +125,9 @@ export function Stats({ onToggleSidebar }: { onToggleSidebar?: () => void }) {
         {onToggleSidebar && <button className="icon-btn" onClick={onToggleSidebar} title={t('common.toggleSidebar')}><Icon name="sidebar" size={18} /></button>}
         <h2>{t('stats.title')}</h2>
         <div className="grow" />
-        <select value={range} onChange={(e) => setRange(Number(e.target.value))} aria-label={t('stats.range')}>
+        <NSelect value={range} onChange={(e) => setRange(Number(e.target.value))} aria-label={t('stats.range')}>
           {[7, 30, 90].map((r) => <option key={r} value={r}>{t('stats.lastDays', { n: r })}</option>)}
-        </select>
+        </NSelect>
       </header>
 
       <nav className="stats-tabs">
