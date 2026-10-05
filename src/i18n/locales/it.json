@@ -377,7 +377,8 @@
     "body": "Promemoria attività",
     "unsupported": "Questo browser non supporta il Web Push.",
     "nokey": "Chiave VAPID mancante.",
-    "ok": "Attivato."
+    "ok": "Attivato.",
+    "blocked": "Il browser ha rifiutato le notifiche push. In Brave, attiva \"Usa i servizi Google per la messaggistica push\" in brave://settings/privacy e riavvia il browser."
   },
   "google": {
     "calendar": "Calendario Google",

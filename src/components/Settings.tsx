@@ -46,7 +46,12 @@ export function Settings({ session, theme, setTheme, initialTab = 'account', onC
 
   const togglePush = async (on: boolean) => {
     if (on) {
-      const r = await enablePush(data.userId)
+      let r: Awaited<ReturnType<typeof enablePush>> | 'blocked'
+      try {
+        r = await enablePush(data.userId)
+      } catch {
+        r = 'blocked' // o navegador recusou a inscrição (ex.: Brave com o push do Google desligado)
+      }
       setPush(r === 'ok')
       setMsg(r === 'ok' ? null : t(`notif.${r}`))
     } else {

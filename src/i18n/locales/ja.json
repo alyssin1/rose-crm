@@ -377,7 +377,8 @@
     "body": "タスクのリマインダー",
     "unsupported": "このブラウザは Web Push に対応していません。",
     "nokey": "VAPID キーがありません。",
-    "ok": "有効にしました。"
+    "ok": "有効にしました。",
+    "blocked": "ブラウザがプッシュ通知を拒否しました。Brave の場合は brave://settings/privacy で「プッシュ メッセージに Google サービスを使用」をオンにして、ブラウザを再起動してください。"
   },
   "google": {
     "calendar": "Google カレンダー",

@@ -377,7 +377,8 @@
     "body": "Lembrete da tarefa",
     "unsupported": "Este navegador não suporta Web Push.",
     "nokey": "Chave VAPID ausente.",
-    "ok": "Ativado."
+    "ok": "Ativado.",
+    "blocked": "O navegador recusou as notificações push. No Brave, ative \"Usar os serviços do Google para mensagens push\" em brave://settings/privacy e reabra o navegador."
   },
   "google": {
     "calendar": "Agenda do Google",

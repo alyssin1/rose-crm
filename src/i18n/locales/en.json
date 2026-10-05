@@ -377,7 +377,8 @@
     "body": "Task reminder",
     "unsupported": "This browser does not support Web Push.",
     "nokey": "VAPID key missing.",
-    "ok": "Enabled."
+    "ok": "Enabled.",
+    "blocked": "The browser refused push notifications. In Brave, turn on \"Use Google services for push messaging\" at brave://settings/privacy and restart the browser."
   },
   "google": {
     "calendar": "Google calendar",
