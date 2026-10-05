@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useData } from '../store/data'
+import i18n from 'i18next'
 import { showLocal } from './notify'
 
 export type Phase = 'focus' | 'short' | 'long'
@@ -153,7 +154,7 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
     const wasFocus = state.phase === 'focus'
     if (wasFocus) record(minutes(settings, 'focus') * 60, minutes(settings, 'focus') * 60, true, state.startedAt, state.taskId, 'pomodoro')
     beep(settings.sound)
-    showLocal(wasFocus ? '🍅 Pomodoro' : '☕', wasFocus ? 'Foco concluído — hora da pausa.' : 'Pausa concluída — de volta ao foco.', state.taskId ?? 'pomo')
+    showLocal(wasFocus ? '🍅 ' + i18n.t('pomo.title') : '☕ ' + i18n.t('pomo.break'), wasFocus ? i18n.t('pomo.notifFocus') : i18n.t('pomo.notifBreak'), state.taskId ?? 'pomo')
     setState((s) => {
       const cycles = wasFocus ? s.cycles + 1 : s.cycles
       const next: Phase = wasFocus ? (cycles % settings.longEvery === 0 ? 'long' : 'short') : 'focus'

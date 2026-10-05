@@ -6,6 +6,8 @@ import './styles/app.css'
 import './styles/extra.css'
 import './styles/phase2.css'
 import './styles/phase3.css'
+import './styles/mobile.css'
+import './styles/fixes.css'
 import App from './App'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

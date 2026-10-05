@@ -1,0 +1,10 @@
+/* correções da revisão geral */
+.side-item.indent { padding-left: 14px; }
+.btn-danger { background: var(--overdue); color: #fff; border: 0; border-radius: var(--radius); padding: 8px 16px; }
+.modal.small { width: 360px; }
+.dlg { z-index: 80; }
+.swatch.none { display: inline-grid; place-items: center; font-size: 12px; color: var(--text-dim); background: none; }
+.cal-wk { font-style: normal; font-weight: 400; font-size: 10px; color: var(--text-dim); margin-left: 6px; }
+.tl-section .tl-left { padding-left: 12px; }
+/* modais que passam da altura da tela rolam por dentro */
+.modal { max-height: 90vh; overflow: auto; }

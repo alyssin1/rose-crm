@@ -55,21 +55,28 @@
       "pomodoro": "Pomodoro",
       "countdown": "Countdown",
       "sticky": "Sticky Note"
-    }
+    },
+    "dateAuto": "Automatic (language)"
   },
   "common": {
     "cancel": "Cancel",
     "save": "Save",
     "toggleSidebar": "Show/hide sidebar",
     "more": "More",
-    "soon": "coming soon"
+    "soon": "coming soon",
+    "confirm": "Confirm",
+    "ok": "OK"
   },
   "list": {
     "name": "List name",
     "rename": "Rename",
     "emoji": "Emoji",
     "delete": "Delete",
-    "confirmDelete": "Delete \"{{name}}\"? Its tasks go to Trash."
+    "confirmDelete": "Delete \"{{name}}\"? Its tasks go to Trash.",
+    "edit": "Edit",
+    "new": "New list",
+    "color": "Color",
+    "noColor": "No color"
   },
   "filter": {
     "new": "New filter",
@@ -92,7 +99,8 @@
     }
   },
   "tag": {
-    "hint": "Categorize your tasks with tags. Type \"#\" when adding a task."
+    "hint": "Categorize your tasks with tags. Type \"#\" when adding a task.",
+    "rename": "Tag name"
   },
   "task": {
     "addPlaceholder": "Add task to \"{{list}}\"",
@@ -210,7 +218,9 @@
     "fromDue": "Repeat from due date",
     "fromCompletion": "Repeat from completion",
     "clear": "Clear",
-    "ok": "OK"
+    "ok": "OK",
+    "start": "Start",
+    "end": "End"
   },
   "calendar": {
     "allDay": "All day",
@@ -468,7 +478,10 @@
     "week": "Last 7 days",
     "total": "Total",
     "history": "History",
-    "noHistory": "No sessions yet."
+    "noHistory": "No sessions yet.",
+    "break": "Break",
+    "notifFocus": "Focus done — time for a break.",
+    "notifBreak": "Break over — back to focus."
   },
   "habit": {
     "title": "Habit",
@@ -542,5 +555,13 @@
       "pomo": "{{n}} pomodoro(s)",
       "streak": "{{n}}-day streak"
     }
+  },
+  "folder": {
+    "title": "Folder",
+    "new": "New folder",
+    "name": "Folder name",
+    "none": "No folder",
+    "moveTo": "Move to folder",
+    "confirmDelete": "Delete folder “{{name}}”? Lists are kept, they just leave the folder."
   }
 }

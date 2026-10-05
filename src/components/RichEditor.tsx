@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { promptText } from './Dialogs'
 import { useTranslation } from 'react-i18next'
 
 const ALLOWED = new Set(['B', 'STRONG', 'I', 'EM', 'U', 'S', 'STRIKE', 'DEL', 'H1', 'H2', 'H3', 'P', 'DIV', 'BR', 'UL', 'OL', 'LI', 'BLOCKQUOTE', 'CODE', 'PRE', 'A', 'SPAN', 'MARK'])
@@ -82,8 +83,19 @@ export function RichEditor({ value, placeholder, onCommit, minHeight = 120, tool
           {btn('❝', t('editor.quote'), () => cmd('formatBlock', 'BLOCKQUOTE'))}
           {btn('</>', t('editor.code'), () => cmd('formatBlock', 'PRE'))}
           {btn('🔗', t('editor.link'), () => {
-            const url = window.prompt('URL', 'https://')
-            if (url && /^(https?:|mailto:)/i.test(url)) cmd('createLink', url)
+            // guarda a seleção: o diálogo tira o foco do editor
+            const sel = window.getSelection()
+            const range = sel && sel.rangeCount ? sel.getRangeAt(0).cloneRange() : null
+            void promptText('URL', 'https://').then((url) => {
+              if (!url || !/^(https?:|mailto:)/i.test(url)) return
+              ref.current?.focus()
+              if (range) {
+                sel?.removeAllRanges()
+                sel?.addRange(range)
+              }
+              cmd('createLink', url)
+              commit()
+            })
           })}
           {btn('Tx', t('editor.clear'), () => { cmd('removeFormat'); cmd('formatBlock', 'P') })}
         </div>

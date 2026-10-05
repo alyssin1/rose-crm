@@ -25,4 +25,8 @@ i18n
     detection: { order: ['localStorage'], lookupLocalStorage: 'rose.lang' },
   })
 
+i18n.on('languageChanged', (l) => {
+  document.documentElement.lang = l
+})
+
 export default i18n

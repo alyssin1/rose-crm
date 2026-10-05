@@ -140,7 +140,8 @@ export function Settings({ session, theme, setTheme, initialTab = 'account', onC
                 </select>
               ))}
               {row(t('settings.dateFormat'), (
-                <select value={p?.date_format ?? 'DD/MM/YYYY'} onChange={(e) => data.updateProfile({ date_format: e.target.value })}>
+                <select value={p?.date_format ?? 'auto'} onChange={(e) => data.updateProfile({ date_format: e.target.value })}>
+                  <option value="auto">{t('settings.dateAuto')}</option>
                   {['DD/MM/YYYY', 'MM/DD/YYYY', 'YYYY-MM-DD'].map((f) => <option key={f}>{f}</option>)}
                 </select>
               ))}
@@ -150,7 +151,6 @@ export function Settings({ session, theme, setTheme, initialTab = 'account', onC
                 </select>
               ))}
               {row(t('settings.weekNumbers'), <input type="checkbox" checked={!!p?.show_week_numbers} onChange={(e) => data.updateProfile({ show_week_numbers: e.target.checked })} />)}
-              {row(t('settings.perTaskTz'), <input type="checkbox" checked={!!p?.per_task_timezone} onChange={(e) => data.updateProfile({ per_task_timezone: e.target.checked })} />, t('settings.perTaskTzHint'))}
             </div>
           )}
 

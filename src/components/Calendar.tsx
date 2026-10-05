@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useData } from '../store/data'
 import { addDays, hhmm, sameDay, startOfDay } from '../lib/dates'
+import { isoWeek } from '../lib/format'
 import type { Task } from '../lib/types'
 import { Icon } from './Icon'
 import { Popover } from './Popover'
@@ -14,8 +15,9 @@ const PALETTE = ['#d62f45', '#4c8dff', '#2fb67c', '#f5a524', '#9b6bff', '#18a9c4
 interface Props {
   selectedId: string | null
   onSelect: (id: string | null) => void
-  onToggleSidebar: () => void
+  onToggleSidebar?: () => void
   weekStart?: number
+  showWeekNumbers?: boolean
 }
 
 interface Ev {
@@ -41,7 +43,7 @@ const overlapsDay = (ev: Ev, day: Date) => {
   return d >= s && d <= e
 }
 
-export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0 }: Props) {
+export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0, showWeekNumbers = false }: Props) {
   const { t, i18n } = useTranslation()
   const lang = i18n.language.slice(0, 2)
   const data = useData()
@@ -193,7 +195,7 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0 
                 if (id) moveTo(id, d, true)
               }}
             >
-              <b className="cal-daynum">{d.getDate() === 1 ? fmt({ day: 'numeric', month: 'short' }, d) : d.getDate()}</b>
+              <b className="cal-daynum">{d.getDate() === 1 ? fmt({ day: 'numeric', month: 'short' }, d) : d.getDate()}{showWeekNumbers && d.getDay() === (weekStart % 7) && <em className="cal-wk" title="ISO">W{isoWeek(addDays(d, 3))}</em>}</b>
               {list.slice(0, max).map((ev) => chip(ev, d))}
               {list.length > max && (
                 <button className="cal-more" onClick={(e) => { e.stopPropagation(); setCursor(d); changeMode('day') }}>+{list.length - max}</button>
@@ -361,7 +363,7 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0 
   return (
     <section className="calendar">
       <header className="tasks-head">
-        <button className="icon-btn" onClick={onToggleSidebar} title={t('common.toggleSidebar')}><Icon name="sidebar" size={18} /></button>
+        {onToggleSidebar && <button className="icon-btn" onClick={onToggleSidebar} title={t('common.toggleSidebar')}><Icon name="sidebar" size={18} /></button>}
         <h2>{title}</h2>
         <div className="grow" />
         <button className="icon-btn boxed" title={t('calendar.new')} onClick={(e) => openQuick(new Date(today.getFullYear(), today.getMonth(), today.getDate()), e)}><Icon name="plus" size={16} /></button>

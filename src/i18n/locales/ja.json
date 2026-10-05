@@ -55,21 +55,28 @@
       "pomodoro": "ポモドーロ",
       "countdown": "カウントダウン",
       "sticky": "付箋"
-    }
+    },
+    "dateAuto": "自動（言語）"
   },
   "common": {
     "cancel": "キャンセル",
     "save": "保存",
     "toggleSidebar": "サイドバーの表示/非表示",
     "more": "その他",
-    "soon": "近日対応"
+    "soon": "近日対応",
+    "confirm": "確認",
+    "ok": "OK"
   },
   "list": {
     "name": "リスト名",
     "rename": "名前を変更",
     "emoji": "絵文字",
     "delete": "削除",
-    "confirmDelete": "「{{name}}」を削除しますか？タスクはゴミ箱に移動します。"
+    "confirmDelete": "「{{name}}」を削除しますか？タスクはゴミ箱に移動します。",
+    "edit": "編集",
+    "new": "新しいリスト",
+    "color": "色",
+    "noColor": "色なし"
   },
   "filter": {
     "new": "新しいフィルター",
@@ -92,7 +99,8 @@
     }
   },
   "tag": {
-    "hint": "タグでタスクを分類します。タスク追加時に「#」を入力してください。"
+    "hint": "タグでタスクを分類します。タスク追加時に「#」を入力してください。",
+    "rename": "タグ名"
   },
   "task": {
     "addPlaceholder": "「{{list}}」にタスクを追加",
@@ -210,7 +218,9 @@
     "fromDue": "期限日から繰り返す",
     "fromCompletion": "完了日から繰り返す",
     "clear": "クリア",
-    "ok": "OK"
+    "ok": "OK",
+    "start": "開始",
+    "end": "終了"
   },
   "calendar": {
     "allDay": "終日",
@@ -468,7 +478,10 @@
     "week": "過去7日間",
     "total": "合計",
     "history": "履歴",
-    "noHistory": "まだセッションがありません。"
+    "noHistory": "まだセッションがありません。",
+    "break": "休憩",
+    "notifFocus": "集中が終わりました。休憩の時間です。",
+    "notifBreak": "休憩が終わりました。集中に戻りましょう。"
   },
   "habit": {
     "title": "習慣",
@@ -540,5 +553,13 @@
       "pomo": "{{n}}回のポモドーロ",
       "streak": "{{n}}日連続"
     }
+  },
+  "folder": {
+    "title": "フォルダ",
+    "new": "新しいフォルダ",
+    "name": "フォルダ名",
+    "none": "フォルダなし",
+    "moveTo": "フォルダへ移動",
+    "confirmDelete": "フォルダ「{{name}}」を削除しますか？リストは残り、フォルダから外れます。"
   }
 }

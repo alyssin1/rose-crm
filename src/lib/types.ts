@@ -46,6 +46,14 @@ export interface List {
   archived: boolean
 }
 
+export interface Folder {
+  id: string
+  user_id: string
+  name: string
+  sort_order: number
+  collapsed: boolean
+}
+
 export interface Tag {
   id: string
   user_id: string

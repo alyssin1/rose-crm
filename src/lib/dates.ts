@@ -1,4 +1,5 @@
 import type { Task } from './types'
+import { formatNumericDate, formatTime } from './format'
 
 export const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate())
 export const addDays = (d: Date, n: number) => {
@@ -9,7 +10,7 @@ export const addDays = (d: Date, n: number) => {
 export const sameDay = (a: Date, b: Date) => a.toDateString() === b.toDateString()
 export const dayDiff = (a: Date, b: Date) => Math.round((startOfDay(a).getTime() - startOfDay(b).getTime()) / 86400000)
 
-export const hhmm = (d: Date) => `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+export const hhmm = (d: Date) => formatTime(d) // respeita 24h/12h das configurações
 
 export type DueTone = 'none' | 'overdue' | 'today' | 'future'
 
@@ -33,7 +34,7 @@ export function formatDue(task: Task, lang: string, t: T, now = new Date()): str
   else {
     const opts: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short' }
     if (due.getFullYear() !== now.getFullYear()) opts.year = 'numeric'
-    day = new Intl.DateTimeFormat(lang, opts).format(due)
+    day = formatNumericDate(due) ?? new Intl.DateTimeFormat(lang, opts).format(due)
   }
   return task.all_day ? day : `${day} ${hhmm(due)}`
 }

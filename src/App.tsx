@@ -21,6 +21,9 @@ import { Search } from './components/Search'
 import { Settings } from './components/Settings'
 import { Icon } from './components/Icon'
 import type { View } from './lib/types'
+import { useMobile } from './lib/useMobile'
+import { setFormat } from './lib/format'
+import { DialogHost } from './components/Dialogs'
 
 type Theme = 'dark' | 'light'
 const GOOGLE_SCOPES = 'https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.calendarlist.readonly'
@@ -86,10 +89,12 @@ function Shell({ session, theme, setTheme }: { session: Session; theme: Theme; s
   const { t, i18n } = useTranslation()
   const data = useData()
   const pomo = usePomodoro() // hooks sempre antes de qualquer return antecipado
+  setFormat(data.profile) // formato de hora/data (idempotente; re-renderiza junto com o perfil)
   const [section, setSection] = useState<'tasks' | 'calendar' | 'matrix' | 'pomodoro' | 'habits' | 'countdown' | 'stats'>('tasks')
   const [view, setView] = useState<View>({ type: 'all' })
   const [selected, setSelected] = useState<string | null>(null)
-  const [sideOpen, setSideOpen] = useState(true)
+  const mobile = useMobile()
+  const [sideOpen, setSideOpen] = useState(() => !window.matchMedia('(max-width: 820px)').matches)
   const [searching, setSearching] = useState(false)
   const [settings, setSettings] = useState(false)
   const profileApplied = useRef(false)
@@ -114,33 +119,33 @@ function Shell({ session, theme, setTheme }: { session: Session; theme: Theme; s
     const rt = session.provider_refresh_token
     if (!rt || storedToken.current === rt || !data.ready || data.denied) return
     storedToken.current = rt
-    void data.storeGoogleToken(rt, GOOGLE_SCOPES, session.user.email ?? '').then(() => data.syncGoogle())
+    void data.storeGoogleToken(rt, GOOGLE_SCOPES, session.user.email ?? '').then(() => data.syncGoogle(true))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session.provider_refresh_token, data.ready, data.denied])
 
   // sincronização com o Google ao abrir o app e a cada 5 min enquanto aberto
   useEffect(() => {
-    if (!data.google.connected || !data.online) return
-    void data.syncGoogle()
-    const id = setInterval(() => void data.syncGoogle(), 5 * 60000)
+    if (!data.google.connected || !data.online || !data.syncAvailable) return
+    void data.syncGoogle(false)
+    const id = setInterval(() => void data.syncGoogle(false), 5 * 60000)
     return () => clearInterval(id)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data.google.connected, data.online])
+  }, [data.google.connected, data.online, data.syncAvailable])
 
   // alterações em tarefas ligadas a uma agenda do Google: envia logo (com pequeno atraso para agrupar edições)
   const lastSyncSig = useRef('')
   useEffect(() => {
-    if (!data.google.connected || !data.online) return
+    if (!data.google.connected || !data.online || !data.syncAvailable) return
     const dirty = data.tasks.filter((x) => x.google_calendar_id && (!x.google_synced_at || Date.parse(x.updated_at) - Date.parse(x.google_synced_at) > 3000))
     const sig = dirty.map((x) => x.id + x.updated_at).join('|')
     if (!sig || sig === lastSyncSig.current) return
     const id = setTimeout(() => {
       lastSyncSig.current = sig
-      void data.syncGoogle()
+      void data.syncGoogle(false)
     }, 4000)
     return () => clearTimeout(id)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data.tasks, data.google.connected, data.online])
+  }, [data.tasks, data.google.connected, data.online, data.syncAvailable])
 
   // lembretes locais (app aberto); com o app fechado, quem avisa é o servidor (Web Push / e-mail)
   useEffect(() => {
@@ -209,6 +214,12 @@ function Shell({ session, theme, setTheme }: { session: Session; theme: Theme; s
     setSection('tasks')
     setView(v)
     setSelected(null)
+    if (mobile) setSideOpen(false)
+  }
+  const go = (sec: typeof section) => {
+    setSection(sec)
+    setSelected(null)
+    if (mobile) setSideOpen(false)
   }
   const feat = data.profile?.features ?? {}
   const calendarOn = feat.calendar !== false
@@ -219,26 +230,27 @@ function Shell({ session, theme, setTheme }: { session: Session; theme: Theme; s
   const countdownOn = feat.countdown !== false
   const weekStart = data.profile?.week_start ?? 0
   const showSidebar = sideOpen && section === 'tasks'
+  const toggleSide = section === 'tasks' ? () => setSideOpen((o) => !o) : undefined // só existe barra lateral em Tarefas
 
   return (
-    <div className={'shell' + (showSidebar ? '' : ' side-closed')}>
+    <div className={'shell' + (showSidebar ? '' : ' side-closed') + (mobile && showSidebar ? ' drawer-open' : '')}>
       {(!data.online || data.pending > 0) && (
         <div className="offline-bar">{!data.online ? t('offline.offline') : t('offline.syncing', { n: data.pending })}{!data.online && data.pending > 0 ? ` · ${t('offline.pending', { n: data.pending })}` : ''}</div>
       )}
       <nav className="rail">
         <button className="avatar" title={name} onClick={() => setSettings(true)}>{name[0]?.toUpperCase()}</button>
-        <button className={'rail-btn' + (section === 'tasks' ? ' on' : '')} title={t('nav.tasks')} onClick={() => setSection('tasks')}><Icon name="checkSquare" size={20} /></button>
-        {calendarOn && <button className={'rail-btn' + (section === 'calendar' ? ' on' : '')} title={t('nav.calendar')} onClick={() => { setSection('calendar'); setSelected(null) }}><Icon name="calendar" size={20} /></button>}
-        {matrixOn && <button className={'rail-btn' + (section === 'matrix' ? ' on' : '')} title={t('matrix.title')} onClick={() => { setSection('matrix'); setSelected(null) }}><Icon name="matrix" size={20} /></button>}
+        <button className={'rail-btn' + (section === 'tasks' ? ' on' : '')} title={t('nav.tasks')} onClick={() => go('tasks')}><Icon name="checkSquare" size={20} /></button>
+        {calendarOn && <button className={'rail-btn' + (section === 'calendar' ? ' on' : '')} title={t('nav.calendar')} onClick={() => go('calendar')}><Icon name="calendar" size={20} /></button>}
+        {matrixOn && <button className={'rail-btn' + (section === 'matrix' ? ' on' : '')} title={t('matrix.title')} onClick={() => go('matrix')}><Icon name="matrix" size={20} /></button>}
         {pomoOn && (
-          <button className={'rail-btn' + (section === 'pomodoro' ? ' on' : '')} title={t('pomo.title')} onClick={() => { setSection('pomodoro'); setSelected(null) }}>
+          <button className={'rail-btn' + (section === 'pomodoro' ? ' on' : '')} title={t('pomo.title')} onClick={() => go('pomodoro')}>
             <Icon name="timer" size={20} />
             {pomo.state.status === 'running' && <i className="rail-badge">{fmtClock(pomo.displayMs)}</i>}
           </button>
         )}
-        {habitOn && <button className={'rail-btn' + (section === 'habits' ? ' on' : '')} title={t('habit.title')} onClick={() => { setSection('habits'); setSelected(null) }}><Icon name="target" size={20} /></button>}
-        {countdownOn && <button className={'rail-btn' + (section === 'countdown' ? ' on' : '')} title={t('countdown.title')} onClick={() => { setSection('countdown'); setSelected(null) }}><Icon name="hourglass" size={20} /></button>}
-        <button className={'rail-btn' + (section === 'stats' ? ' on' : '')} title={t('stats.title')} onClick={() => { setSection('stats'); setSelected(null) }}><Icon name="chart" size={20} /></button>
+        {habitOn && <button className={'rail-btn' + (section === 'habits' ? ' on' : '')} title={t('habit.title')} onClick={() => go('habits')}><Icon name="target" size={20} /></button>}
+        {countdownOn && <button className={'rail-btn' + (section === 'countdown' ? ' on' : '')} title={t('countdown.title')} onClick={() => go('countdown')}><Icon name="hourglass" size={20} /></button>}
+        <button className={'rail-btn' + (section === 'stats' ? ' on' : '')} title={t('stats.title')} onClick={() => go('stats')}><Icon name="chart" size={20} /></button>
         {stickyOn && (
           <Popover trigger={(_o, toggle) => <button className="rail-btn" title={t('sticky.title')} onClick={toggle}><Icon name="note" size={20} /></button>}>
             {() => <StickyMenu />}
@@ -251,30 +263,32 @@ function Shell({ session, theme, setTheme }: { session: Session; theme: Theme; s
         <button className="rail-btn" title={t('auth.signOut')} onClick={() => supabase.auth.signOut()}><Icon name="logout" size={18} /></button>
       </nav>
 
-      {showSidebar && <Sidebar view={view} onView={change} />}
+      {mobile && showSidebar && <div className="drawer-back" onClick={() => setSideOpen(false)} />}
+      {(showSidebar || mobile) && <Sidebar view={view} onView={change} />}
 
       <main className={'main' + (selected ? ' with-detail' : '')}>
         {section === 'calendar' ? (
-          <Calendar selectedId={selected} onSelect={setSelected} onToggleSidebar={() => setSideOpen((o) => !o)} weekStart={weekStart} />
+          <Calendar selectedId={selected} onSelect={setSelected} onToggleSidebar={toggleSide} weekStart={weekStart} showWeekNumbers={!!data.profile?.show_week_numbers} />
         ) : section === 'pomodoro' ? (
-          <Pomodoro onToggleSidebar={() => setSideOpen((o) => !o)} />
+          <Pomodoro onToggleSidebar={toggleSide} />
         ) : section === 'habits' ? (
-          <Habits weekStart={weekStart} onToggleSidebar={() => setSideOpen((o) => !o)} />
+          <Habits weekStart={weekStart} onToggleSidebar={toggleSide} />
         ) : section === 'countdown' ? (
-          <Countdowns onToggleSidebar={() => setSideOpen((o) => !o)} />
+          <Countdowns onToggleSidebar={toggleSide} />
         ) : section === 'stats' ? (
-          <Stats onToggleSidebar={() => setSideOpen((o) => !o)} />
+          <Stats onToggleSidebar={toggleSide} />
         ) : section === 'matrix' ? (
-          <Matrix selectedId={selected} onSelect={setSelected} onToggleSidebar={() => setSideOpen((o) => !o)} />
+          <Matrix selectedId={selected} onSelect={setSelected} onToggleSidebar={toggleSide} />
         ) : view.type === 'summary' ? (
-          <Summary weekStart={weekStart} onToggleSidebar={() => setSideOpen((o) => !o)} />
+          <Summary weekStart={weekStart} onToggleSidebar={toggleSide} />
         ) : (
-          <TaskList view={view} selectedId={selected} onSelect={setSelected} onToggleSidebar={() => setSideOpen((o) => !o)} />
+          <TaskList view={view} selectedId={selected} onSelect={setSelected} onToggleSidebar={toggleSide} />
         )}
         {selected && (section !== 'tasks' || view.type !== 'summary') && <TaskDetail taskId={selected} onClose={() => setSelected(null)} />}
       </main>
 
       {stickyOn && <StickyLayer />}
+      <DialogHost />
 
       {searching && (
         <Search

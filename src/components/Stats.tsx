@@ -11,7 +11,7 @@ import { Icon } from './Icon'
 type Tab = 'overview' | 'tasks' | 'focus' | 'habits'
 const LEVELS = 12
 
-export function Stats({ onToggleSidebar }: { onToggleSidebar: () => void }) {
+export function Stats({ onToggleSidebar }: { onToggleSidebar?: () => void }) {
   const { t, i18n } = useTranslation()
   const lang = i18n.language.slice(0, 2)
   const data = useData()
@@ -121,7 +121,7 @@ export function Stats({ onToggleSidebar }: { onToggleSidebar: () => void }) {
   return (
     <section className="stats">
       <header className="tasks-head">
-        <button className="icon-btn" onClick={onToggleSidebar} title={t('common.toggleSidebar')}><Icon name="sidebar" size={18} /></button>
+        {onToggleSidebar && <button className="icon-btn" onClick={onToggleSidebar} title={t('common.toggleSidebar')}><Icon name="sidebar" size={18} /></button>}
         <h2>{t('stats.title')}</h2>
         <div className="grow" />
         <select value={range} onChange={(e) => setRange(Number(e.target.value))} aria-label={t('stats.range')}>

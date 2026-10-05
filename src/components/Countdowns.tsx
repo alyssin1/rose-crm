@@ -4,6 +4,7 @@ import { useData } from '../store/data'
 import { dayDiff, fromIsoDay, isoDay, startOfDay } from '../lib/dates'
 import type { Countdown } from '../lib/types'
 import { Icon } from './Icon'
+import { confirmAsk } from './Dialogs'
 
 const COLORS = ['#d62f45', '#f5a524', '#2fb67c', '#4c8dff', '#9b6bff', '#18a9c4', '#e86fb0', '#8d909c']
 
@@ -16,7 +17,7 @@ export function effectiveDate(c: Countdown, today = startOfDay(new Date())): Dat
   return d
 }
 
-export function Countdowns({ onToggleSidebar }: { onToggleSidebar: () => void }) {
+export function Countdowns({ onToggleSidebar }: { onToggleSidebar?: () => void }) {
   const { t, i18n } = useTranslation()
   const lang = i18n.language.slice(0, 2)
   const data = useData()
@@ -30,7 +31,7 @@ export function Countdowns({ onToggleSidebar }: { onToggleSidebar: () => void })
   return (
     <section className="countdowns">
       <header className="tasks-head">
-        <button className="icon-btn" onClick={onToggleSidebar} title={t('common.toggleSidebar')}><Icon name="sidebar" size={18} /></button>
+        {onToggleSidebar && <button className="icon-btn" onClick={onToggleSidebar} title={t('common.toggleSidebar')}><Icon name="sidebar" size={18} /></button>}
         <h2>{t('countdown.title')}</h2>
         <div className="grow" />
         <button className="icon-btn boxed" title={t('countdown.new')} onClick={() => setEditing('new')}><Icon name="plus" size={16} /></button>
@@ -101,7 +102,7 @@ function CountdownDialog({ item, onClose }: { item: Countdown | null; onClose: (
         <label className="menu-check"><input type="checkbox" checked={pinned} onChange={(e) => setPinned(e.target.checked)} /> {t('countdown.pinned')}</label>
         <textarea rows={2} value={note} placeholder={t('countdown.notePh')} onChange={(e) => setNote(e.target.value)} />
         <div className="modal-actions">
-          {item && <button className="danger" onClick={async () => { if (window.confirm(t('list.confirmDelete', { name: item.name }))) { await data.deleteCountdown(item.id); onClose() } }}>{t('list.delete')}</button>}
+          {item && <button className="danger" onClick={async () => { if (await confirmAsk(t('list.confirmDelete', { name: item.name }))) { await data.deleteCountdown(item.id); onClose() } }}>{t('list.delete')}</button>}
           <div className="grow" />
           <button onClick={onClose}>{t('common.cancel')}</button>
           <button className="btn-primary" disabled={!name.trim()} onClick={() => void save()}>{t('common.save')}</button>

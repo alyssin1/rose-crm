@@ -109,6 +109,7 @@ export function TaskDetail({ taskId, onClose }: Props) {
   return (
     <aside className="detail">
       <div className="detail-top">
+        <button className="icon-btn detail-close" onClick={onClose} aria-label="←"><Icon name="left" size={18} /></button>
         <button className={`check p${task.priority}` + (task.status === 1 ? ' on' : task.status === 2 ? ' wont' : '')} onClick={() => !trashed && data.toggleDone(task)} aria-label={t('task.complete')}>
           {task.status === 1 && <Icon name="check" size={11} />}
           {task.status === 2 && <Icon name="x" size={11} />}

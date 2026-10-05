@@ -9,7 +9,7 @@ import { Popover } from './Popover'
 const R = 120
 const C = 2 * Math.PI * R
 
-export function Pomodoro({ onToggleSidebar }: { onToggleSidebar: () => void }) {
+export function Pomodoro({ onToggleSidebar }: { onToggleSidebar?: () => void }) {
   const { t, i18n } = useTranslation()
   const lang = i18n.language.slice(0, 2)
   const data = useData()
@@ -45,7 +45,7 @@ export function Pomodoro({ onToggleSidebar }: { onToggleSidebar: () => void }) {
     <section className="pomo">
       <div className="pomo-main">
         <header className="tasks-head">
-          <button className="icon-btn" onClick={onToggleSidebar} title={t('common.toggleSidebar')}><Icon name="sidebar" size={18} /></button>
+          {onToggleSidebar && <button className="icon-btn" onClick={onToggleSidebar} title={t('common.toggleSidebar')}><Icon name="sidebar" size={18} /></button>}
           <h2>{t('pomo.title')}</h2>
           <div className="grow" />
           <Popover

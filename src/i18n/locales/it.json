@@ -55,21 +55,28 @@
       "pomodoro": "Pomodoro",
       "countdown": "Conto alla rovescia",
       "sticky": "Note adesive"
-    }
+    },
+    "dateAuto": "Automatico (lingua)"
   },
   "common": {
     "cancel": "Annulla",
     "save": "Salva",
     "toggleSidebar": "Mostra/nascondi barra laterale",
     "more": "Altro",
-    "soon": "in arrivo"
+    "soon": "in arrivo",
+    "confirm": "Conferma",
+    "ok": "OK"
   },
   "list": {
     "name": "Nome lista",
     "rename": "Rinomina",
     "emoji": "Emoji",
     "delete": "Elimina",
-    "confirmDelete": "Eliminare \"{{name}}\"? Le attività vanno nel Cestino."
+    "confirmDelete": "Eliminare \"{{name}}\"? Le attività vanno nel Cestino.",
+    "edit": "Modifica",
+    "new": "Nuova lista",
+    "color": "Colore",
+    "noColor": "Nessun colore"
   },
   "filter": {
     "new": "Nuovo filtro",
@@ -92,7 +99,8 @@
     }
   },
   "tag": {
-    "hint": "Classifica le attività con i tag. Digita \"#\" quando aggiungi un'attività."
+    "hint": "Classifica le attività con i tag. Digita \"#\" quando aggiungi un'attività.",
+    "rename": "Nome del tag"
   },
   "task": {
     "addPlaceholder": "Aggiungi attività a \"{{list}}\"",
@@ -210,7 +218,9 @@
     "fromDue": "Ripeti dalla scadenza",
     "fromCompletion": "Ripeti dal completamento",
     "clear": "Cancella",
-    "ok": "OK"
+    "ok": "OK",
+    "start": "Inizio",
+    "end": "Fine"
   },
   "calendar": {
     "allDay": "Tutto il giorno",
@@ -468,7 +478,10 @@
     "week": "Ultimi 7 giorni",
     "total": "Totale",
     "history": "Cronologia",
-    "noHistory": "Ancora nessuna sessione."
+    "noHistory": "Ancora nessuna sessione.",
+    "break": "Pausa",
+    "notifFocus": "Concentrazione finita — è ora della pausa.",
+    "notifBreak": "Pausa finita — si torna a lavorare."
   },
   "habit": {
     "title": "Abitudini",
@@ -542,5 +555,13 @@
       "pomo": "{{n}} pomodori",
       "streak": "Serie di {{n}} giorni"
     }
+  },
+  "folder": {
+    "title": "Cartella",
+    "new": "Nuova cartella",
+    "name": "Nome cartella",
+    "none": "Nessuna cartella",
+    "moveTo": "Sposta nella cartella",
+    "confirmDelete": "Eliminare la cartella “{{name}}”? Le liste restano, escono solo dalla cartella."
   }
 }

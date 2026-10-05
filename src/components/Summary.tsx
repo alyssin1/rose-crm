@@ -32,7 +32,7 @@ function rangeBounds(k: RangeKey, weekStart: number): [Date, Date] {
   }
 }
 
-export function Summary({ weekStart = 0, onToggleSidebar }: { weekStart?: number; onToggleSidebar: () => void }) {
+export function Summary({ weekStart = 0, onToggleSidebar }: { weekStart?: number; onToggleSidebar?: () => void }) {
   const { t, i18n } = useTranslation()
   const lang = i18n.language.slice(0, 2)
   const data = useData()
@@ -121,7 +121,7 @@ export function Summary({ weekStart = 0, onToggleSidebar }: { weekStart?: number
     <section className="summary">
       <div className="summary-main">
         <header className="tasks-head">
-          <button className="icon-btn" onClick={onToggleSidebar} title={t('common.toggleSidebar')}><Icon name="sidebar" size={18} /></button>
+          {onToggleSidebar && <button className="icon-btn" onClick={onToggleSidebar} title={t('common.toggleSidebar')}><Icon name="sidebar" size={18} /></button>}
           <h2>{t('nav.summary')}</h2>
         </header>
         <div className="summary-editor">

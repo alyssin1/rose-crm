@@ -37,7 +37,9 @@ export function DatePicker({ task, weekStart = 0, onApply, onClose }: Props) {
   const due = task.due_at ? new Date(task.due_at) : null
   const [tab, setTab] = useState<'date' | 'duration'>(task.start_at && task.due_at && task.start_at !== task.due_at ? 'duration' : 'date')
   const [date, setDate] = useState<Date | null>(due ? startOfDay(due) : null)
-  const [time, setTime] = useState<string | null>(due && !task.all_day ? hhmm(due) : null)
+  const hm = (d: Date) => `${pad(d.getHours())}:${pad(d.getMinutes())}`
+  const [time, setTime] = useState<string | null>(due && !task.all_day ? (task.start_at ? hm(new Date(task.start_at)) : hm(due)) : null)
+  const [endTime, setEndTime] = useState<string | null>(due && !task.all_day && task.start_at ? hm(due) : null)
   const [endDate, setEndDate] = useState<Date | null>(due && task.start_at ? startOfDay(due) : null)
   const [startDate, setStartDate] = useState<Date | null>(task.start_at ? startOfDay(new Date(task.start_at)) : date)
   const [reminders, setReminders] = useState<string[]>(task.reminders)
@@ -85,9 +87,12 @@ export function DatePicker({ task, weekStart = 0, onApply, onClose }: Props) {
     const base = { reminders, repeat_rule: rep, repeat_from: rep ? repeatFrom : null }
     if (tab === 'duration' && startDate) {
       const end = endDate ?? startDate
-      const s = withTime(startDate, time)
-      const e = withTime(end, time)
-      return onApply({ ...base, start_at: s.toISOString(), due_at: e.toISOString(), all_day: !time, duration_minutes: null })
+      const hasTime = !!(time || endTime)
+      const st = hasTime ? time ?? '00:00' : null
+      const et = hasTime ? endTime ?? time ?? '23:59' : null
+      const s = withTime(startDate, st)
+      const e = withTime(end, et)
+      return onApply({ ...base, start_at: s.toISOString(), due_at: (e < s ? s : e).toISOString(), all_day: !hasTime, duration_minutes: null })
     }
     if (!date) return onApply({ ...base, start_at: null, due_at: null, all_day: true, duration_minutes: null, reminders: [], repeat_rule: null, repeat_from: null })
     const d = withTime(date, time)
@@ -139,12 +144,13 @@ export function DatePicker({ task, weekStart = 0, onApply, onClose }: Props) {
       <div className="dp-rows">
         <button className="dp-row" onClick={() => setOpen(open === 'time' ? null : 'time')}>
           <Icon name="clock" size={15} /> <span>{t('date.time')}</span>
-          <em>{time ?? ''}</em><Icon name="right" size={13} />
+          <em>{time ? hhmm(withTime(new Date(), time)) : ''}</em><Icon name="right" size={13} />
         </button>
         {open === 'time' && (
           <div className="dp-sub">
-            <input type="time" value={time ?? ''} onChange={(e) => setTime(e.target.value || null)} />
-            {time && <button onClick={() => setTime(null)}>{t('date.allDay')}</button>}
+            <input type="time" value={time ?? ''} onChange={(e) => setTime(e.target.value || null)} aria-label={t('date.start')} />
+            {tab === 'duration' && <><span>→</span><input type="time" value={endTime ?? ''} onChange={(e) => setEndTime(e.target.value || null)} aria-label={t('date.end')} /></>}
+            {(time || endTime) && <button onClick={() => { setTime(null); setEndTime(null) }}>{t('date.allDay')}</button>}
           </div>
         )}
 

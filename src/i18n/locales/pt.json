@@ -55,21 +55,28 @@
       "pomodoro": "Pomodoro",
       "countdown": "Contagem Regressiva",
       "sticky": "Nota adesiva"
-    }
+    },
+    "dateAuto": "Automático (idioma)"
   },
   "common": {
     "cancel": "Cancelar",
     "save": "Salvar",
     "toggleSidebar": "Mostrar/ocultar barra lateral",
     "more": "Mais",
-    "soon": "em breve"
+    "soon": "em breve",
+    "confirm": "Confirmar",
+    "ok": "OK"
   },
   "list": {
     "name": "Nome da lista",
     "rename": "Renomear",
     "emoji": "Emoji",
     "delete": "Excluir",
-    "confirmDelete": "Excluir \"{{name}}\"? As tarefas vão para a Lixeira."
+    "confirmDelete": "Excluir \"{{name}}\"? As tarefas vão para a Lixeira.",
+    "edit": "Editar",
+    "new": "Nova lista",
+    "color": "Cor",
+    "noColor": "Sem cor"
   },
   "filter": {
     "new": "Novo filtro",
@@ -92,7 +99,8 @@
     }
   },
   "tag": {
-    "hint": "Categorize suas tarefas com etiquetas. Digite \"#\" ao adicionar uma tarefa."
+    "hint": "Categorize suas tarefas com etiquetas. Digite \"#\" ao adicionar uma tarefa.",
+    "rename": "Nome da etiqueta"
   },
   "task": {
     "addPlaceholder": "Adicionar tarefa a \"{{list}}\"",
@@ -210,7 +218,9 @@
     "fromDue": "Repetir a partir do vencimento",
     "fromCompletion": "Repetir a partir da conclusão",
     "clear": "Limpar",
-    "ok": "OK"
+    "ok": "OK",
+    "start": "Início",
+    "end": "Fim"
   },
   "calendar": {
     "allDay": "Dia inteiro",
@@ -468,7 +478,10 @@
     "week": "Últimos 7 dias",
     "total": "Total",
     "history": "Histórico",
-    "noHistory": "Nenhuma sessão ainda."
+    "noHistory": "Nenhuma sessão ainda.",
+    "break": "Pausa",
+    "notifFocus": "Foco concluído — hora da pausa.",
+    "notifBreak": "Pausa concluída — de volta ao foco."
   },
   "habit": {
     "title": "Hábito",
@@ -542,5 +555,13 @@
       "pomo": "{{n}} pomodoro(s)",
       "streak": "Sequência de {{n}} dias"
     }
+  },
+  "folder": {
+    "title": "Pasta",
+    "new": "Nova pasta",
+    "name": "Nome da pasta",
+    "none": "Sem pasta",
+    "moveTo": "Mover para a pasta",
+    "confirmDelete": "Excluir a pasta “{{name}}”? As listas continuam, só saem da pasta."
   }
 }

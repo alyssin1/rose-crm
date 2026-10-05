@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { supabase } from '../lib/supabase'
 import { idbGet, idbSet } from '../lib/idb'
 import { nextDue } from '../lib/dates'
-import type { Activity, Attachment, Column, Countdown, FilterDef, FocusSession, Habit, HabitLog, FilterRules, GoogleCalendar, GoogleStatus, List, Profile, StickyNote, Tag, Task, TaskTag, Template } from '../lib/types'
+import type { Activity, Attachment, Column, Countdown, FilterDef, Folder, FocusSession, Habit, HabitLog, FilterRules, GoogleCalendar, GoogleStatus, List, Profile, StickyNote, Tag, Task, TaskTag, Template } from '../lib/types'
 
 type NewTask = Partial<Task> & { title: string }
 
@@ -37,6 +37,7 @@ interface DataApi {
   google: GoogleStatus
   googleCalendars: GoogleCalendar[]
   columns: Column[]
+  folders: Folder[]
   notes: StickyNote[]
   sessions: FocusSession[]
   habits: Habit[]
@@ -61,6 +62,11 @@ interface DataApi {
   deleteTag: (id: string) => Promise<void>
   addFilter: (name: string, rules: FilterRules) => Promise<void>
   deleteFilter: (id: string) => Promise<void>
+  updateFilter: (id: string, patch: Partial<FilterDef>) => Promise<void>
+  updateTag: (id: string, patch: Partial<Tag>) => Promise<void>
+  addFolder: (name: string) => Promise<Folder>
+  updateFolder: (id: string, patch: Partial<Folder>) => Promise<void>
+  deleteFolder: (id: string) => Promise<void>
   updateProfile: (patch: Partial<Profile>) => Promise<void>
   saveTemplate: (task: Task) => Promise<void>
   deleteTemplate: (id: string) => Promise<void>
@@ -73,7 +79,8 @@ interface DataApi {
   storeGoogleToken: (refresh: string, scopes: string, email: string) => Promise<void>
   disconnectGoogle: () => Promise<void>
   toggleGoogleCalendar: (id: string, enabled: boolean) => Promise<void>
-  syncGoogle: () => Promise<string | null>
+  syncGoogle: (manual?: boolean) => Promise<string | null>
+  syncAvailable: boolean
   addColumn: (listId: string, name: string) => Promise<Column>
   renameColumn: (id: string, name: string) => Promise<void>
   deleteColumn: (id: string) => Promise<void>
@@ -138,8 +145,10 @@ export function DataProvider({ userId, children }: { userId: string; children: R
   const [profile, setProfile] = useState<Profile | null>(null)
   const [google, setGoogle] = useState<GoogleStatus>(EMPTY_GOOGLE)
   const [googleCalendars, setGoogleCalendars] = useState<GoogleCalendar[]>([])
+  const [syncAvailable, setSyncAvailable] = useState(true) // false depois que o servidor de sincronização falha: para de insistir sozinho
   const [columns, setColumns] = useState<Column[]>([])
   const [notes, setNotes] = useState<StickyNote[]>([])
+  const [folders, setFolders] = useState<Folder[]>([])
   const [sessions, setSessions] = useState<FocusSession[]>([])
   const [habits, setHabits] = useState<Habit[]>([])
   const [habitLogs, setHabitLogs] = useState<HabitLog[]>([])
@@ -151,7 +160,7 @@ export function DataProvider({ userId, children }: { userId: string; children: R
 
   // ---------- carga ----------
   const loadAll = useCallback(async () => {
-    const [l, t, tg, tt, f, tp, pr, gc, gs, co, sn, fs, hb, hl, cd] = await Promise.all([
+    const [l, t, tg, tt, f, tp, pr, gc, gs, co, sn, fs, hb, hl, cd, fo] = await Promise.all([
       supabase.from('rose_lists').select('*').order('sort_order'),
       supabase.from('rose_tasks').select('*'),
       supabase.from('rose_tags').select('*').order('name'),
@@ -167,6 +176,7 @@ export function DataProvider({ userId, children }: { userId: string; children: R
       supabase.from('rose_habits').select('*').order('sort_order'),
       supabase.from('rose_habit_logs').select('*').order('day', { ascending: false }).limit(5000),
       supabase.from('rose_countdowns').select('*').order('target_date'),
+      supabase.from('rose_folders').select('*').order('sort_order'),
     ])
     const err = l.error || t.error || tg.error || tt.error || f.error
     if (err) return fail(err.message)
@@ -185,6 +195,7 @@ export function DataProvider({ userId, children }: { userId: string; children: R
     if (!hb.error) setHabits(hb.data as Habit[])
     if (!hl.error) setHabitLogs(hl.data as HabitLog[])
     if (!cd.error) setCountdowns(cd.data as Countdown[])
+    if (!fo.error) setFolders(fo.data as Folder[])
   }, [fail])
 
   // ---------- fila offline ----------
@@ -234,7 +245,7 @@ export function DataProvider({ userId, children }: { userId: string; children: R
   useEffect(() => {
     let alive = true
     ;(async () => {
-      const cached = await idbGet<{ lists: List[]; tags: Tag[]; tasks: Task[]; taskTags: TaskTag[]; filters: FilterDef[]; templates: Template[]; profile: Profile | null; columns?: Column[]; notes?: StickyNote[]; sessions?: FocusSession[]; habits?: Habit[]; habitLogs?: HabitLog[]; countdowns?: Countdown[] }>(`cache:${userId}`)
+      const cached = await idbGet<{ lists: List[]; tags: Tag[]; tasks: Task[]; taskTags: TaskTag[]; filters: FilterDef[]; templates: Template[]; profile: Profile | null; columns?: Column[]; notes?: StickyNote[]; sessions?: FocusSession[]; habits?: Habit[]; habitLogs?: HabitLog[]; countdowns?: Countdown[]; folders?: Folder[] }>(`cache:${userId}`)
       queue.current = (await idbGet<Op[]>(`outbox:${userId}`)) ?? []
       setPending(queue.current.length)
       if (cached && alive) {
@@ -251,6 +262,7 @@ export function DataProvider({ userId, children }: { userId: string; children: R
         setHabits(cached.habits ?? [])
         setHabitLogs(cached.habitLogs ?? [])
         setCountdowns(cached.countdowns ?? [])
+        setFolders(cached.folders ?? [])
         setReady(true)
       }
       if (!navigator.onLine) return setReady(true)
@@ -273,9 +285,9 @@ export function DataProvider({ userId, children }: { userId: string; children: R
   // cache local (debounce)
   useEffect(() => {
     if (!ready || denied) return
-    const id = setTimeout(() => void idbSet(`cache:${userId}`, { lists, tags, tasks, taskTags, filters, templates, profile, columns, notes, sessions, habits, habitLogs, countdowns }), 600)
+    const id = setTimeout(() => void idbSet(`cache:${userId}`, { lists, tags, tasks, taskTags, filters, templates, profile, columns, notes, sessions, habits, habitLogs, countdowns, folders }), 600)
     return () => clearTimeout(id)
-  }, [ready, denied, userId, lists, tags, tasks, taskTags, filters, templates, profile, columns, notes, sessions, habits, habitLogs, countdowns])
+  }, [ready, denied, userId, lists, tags, tasks, taskTags, filters, templates, profile, columns, notes, sessions, habits, habitLogs, countdowns, folders])
 
   // online/offline
   useEffect(() => {
@@ -372,7 +384,9 @@ export function DataProvider({ userId, children }: { userId: string; children: R
     profile,
     google,
     googleCalendars,
+    syncAvailable,
     columns,
+    folders,
     notes,
     sessions,
     habits,
@@ -533,6 +547,34 @@ export function DataProvider({ userId, children }: { userId: string; children: R
       await mutate({ table: 'rose_filters', kind: 'delete', match: [eq('id', id)] })
     },
 
+    async updateFilter(id, patch) {
+      setFilters((p) => p.map((f) => (f.id === id ? { ...f, ...patch } : f)))
+      await mutate({ table: 'rose_filters', kind: 'update', patch: patch as Record<string, unknown>, match: [eq('id', id)] })
+    },
+
+    async updateTag(id, patch) {
+      setTags((p) => p.map((x) => (x.id === id ? { ...x, ...patch } : x)))
+      await mutate({ table: 'rose_tags', kind: 'update', patch: patch as Record<string, unknown>, match: [eq('id', id)] })
+    },
+
+    async addFolder(name) {
+      const f: Folder = { id: crypto.randomUUID(), user_id: userId, name, sort_order: Date.now(), collapsed: false }
+      setFolders((p) => [...p, f])
+      await mutate({ table: 'rose_folders', kind: 'insert', row: f })
+      return f
+    },
+
+    async updateFolder(id, patch) {
+      setFolders((p) => p.map((x) => (x.id === id ? { ...x, ...patch } : x)))
+      await mutate({ table: 'rose_folders', kind: 'update', patch: patch as Record<string, unknown>, match: [eq('id', id)] })
+    },
+
+    async deleteFolder(id) {
+      setFolders((p) => p.filter((x) => x.id !== id))
+      setLists((p) => p.map((l) => (l.folder_id === id ? { ...l, folder_id: null } : l))) // listas saem da pasta, não são apagadas
+      await mutate({ table: 'rose_folders', kind: 'delete', match: [eq('id', id)] })
+    },
+
     async updateProfile(patch) {
       setProfile((p) => (p ? { ...p, ...patch } : p))
       await mutate({ table: 'rose_profiles', kind: 'update', patch: patch as Record<string, unknown>, match: [eq('user_id', userId)] })
@@ -634,9 +676,14 @@ export function DataProvider({ userId, children }: { userId: string; children: R
       await mutate({ table: 'rose_google_calendars', kind: 'update', patch: { enabled }, match: [eq('id', id)] })
     },
 
-    async syncGoogle() {
+    async syncGoogle(manual = true) {
+      if (!manual && !syncAvailable) return null
       const { error: e } = await supabase.functions.invoke('rose-google-sync', { body: { action: 'sync' } })
-      if (e) return e.message
+      if (e) {
+        setSyncAvailable(false) // não repete a cada 5 min; o botão "Sincronizar" continua tentando
+        return e.message
+      }
+      setSyncAvailable(true)
       await loadAll()
       return null
     },

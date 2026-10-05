@@ -5,10 +5,11 @@ import { addDays, isoDay, sameDay, startOfDay } from '../lib/dates'
 import { habitStats, isActive, isDone, logMap, valueOn } from '../lib/habits'
 import type { Habit } from '../lib/types'
 import { Icon } from './Icon'
+import { confirmAsk } from './Dialogs'
 
 const COLORS = ['#d62f45', '#f5a524', '#2fb67c', '#4c8dff', '#9b6bff', '#18a9c4', '#e86fb0', '#8d909c']
 
-export function Habits({ weekStart = 0, onToggleSidebar }: { weekStart?: number; onToggleSidebar: () => void }) {
+export function Habits({ weekStart = 0, onToggleSidebar }: { weekStart?: number; onToggleSidebar?: () => void }) {
   const { t, i18n } = useTranslation()
   const lang = i18n.language.slice(0, 2)
   const data = useData()
@@ -36,7 +37,7 @@ export function Habits({ weekStart = 0, onToggleSidebar }: { weekStart?: number;
     <section className="habits">
       <div className="habits-main">
         <header className="tasks-head">
-          <button className="icon-btn" onClick={onToggleSidebar} title={t('common.toggleSidebar')}><Icon name="sidebar" size={18} /></button>
+          {onToggleSidebar && <button className="icon-btn" onClick={onToggleSidebar} title={t('common.toggleSidebar')}><Icon name="sidebar" size={18} /></button>}
           <h2>{t('habit.title')}</h2>
           <span className="habit-today">{doneToday}/{dueToday} {t('habit.today').toLowerCase()}</span>
           <div className="grow" />
@@ -219,7 +220,7 @@ function HabitDialog({ habit, onClose, onDeleted }: { habit: Habit | null; onClo
         <div className="modal-actions">
           {habit && (
             <>
-              <button className="danger" onClick={async () => { if (window.confirm(t('list.confirmDelete', { name: habit.name }))) { await data.deleteHabit(habit.id); onDeleted(); onClose() } }}>{t('list.delete')}</button>
+              <button className="danger" onClick={async () => { if (await confirmAsk(t('list.confirmDelete', { name: habit.name }))) { await data.deleteHabit(habit.id); onDeleted(); onClose() } }}>{t('list.delete')}</button>
               <button onClick={async () => { await data.updateHabit(habit.id, { archived: true }); onDeleted(); onClose() }}>{t('habit.archive')}</button>
             </>
           )}

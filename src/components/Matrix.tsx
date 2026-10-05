@@ -27,7 +27,7 @@ export const isImportant = (t: Task, r: MatrixRules) => t.priority >= r.importan
 interface Props {
   selectedId: string | null
   onSelect: (id: string | null) => void
-  onToggleSidebar: () => void
+  onToggleSidebar?: () => void
 }
 
 export function Matrix({ selectedId, onSelect, onToggleSidebar }: Props) {
@@ -96,7 +96,7 @@ export function Matrix({ selectedId, onSelect, onToggleSidebar }: Props) {
   return (
     <section className="matrix">
       <header className="tasks-head">
-        <button className="icon-btn" onClick={onToggleSidebar} title={t('common.toggleSidebar')}><Icon name="sidebar" size={18} /></button>
+        {onToggleSidebar && <button className="icon-btn" onClick={onToggleSidebar} title={t('common.toggleSidebar')}><Icon name="sidebar" size={18} /></button>}
         <h2>{t('matrix.title')}</h2>
         <div className="grow" />
         <select value={listId} onChange={(e) => setListId(e.target.value)} aria-label={t('nav.lists')}>

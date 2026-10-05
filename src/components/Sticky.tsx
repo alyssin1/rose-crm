@@ -5,6 +5,7 @@ import type { StickyNote } from '../lib/types'
 import { Icon } from './Icon'
 import { Popover } from './Popover'
 import { RichEditor, toPlain } from './RichEditor'
+import { confirmAsk } from './Dialogs'
 
 export const NOTE_COLORS: Record<string, { bg: string; bar: string }> = {
   yellow: { bg: '#fff4a8', bar: '#f5e26b' },
@@ -77,8 +78,8 @@ function Note({ note, floating }: { note: StickyNote; floating: boolean }) {
         <button
           title={t('list.delete')}
           onPointerDown={(e) => e.stopPropagation()}
-          onClick={() => {
-            if (toPlain(note.content).trim() === '' || window.confirm(t('sticky.confirmDelete'))) {
+          onClick={async () => {
+            if (toPlain(note.content).trim() === '' || (await confirmAsk(t('sticky.confirmDelete')))) {
               void data.deleteNote(note.id)
               if (!floating) window.close()
             }

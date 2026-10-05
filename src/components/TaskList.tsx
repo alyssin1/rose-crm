@@ -9,6 +9,7 @@ import { Icon } from './Icon'
 import { Popover } from './Popover'
 import { Kanban } from './Kanban'
 import { Timeline } from './Timeline'
+import { confirmAsk } from './Dialogs'
 
 const loadOpts = (key: string): ViewOptions => {
   try {
@@ -22,7 +23,7 @@ interface Props {
   view: View
   selectedId: string | null
   onSelect: (id: string | null) => void
-  onToggleSidebar: () => void
+  onToggleSidebar?: () => void
 }
 
 export function TaskList({ view, selectedId, onSelect, onToggleSidebar }: Props) {
@@ -133,7 +134,7 @@ export function TaskList({ view, selectedId, onSelect, onToggleSidebar }: Props)
   return (
     <section className="tasks">
       <header className="tasks-head">
-        <button className="icon-btn" onClick={onToggleSidebar} title={t('common.toggleSidebar')}><Icon name="sidebar" size={18} /></button>
+        {onToggleSidebar && <button className="icon-btn" onClick={onToggleSidebar} title={t('common.toggleSidebar')}><Icon name="sidebar" size={18} /></button>}
         <h2>{list?.emoji ? `${list.emoji} ` : ''}{title}</h2>
         <div className="grow" />
 
@@ -183,7 +184,7 @@ export function TaskList({ view, selectedId, onSelect, onToggleSidebar }: Props)
                 </>
               )}
               {view.type === 'trash' && total > 0 && (
-                <button className="danger" onClick={() => { close(); if (window.confirm(t('trash.confirmEmpty'))) void data.emptyTrash() }}>
+                <button className="danger" onClick={async () => { close(); if (await confirmAsk(t('trash.confirmEmpty'))) void data.emptyTrash() }}>
                   <Icon name="trash" size={15} /> {t('trash.empty')}
                 </button>
               )}

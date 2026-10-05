@@ -6,6 +6,7 @@ import { tagIdsOf } from '../lib/views'
 import type { List, Task } from '../lib/types'
 import { Icon } from './Icon'
 import { Popover } from './Popover'
+import { confirmAsk, promptText } from './Dialogs'
 
 export type KanbanGroup = 'column' | 'date' | 'priority'
 
@@ -144,8 +145,8 @@ export function Kanban({ list, tasks, selectedId, onSelect }: Props) {
                   >
                     {(close) => (
                       <div className="menu">
-                        <button onClick={() => { close(); const n = window.prompt(t('kanban.renameColumn'), b.label); if (n?.trim()) void data.renameColumn(b.column!, n.trim()) }}>{t('list.rename')}</button>
-                        <button className="danger" onClick={() => { close(); if (window.confirm(t('kanban.confirmDeleteColumn', { name: b.label }))) void data.deleteColumn(b.column!) }}>{t('list.delete')}</button>
+                        <button onClick={async () => { close(); const n = await promptText(t('kanban.renameColumn'), b.label); if (n?.trim()) void data.renameColumn(b.column!, n.trim()) }}>{t('list.rename')}</button>
+                        <button className="danger" onClick={async () => { close(); if (await confirmAsk(t('kanban.confirmDeleteColumn', { name: b.label }))) void data.deleteColumn(b.column!) }}>{t('list.delete')}</button>
                       </div>
                     )}
                   </Popover>
