@@ -98,3 +98,55 @@
 
 .gcal .cal-daynum { white-space: nowrap; width: auto; min-width: 26px; padding: 0 6px; }
 .gcal .cal-cell.today .cal-daynum { width: 26px; padding: 0; }
+
+
+/* ===== fidelidade ao Google Calendar (medido no app real) ===== */
+:root:not([data-theme="light"]) .calendar.gcal { background: #131314; }
+.calendar.gcal { font-family: 'Google Sans Text', 'Google Sans', var(--font); }
+.cal-head { height: 64px; padding: 0 16px 0 8px; }
+.cal-today { height: 40px; width: 90px; padding: 0; border: 1px solid #8e918f; border-radius: 20px; font-size: 14px; font-weight: 500; }
+.cal-head h2 { font-size: 22px; font-weight: 400; margin-left: 14px; }
+.cal-head .cal-mode-sel.sel-btn2 { height: 40px; border-radius: 20px; border-color: #8e918f; background: none; min-width: 96px; font-weight: 500; }
+.cal-create { height: 56px; border-radius: 16px; padding: 0 24px 0 16px; background: #2f3033; box-shadow: 0 1px 3px rgba(0,0,0,.4); gap: 12px; font-size: 14px; font-weight: 500; }
+:root[data-theme="light"] .cal-create { background: #c2e7ff; color: #001d35; }
+.cal-aside { width: 256px; padding: 8px 16px 16px 12px; gap: 18px; }
+.mini-head b { font-size: 14px; font-weight: 500; }
+.mini-grid i { font-size: 10px; font-weight: 500; color: #c4c7c5; }
+.mini-grid button { width: 28px; height: 28px; font-size: 12px; }
+.mini-grid button.today { background: #a8c7fa; color: #062e6f; font-weight: 500; }
+.mini-grid button.cur { background: color-mix(in srgb, #a8c7fa 24%, transparent); color: #a8c7fa; }
+.cal-cals h4 { font-size: 14px; font-weight: 500; margin: 16px 0 4px; }
+.cal-chk { height: 32px; gap: 14px; font-size: 14px; }
+.cal-chk i { width: 18px; height: 18px; border-radius: 2px; border-width: 2px; }
+
+/* painel da grade: cantos arredondados, fundo um tom acima da página */
+.gcal .cal-body { margin: 0 12px 12px 0; border-radius: 20px; background: #1b1b1c; overflow: auto; }
+:root[data-theme="light"] .gcal .cal-body { background: #fff; }
+.gcal .cal-time { background: transparent; }
+.gcal .cal-time-head { border-bottom: 1px solid #444746; }
+.cal-gmt { font-size: 11px; font-weight: 500; color: #c4c7c5; align-self: end; padding: 0 0 6px 8px; }
+.gcal .cal-th { padding: 8px 0 4px; }
+.gcal .cal-th small { font-size: 11px; font-weight: 500; letter-spacing: .8px; color: #c4c7c5; }
+.gcal .cal-th b { width: 46px; height: 46px; line-height: 46px; font-size: 25px; font-weight: 400; color: #e3e3e3; }
+.gcal .cal-th.today small { color: #a8c7fa; }
+.gcal .cal-th.today b { background: #a8c7fa; color: #062e6f; }
+.gcal .cal-hours span { font-size: 11px; font-weight: 500; color: #c4c7c5; right: 8px; }
+.gcal .cal-col { border-left: 1px solid #444746; }
+.gcal .cal-line { background: #444746; }
+
+/* eventos: raio 6, cor pastel com texto escuro (modo escuro) */
+.gcal .cal-ev { border-radius: 6px; border: 0; padding: 4px 8px; box-shadow: none; overflow: hidden; }
+.gcal .cal-ev b { font-size: 12px; font-weight: 500; line-height: 15px; }
+.gcal .cal-ev b span { font-weight: 400; }
+.gcal .cal-ev small { font-size: 12px; font-weight: 400; line-height: 15px; opacity: .95; }
+:root:not([data-theme="light"]) .gcal .cal-ev,
+:root:not([data-theme="light"]) .gcal .cal-chip.solid { background: color-mix(in srgb, var(--c) 72%, #fff); color: #131314; }
+:root:not([data-theme="light"]) .gcal .cal-ev small,
+:root:not([data-theme="light"]) .gcal .cal-chip.solid small.cal-time { color: #131314; }
+.gcal .cal-allday { padding: 2px 6px 2px 2px; }
+.gcal .cal-chip.solid { border-radius: 6px; height: 22px; }
+
+/* linha do horário atual */
+.gcal .cal-now { height: 2px; background: #f28b82; overflow: visible; }
+.gcal .cal-now::before { background: #f28b82; left: -6px; }
+.gcal .cal-now em { position: absolute; left: -64px; top: -9px; width: 54px; text-align: right; font-style: normal; font-size: 11px; font-weight: 500; color: #f28b82; background: #1b1b1c; padding-right: 2px; }

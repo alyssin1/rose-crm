@@ -253,12 +253,22 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
     )
   }
 
+  const gmt = (() => {
+    const o = -new Date().getTimezoneOffset()
+    const h = Math.floor(Math.abs(o) / 60)
+    return `GMT${o < 0 ? '-' : '+'}${String(h).padStart(2, '0')}`
+  })()
+  const range = (a: Date, b: Date) => {
+    const f = (d: Date) => (d.getMinutes() ? hhmm(d) : hhmm(d))
+    return `${f(a)} – ${f(b)}`
+  }
+
   const timeGrid = (days: Date[]) => {
     const hours = Array.from({ length: 24 }, (_, h) => h)
     return (
       <div className="cal-time">
-        <div className="cal-time-head" style={{ gridTemplateColumns: `52px repeat(${days.length}, 1fr)` }}>
-          <div />
+        <div className="cal-time-head" style={{ gridTemplateColumns: `66px repeat(${days.length}, 1fr)` }}>
+          <div className="cal-gmt">{gmt}</div>
           {days.map((d) => (
             <div key={d.toISOString()} className={'cal-th' + (sameDay(d, today) ? ' today' : '')}>
               <small>{fmt({ weekday: 'short' }, d)}</small>
@@ -286,7 +296,7 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
           ))}
         </div>
         <div className="cal-time-body" ref={(el) => { if (el && !el.dataset.init) { el.dataset.init = "1"; el.scrollTop = 7 * HOUR_H } }}>
-          <div className="cal-time-grid" style={{ gridTemplateColumns: `52px repeat(${days.length}, 1fr)`, height: 24 * HOUR_H }}>
+          <div className="cal-time-grid" style={{ gridTemplateColumns: `66px repeat(${days.length}, 1fr)`, height: 24 * HOUR_H }}>
             <div className="cal-hours">
               {hours.map((h) => <span key={h} style={{ top: h * HOUR_H }}>{h === 0 ? '' : h === 12 ? t('calendar.noon') : `${String(h).padStart(2, '0')}:00`}</span>)}
             </div>
@@ -317,16 +327,18 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
                   }}
                 >
                   {hours.map((h) => <i key={h} className="cal-line" style={{ top: h * HOUR_H }} />)}
-                  {sameDay(d, today) && <i className="cal-now" style={{ top: ((new Date().getHours() * 60 + new Date().getMinutes()) / 60) * HOUR_H }} />}
+                  {sameDay(d, today) && <i className="cal-now" style={{ top: ((new Date().getHours() * 60 + new Date().getMinutes()) / 60) * HOUR_H }}><em>{hhmm(new Date())}</em></i>}
                   {layout(list).map(({ ev, col, cols }) => {
-                    const top = ((ev.start.getHours() * 60 + ev.start.getMinutes()) / 60) * HOUR_H
-                    const h = Math.max(20, ((ev.end.getTime() - ev.start.getTime()) / 3600000) * HOUR_H)
+                    const top = ((ev.start.getHours() * 60 + ev.start.getMinutes()) / 60) * HOUR_H + 1
+                    const durMin = (ev.end.getTime() - ev.start.getTime()) / 60000
+                    const h = Math.max(22, (durMin / 60) * HOUR_H - 2)
+                    const oneLine = durMin <= 30
                     const c = color(ev.task)
                     return (
                       <div
                         key={ev.task.id}
                         className={'cal-ev' + (ev.task.status !== 0 ? ' done' : '') + (selectedId === ev.task.id ? ' sel' : '')}
-                        style={{ top, height: h, left: `${(col / cols) * 100}%`, width: `${100 / cols - 1}%`, ['--c' as string]: c, ['--fg' as string]: onColor(c) }}
+                        style={{ top, height: h, left: `calc((100% - 12px) * ${col / cols})`, width: `calc((100% - 12px) / ${cols} - 2px)`, ['--c' as string]: c, ['--fg' as string]: onColor(c) }}
                         onClick={(e) => {
                           e.stopPropagation()
                           onSelect(ev.task.id)
@@ -334,8 +346,14 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
                         onContextMenu={(e) => openTaskMenu(e, ev.task.id)}
                         {...dragProps(ev.task)}
                       >
-                        <b>{ev.task.title || t('task.untitled')}</b>
-                        <small>{hhmm(ev.start)}–{hhmm(ev.end)}</small>
+                        {oneLine ? (
+                          <b>{ev.task.title || t('task.untitled')}, <span>{hhmm(ev.start)}</span></b>
+                        ) : (
+                          <>
+                            <b>{ev.task.title || t('task.untitled')}</b>
+                            <small>{range(ev.start, ev.end)}</small>
+                          </>
+                        )}
                       </div>
                     )
                   })}
