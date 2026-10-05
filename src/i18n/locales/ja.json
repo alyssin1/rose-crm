@@ -256,7 +256,13 @@
     "untitled": "(タイトルなし)",
     "addTitle": "タイトルを追加",
     "moreOptions": "その他のオプション",
-    "save": "保存"
+    "save": "保存",
+    "recurTitle": "定期的な予定の編集",
+    "recur": {
+      "this": "この予定",
+      "following": "これ以降のすべての予定",
+      "all": "すべての予定"
+    }
   },
   "editor": {
     "heading": "見出し",

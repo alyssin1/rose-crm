@@ -259,6 +259,25 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
   const previewRef = useRef<Preview | null>(null)
   previewRef.current = preview
 
+  const [recur, setRecur] = useState<{ task: Task; s: Date; e: Date; choice: 'this' | 'following' | 'all'; busy: boolean; err: string | null } | null>(null)
+  const applyRecur = async () => {
+    if (!recur) return
+    const { task, s, e, choice } = recur
+    if (choice === 'this') {
+      void data.updateTask(task.id, { start_at: s.toISOString(), due_at: e.toISOString(), all_day: false })
+      setRecur(null)
+      setPreview(null)
+      return
+    }
+    setRecur({ ...recur, busy: true, err: null })
+    const err = await data.editRecurring(task.id, choice, s.toISOString(), e.toISOString())
+    if (err) setRecur({ ...recur, busy: false, err })
+    else {
+      setRecur(null)
+      setPreview(null)
+    }
+  }
+
   const pointAt = (x: number, y: number) => {
     const col = document.elementsFromPoint(x, y).find((el) => (el as HTMLElement).dataset?.day) as HTMLElement | undefined
     if (!col) return null
@@ -276,6 +295,12 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
     if (!task) return
     const s = atMin(p.day, p.s)
     const e = atMin(p.day, p.e)
+    if (task.source === 'google' && task.google_meta?.recurrence?.length) {
+      // série recorrente: pergunta o alcance, como o Google (o evento fica no lugar novo enquanto isso)
+      setPreview(p)
+      setRecur({ task, s, e, choice: 'this', busy: false, err: null })
+      return
+    }
     if (task.source !== 'google' && !task.start_at) {
       // tarefa do Rose: o prazo é o início e a duração fica em duration_minutes
       void data.updateTask(task.id, g.kind === 'resize' ? { duration_minutes: p.e - p.s } : { due_at: s.toISOString(), all_day: false })
@@ -790,6 +815,25 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
             </div>
           </div>
         </>
+      )}
+      {recur && (
+        <div className="rec-scrim" onPointerDown={(e) => { if (e.target === e.currentTarget && !recur.busy) { setRecur(null); setPreview(null) } }}>
+          <div className="rec-dlg" role="dialog" aria-modal="true" aria-labelledby="rec-title">
+            <h3 id="rec-title">{t('calendar.recurTitle')}</h3>
+            {(['this', 'following', 'all'] as const).map((c) => (
+              <label key={c} className="rec-opt">
+                <input type="radio" name="rec" checked={recur.choice === c} onChange={() => setRecur({ ...recur, choice: c })} disabled={recur.busy} />
+                <i />
+                <span>{t(`calendar.recur.${c}`)}</span>
+              </label>
+            ))}
+            {recur.err && <p className="rec-err">{recur.err}</p>}
+            <div className="rec-foot">
+              <button className="gq-more" disabled={recur.busy} onClick={() => { setRecur(null); setPreview(null) }}>{t('common.cancel')}</button>
+              <button className="gq-save" disabled={recur.busy} onClick={() => void applyRecur()}>{recur.busy ? '…' : 'OK'}</button>
+            </div>
+          </div>
+        </div>
       )}
       {popup && (() => {
         const task = data.tasks.find((x) => x.id === popup.id)

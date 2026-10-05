@@ -32,6 +32,8 @@ export async function enablePush(userId: string): Promise<'ok' | 'denied' | 'uns
   const key = import.meta.env.VITE_VAPID_PUBLIC_KEY as string | undefined
   if (!key) return 'nokey'
   if (!('serviceWorker' in navigator) || !('PushManager' in window)) return 'unsupported'
+  // sem service worker registrado (ex.: modo dev) o .ready nunca resolve
+  if (!(await navigator.serviceWorker.getRegistration())) return 'unsupported'
   if ((await askPermission()) !== 'granted') return 'denied'
   const reg = await navigator.serviceWorker.ready
   const sub = (await reg.pushManager.getSubscription()) ?? (await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToUint8(key) }))

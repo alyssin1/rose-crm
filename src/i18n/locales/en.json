@@ -256,7 +256,13 @@
     "untitled": "(No title)",
     "addTitle": "Add title",
     "moreOptions": "More options",
-    "save": "Save"
+    "save": "Save",
+    "recurTitle": "Edit recurring event",
+    "recur": {
+      "this": "This event",
+      "following": "This and following events",
+      "all": "All events"
+    }
   },
   "editor": {
     "heading": "Heading",

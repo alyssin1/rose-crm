@@ -5,8 +5,11 @@ import { NavigationRoute, registerRoute } from 'workbox-routing'
 declare const self: ServiceWorkerGlobalScope & { __WB_MANIFEST: Array<string | { url: string; revision: string | null }> }
 
 cleanupOutdatedCaches()
-precacheAndRoute(self.__WB_MANIFEST)
-registerRoute(new NavigationRoute(createHandlerBoundToURL('/index.html'), { denylist: [/^\/auth\//] }))
+const manifest = self.__WB_MANIFEST
+precacheAndRoute(manifest)
+// em dev o manifesto vem vazio: sem index.html no cache, createHandlerBoundToURL derrubaria o service worker
+if (manifest.some((e) => (typeof e === 'string' ? e : e.url).replace(/^\//, '') === 'index.html'))
+  registerRoute(new NavigationRoute(createHandlerBoundToURL('/index.html'), { denylist: [/^\/auth\//] }))
 
 self.addEventListener('install', () => void self.skipWaiting())
 self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()))

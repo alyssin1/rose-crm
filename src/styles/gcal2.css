@@ -103,6 +103,25 @@
 .gcal .gy .cal-mini-grid .out { visibility: visible; color: #8e918f; font-weight: 400; }
 .gcal .gy .cal-mini-grid .today { background: #a8c7fa; color: #062e6f; }
 
+/* confirmações (Excluir…?) ficam acima do pop-up do evento */
+.modal-back.dlg { z-index: 130; }
+
+/* diálogo "Editar evento recorrente" (Google) */
+.rec-scrim { position: fixed; inset: 0; z-index: 120; display: grid; place-items: center; background: rgba(0,0,0,.32); }
+.rec-dlg { width: 312px; max-width: calc(100vw - 32px); padding: 24px 24px 20px; border-radius: 28px; background: #2b2c2f; color: #e3e3e3; box-shadow: 0 8px 32px rgba(0,0,0,.5); font-family: 'Google Sans Text', 'Google Sans', var(--font); }
+:root[data-theme="light"] .rec-dlg { background: #f0f4f9; color: #1f1f1f; }
+.rec-dlg h3 { margin: 0 0 16px; font-size: 24px; font-weight: 400; line-height: 32px; }
+.rec-opt { position: relative; display: flex; align-items: center; gap: 16px; height: 40px; font-size: 14px; cursor: pointer; }
+.rec-opt input { position: absolute; opacity: 0; pointer-events: none; }
+.rec-opt i { width: 20px; height: 20px; margin: 0 2px; border-radius: 50%; border: 2px solid #c4c7c5; display: grid; place-items: center; flex: none; }
+.rec-opt input:checked + i { border-color: #a8c7fa; }
+.rec-opt input:checked + i::after { content: ''; width: 10px; height: 10px; border-radius: 50%; background: #a8c7fa; }
+.rec-opt input:focus-visible + i { outline: 2px solid #a8c7fa; outline-offset: 3px; }
+.rec-err { margin: 8px 0 0; font-size: 13px; color: #f28b82; }
+.rec-foot { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+.rec-foot .gq-save { padding: 0 28px; height: 40px; border-radius: 20px; }
+.rec-foot .gq-more { height: 40px; border-radius: 20px; }
+
 /* criação rápida (cartão do Google) */
 .cq-scrim { position: fixed; inset: 0; z-index: 39; }
 .gcal .cal-quick.gq { width: 400px; max-width: calc(100vw - 16px); padding: 8px 24px 16px; gap: 14px; border: 0; border-radius: 24px; background: #1f2022; color: #e3e3e3; box-shadow: 0 8px 32px rgba(0,0,0,.6), 0 2px 8px rgba(0,0,0,.4); font-family: 'Google Sans Text', 'Google Sans', var(--font); }

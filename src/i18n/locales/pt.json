@@ -256,7 +256,13 @@
     "untitled": "(Sem título)",
     "addTitle": "Adicionar título",
     "moreOptions": "Mais opções",
-    "save": "Salvar"
+    "save": "Salvar",
+    "recurTitle": "Editar evento recorrente",
+    "recur": {
+      "this": "Este evento",
+      "following": "Este e os eventos seguintes",
+      "all": "Todos os eventos"
+    }
   },
   "editor": {
     "heading": "Título",

@@ -180,8 +180,14 @@ async function syncUser(db: SupabaseClient, userId: string, onlyCalendar?: strin
 
     // 2) Rose → Google
     if (writable) {
-      const { data: tasks } = await db.from('rose_tasks').select('*').eq('user_id', userId).eq('google_calendar_id', cal.google_calendar_id)
-      for (const t of (tasks ?? []) as Task[]) {
+      // em páginas: o PostgREST devolve no máximo 1000 linhas por consulta
+      const tasks: Task[] = []
+      for (let from = 0; ; from += 1000) {
+        const { data: rows } = await db.from('rose_tasks').select('*').eq('user_id', userId).eq('google_calendar_id', cal.google_calendar_id).order('id').range(from, from + 999)
+        tasks.push(...((rows ?? []) as Task[]))
+        if (!rows || rows.length < 1000) break
+      }
+      for (const t of tasks) {
         if (!isDirty(t.updated_at, t.google_synced_at)) continue
         if (t.deleted_at || !t.due_at) {
           if (t.google_event_id) {
@@ -217,7 +223,7 @@ async function syncUser(db: SupabaseClient, userId: string, onlyCalendar?: strin
 
     const localMap = new Map<string, Record<string, any>>() // eslint-disable-line @typescript-eslint/no-explicit-any
     for (let from = 0; ; from += 1000) {
-      const { data: rows } = await db.from('rose_tasks').select('*').eq('user_id', userId).eq('google_calendar_id', cal.google_calendar_id).range(from, from + 999)
+      const { data: rows } = await db.from('rose_tasks').select('*').eq('user_id', userId).eq('google_calendar_id', cal.google_calendar_id).order('id').range(from, from + 999)
       for (const r of rows ?? []) if (r.google_event_id) localMap.set(r.google_event_id, r)
       if (!rows || rows.length < 1000) break
     }
@@ -321,11 +327,78 @@ Deno.serve(async (req) => {
   const who = await caller(req, db)
   if (!who) return json({ error: 'unauthorized' }, 401)
 
-  let body: { action?: string; taskId?: string; response?: string } = {}
+  let body: { action?: string; taskId?: string; response?: string; scope?: string; start?: string; end?: string } = {}
   try {
     body = await req.json()
   } catch {
     /* sem corpo */
+  }
+  if (body.action === 'recurring') {
+    // série recorrente: "all" muda a série inteira; "following" corta a série e cria uma nova a partir desta ocorrência
+    if (who.kind !== 'user') return json({ error: 'forbidden' }, 403)
+    try {
+      const scope = body.scope === 'all' ? 'all' : body.scope === 'following' ? 'following' : null
+      const ns = body.start ? new Date(body.start) : null
+      const ne = body.end ? new Date(body.end) : null
+      if (!scope || !body.taskId || !ns || !ne || isNaN(+ns) || isNaN(+ne) || ne <= ns) return json({ error: 'parâmetros inválidos' }, 400)
+      const { data: t } = await db.from('rose_tasks').select('id, google_calendar_id, google_event_id').eq('id', body.taskId).eq('user_id', who.userId).maybeSingle()
+      if (!t?.google_event_id || !t.google_calendar_id) return json({ error: 'evento não encontrado' }, 404)
+      const { data: cal } = await db.from('rose_google_calendars').select('access_role').eq('user_id', who.userId).eq('google_calendar_id', t.google_calendar_id).maybeSingle()
+      if (!['owner', 'writer'].includes(cal?.access_role ?? '')) return json({ error: 'agenda somente leitura' }, 403)
+      const { data: tok } = await db.from('rose_google_tokens').select('refresh_token').eq('user_id', who.userId).maybeSingle()
+      if (!tok) return json({ error: 'Google não conectado' }, 400)
+      const access = await accessToken(tok.refresh_token)
+      const calPath = `/calendars/${encodeURIComponent(t.google_calendar_id)}`
+      const inst = await g(access, `${calPath}/events/${t.google_event_id}`)
+      if (inst.status !== 200) return json({ error: `events.get ${inst.status}` }, 502)
+      const masterId = inst.body.recurringEventId as string | undefined
+      if (!masterId) return json({ error: 'não é um evento recorrente' }, 400)
+      const master = await g(access, `${calPath}/events/${encodeURIComponent(masterId)}`)
+      if (master.status !== 200) return json({ error: `master ${master.status}` }, 502)
+      const tz = (master.body.start?.timeZone as string | undefined) ?? undefined
+      const instStart = new Date(inst.body.start?.dateTime ?? inst.body.start?.date)
+      const origStart = new Date(inst.body.originalStartTime?.dateTime ?? inst.body.originalStartTime?.date ?? instStart)
+      const masterStart = new Date(master.body.start?.dateTime ?? master.body.start?.date)
+      const isFirst = Math.abs(origStart.getTime() - masterStart.getTime()) < 60000
+
+      if (scope === 'all' || isFirst) {
+        const s = new Date(masterStart.getTime() + (ns.getTime() - instStart.getTime()))
+        const e = new Date(s.getTime() + (ne.getTime() - ns.getTime()))
+        const res = await g(access, `${calPath}/events/${encodeURIComponent(masterId)}?sendUpdates=all`, {
+          method: 'PATCH',
+          body: JSON.stringify({ start: { dateTime: s.toISOString(), timeZone: tz }, end: { dateTime: e.toISOString(), timeZone: tz } }),
+        })
+        if (res.status !== 200) return json({ error: `events.patch ${res.status}` }, 502)
+      } else {
+        // 1) encerra a série original na ocorrência anterior
+        const until = new Date(origStart.getTime() - 1000).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '')
+        const rec = ((master.body.recurrence ?? []) as string[]).map((r) => (r.startsWith('RRULE:') ? 'RRULE:' + r.slice(6).split(';').filter((p) => !/^(UNTIL|COUNT)=/.test(p)).concat(`UNTIL=${until}`).join(';') : r))
+        const cut = await g(access, `${calPath}/events/${encodeURIComponent(masterId)}?sendUpdates=all`, { method: 'PATCH', body: JSON.stringify({ recurrence: rec }) })
+        if (cut.status !== 200) return json({ error: `events.patch ${cut.status}` }, 502)
+        // 2) nova série a partir desta ocorrência, com o horário novo
+        const m = master.body
+        const recNew = ((m.recurrence ?? []) as string[]).filter((r) => !r.startsWith('EXDATE')).map((r) => (r.startsWith('RRULE:') ? 'RRULE:' + r.slice(6).split(';').filter((p) => !/^(UNTIL|COUNT)=/.test(p)).join(';') : r))
+        const neu = {
+          summary: m.summary,
+          description: m.description,
+          location: m.location,
+          colorId: m.colorId,
+          reminders: m.reminders,
+          attendees: (m.attendees ?? []).map((a: { email?: string; optional?: boolean }) => ({ email: a.email, optional: a.optional })),
+          conferenceData: m.conferenceData,
+          recurrence: recNew,
+          start: { dateTime: ns.toISOString(), timeZone: tz },
+          end: { dateTime: ne.toISOString(), timeZone: tz },
+        }
+        const res = await g(access, `${calPath}/events?sendUpdates=all&conferenceDataVersion=1`, { method: 'POST', body: JSON.stringify(neu) })
+        if (res.status !== 200) return json({ error: `events.insert ${res.status}` }, 502)
+      }
+      // traz as ocorrências atualizadas (a busca incremental pega tudo que o Google marcou como alterado)
+      await syncUser(db, who.userId, t.google_calendar_id)
+      return json({ ok: true })
+    } catch (e) {
+      return json({ error: String(e) }, 500)
+    }
   }
   if (body.action === 'rsvp') {
     if (who.kind !== 'user') return json({ error: 'forbidden' }, 403)
