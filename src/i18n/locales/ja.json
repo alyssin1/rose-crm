@@ -1,0 +1,544 @@
+{
+  "app": {
+    "tagline": "あなたのペースでタスク管理。"
+  },
+  "auth": {
+    "google": "Googleでログイン",
+    "signOut": "ログアウト",
+    "denied": "アカウント {{email}} には Rose へのアクセス権がありません。管理者に許可を依頼してください。"
+  },
+  "nav": {
+    "all": "すべて",
+    "today": "今日",
+    "next7": "今後7日間",
+    "inbox": "受信トレイ",
+    "summary": "サマリー",
+    "lists": "リスト",
+    "filters": "フィルター",
+    "tags": "タグ",
+    "completed": "完了",
+    "trash": "ゴミ箱",
+    "tasks": "タスク",
+    "calendar": "カレンダー",
+    "search": "検索",
+    "addList": "リストを追加"
+  },
+  "settings": {
+    "theme": "テーマ",
+    "dark": "ダーク",
+    "light": "ライト",
+    "language": "言語",
+    "title": "設定",
+    "name": "名前",
+    "timeFormat": "時刻の形式",
+    "dateFormat": "日付の形式",
+    "weekStart": "週の開始日",
+    "weekNumbers": "週番号を表示",
+    "perTaskTz": "タスクごとのタイムゾーン",
+    "perTaskTzHint": "時刻設定時にタイムゾーンを選べます。",
+    "shortcuts": "ショートカット",
+    "shortcutsHint": "N 新規タスク · / または Ctrl+K 検索 · Esc パネルを閉じる",
+    "tab": {
+      "account": "アカウント",
+      "features": "機能",
+      "datetime": "日付と時刻",
+      "appearance": "外観",
+      "notifications": "通知",
+      "integrations": "連携",
+      "backup": "バックアップ",
+      "about": "概要"
+    },
+    "f": {
+      "calendar": "カレンダー",
+      "matrix": "アイゼンハワーマトリクス",
+      "habit": "習慣",
+      "pomodoro": "ポモドーロ",
+      "countdown": "カウントダウン",
+      "sticky": "付箋"
+    }
+  },
+  "common": {
+    "cancel": "キャンセル",
+    "save": "保存",
+    "toggleSidebar": "サイドバーの表示/非表示",
+    "more": "その他",
+    "soon": "近日対応"
+  },
+  "list": {
+    "name": "リスト名",
+    "rename": "名前を変更",
+    "emoji": "絵文字",
+    "delete": "削除",
+    "confirmDelete": "「{{name}}」を削除しますか？タスクはゴミ箱に移動します。"
+  },
+  "filter": {
+    "new": "新しいフィルター",
+    "hint": "リスト、日付、優先度、タグなどでタスクを絞り込みます。",
+    "lists": "リスト",
+    "priority": "優先度",
+    "date": "日付",
+    "status": "ステータス",
+    "d": {
+      "any": "すべての日付",
+      "today": "今日と期限切れ",
+      "next7": "今後7日間",
+      "overdue": "期限切れ",
+      "nodate": "日付なし"
+    },
+    "s": {
+      "open": "未完了",
+      "done": "完了",
+      "all": "すべて"
+    }
+  },
+  "tag": {
+    "hint": "タグでタスクを分類します。タスク追加時に「#」を入力してください。"
+  },
+  "task": {
+    "addPlaceholder": "「{{list}}」にタスクを追加",
+    "empty": "タスクはありません。",
+    "emptyCompleted": "完了したタスクはありません。",
+    "complete": "タスクを完了",
+    "untitled": "無題"
+  },
+  "group": {
+    "pinned": "固定",
+    "noList": "リストなし",
+    "noTag": "タグなし",
+    "noDate": "日付なし",
+    "overdue": "期限切れ"
+  },
+  "due": {
+    "today": "今日",
+    "tomorrow": "明日",
+    "yesterday": "昨日"
+  },
+  "priority": {
+    "title": "優先度",
+    "0": "なし",
+    "1": "低",
+    "3": "中",
+    "5": "高"
+  },
+  "sort": {
+    "title": "並べ替え",
+    "groupBy": "グループ化",
+    "orderBy": "並べ替え基準",
+    "order": "順序",
+    "asc": "昇順",
+    "desc": "降順",
+    "g": {
+      "date": "日付",
+      "list": "リスト",
+      "priority": "優先度",
+      "tag": "タグ",
+      "none": "なし"
+    },
+    "o": {
+      "date": "日付",
+      "modified": "更新時刻",
+      "created": "作成日",
+      "title": "タイトル",
+      "tag": "タグ",
+      "priority": "優先度"
+    }
+  },
+  "view": {
+    "title": "表示",
+    "list": "リスト",
+    "kanban": "カンバン",
+    "timeline": "タイムライン",
+    "showCompleted": "完了を表示",
+    "showDetails": "詳細を表示",
+    "onlyLists": "リストのみ"
+  },
+  "trash": {
+    "empty": "ゴミ箱を空にする",
+    "confirmEmpty": "ゴミ箱の中身をすべて完全に削除しますか？",
+    "empty0": "ゴミ箱は空です。",
+    "restore": "元に戻す",
+    "purge": "完全に削除"
+  },
+  "detail": {
+    "dueDate": "期限日",
+    "titlePh": "タイトル",
+    "contentPh": "説明",
+    "subtasks": "サブタスク",
+    "addSubtask": "サブタスクを追加",
+    "addTag": "タグ",
+    "pin": "固定",
+    "unpin": "固定を解除",
+    "wontDo": "やらない",
+    "attach": "添付ファイルをアップロード",
+    "activity": "タスクのアクティビティ",
+    "saveTemplate": "テンプレートとして保存",
+    "duplicate": "複製",
+    "copyLink": "リンクをコピー",
+    "toNote": "ノートに変換",
+    "export": "エクスポート",
+    "print": "印刷",
+    "delete": "削除",
+    "attachments": "添付ファイル",
+    "toTask": "タスクに変換"
+  },
+  "date": {
+    "tabDate": "日付",
+    "tabDuration": "期間",
+    "today": "今日",
+    "tomorrow": "明日",
+    "nextWeek": "来週",
+    "nextMonth": "来月",
+    "time": "時刻",
+    "allDay": "終日",
+    "reminder": "リマインダー",
+    "none": "なし",
+    "rem": {
+      "on_time": "時刻ちょうど",
+      "5m": "5分前",
+      "30m": "30分前",
+      "1h": "1時間前",
+      "1d": "1日前"
+    },
+    "repeat": "繰り返し",
+    "freq": {
+      "DAILY": "毎日",
+      "WEEKLY": "毎週",
+      "MONTHLY": "毎月",
+      "YEARLY": "毎年"
+    },
+    "every": "間隔",
+    "fromDue": "期限日から繰り返す",
+    "fromCompletion": "完了日から繰り返す",
+    "clear": "クリア",
+    "ok": "OK"
+  },
+  "calendar": {
+    "allDay": "終日",
+    "noon": "正午",
+    "emptyAgenda": "今後の予定はありません。",
+    "today": "今日",
+    "new": "新しいタスク",
+    "newPh": "タスク名",
+    "days": "日数",
+    "weeks": "週数",
+    "mode": {
+      "year": "年",
+      "month": "月",
+      "week": "週",
+      "day": "日",
+      "agenda": "予定表",
+      "multiday": "複数日",
+      "multiweek": "複数週"
+    }
+  },
+  "editor": {
+    "heading": "見出し",
+    "bold": "太字",
+    "italic": "斜体",
+    "underline": "下線",
+    "strike": "取り消し線",
+    "bullets": "箇条書き",
+    "numbers": "番号付きリスト",
+    "quote": "引用",
+    "code": "コード",
+    "link": "リンク",
+    "clear": "書式をクリア"
+  },
+  "search": {
+    "placeholder": "検索",
+    "all": "すべて",
+    "task": "タスク",
+    "list": "リスト",
+    "hint": "キーワードを入力して検索を開始します。",
+    "none": "結果がありません。"
+  },
+  "summary": {
+    "saveAs": "名前を付けて保存",
+    "copyAs": "コピー",
+    "copied": "コピーしました！",
+    "text": "テキスト",
+    "template": "テンプレート",
+    "filter": "フィルター",
+    "date": "日付",
+    "allLists": "すべてのリスト",
+    "more": "その他",
+    "none": "なし",
+    "withPriority": "優先度ありのみ",
+    "display": "表示オプション",
+    "grouping": "グループ化",
+    "fields": "項目",
+    "selected": "{{n}}件選択",
+    "nextPeriod": "次の期間のタスク",
+    "done": "完了",
+    "undone": "未完了",
+    "next": "次の期間",
+    "empty": "この期間のタスクはありません。",
+    "s": {
+      "all": "すべてのステータス"
+    },
+    "g": {
+      "status": "完了状況別",
+      "list": "リスト別",
+      "date": "日付別"
+    },
+    "f": {
+      "date": "日付",
+      "list": "リスト",
+      "tags": "タグ",
+      "priority": "優先度"
+    },
+    "t": {
+      "blank": "空白",
+      "daily": "日次",
+      "weekly": "週次"
+    },
+    "p": {
+      "daily": "今日のまとめ",
+      "weekly": "今週のまとめ"
+    },
+    "r": {
+      "today": "今日",
+      "yesterday": "昨日",
+      "week": "今週",
+      "lastWeek": "先週",
+      "month": "今月",
+      "lastMonth": "先月",
+      "last7": "過去7日間",
+      "last30": "過去30日間"
+    }
+  },
+  "activity": {
+    "created": "タスクを作成",
+    "title": "タイトル変更：「{{from}}」→「{{to}}」",
+    "due": "日付変更：{{from}} → {{to}}",
+    "priority": "優先度：{{from}} → {{to}}",
+    "list": "「{{to}}」に移動",
+    "completed": "完了",
+    "wontdo": "「やらない」に設定",
+    "reopened": "再開",
+    "pinned": "固定",
+    "unpinned": "固定解除",
+    "trashed": "ゴミ箱に移動",
+    "restored": "復元",
+    "attached": "添付を追加：{{name}}"
+  },
+  "template": {
+    "create": "テンプレートから作成",
+    "saved": "テンプレートを保存しました"
+  },
+  "offline": {
+    "offline": "オフライン — 変更はこの端末に保存されます",
+    "syncing": "{{n}}件の変更を同期中…",
+    "pending": "{{n}}件保留中"
+  },
+  "notif": {
+    "push": "端末の通知（Web Push）",
+    "pushHint": "アプリを閉じていてもリマインドします。iPhoneではホーム画面に追加してください。",
+    "local": "ブラウザ通知",
+    "localHint": "Rose を開いている間の通知です。",
+    "allow": "許可",
+    "granted": "許可されました。",
+    "denied": "ブラウザで拒否されています。",
+    "email": "メールでのリマインダー",
+    "emailHint": "{{email}} に送信します。",
+    "body": "タスクのリマインダー",
+    "unsupported": "このブラウザは Web Push に対応していません。",
+    "nokey": "VAPID キーがありません。",
+    "ok": "有効にしました。"
+  },
+  "google": {
+    "calendar": "Google カレンダー",
+    "noCalendar": "Rose のみ",
+    "connected": "Google カレンダーに接続済み",
+    "disconnect": "接続解除",
+    "syncNow": "今すぐ同期",
+    "sync": "同期",
+    "syncHint": "Google の予定はカレンダーに表示され、カレンダーに紐づけたタスクは Google に送られます。",
+    "calendars": "カレンダー",
+    "noCalendars": "カレンダーがありません。「同期」を押してください。",
+    "notConnected": "Google カレンダー",
+    "connect": "接続",
+    "connectHint": "予定とカレンダー一覧へのアクセスを求めます。",
+    "others": "その他のカレンダー",
+    "holidays": "祝日",
+    "syncOk": "同期しました。",
+    "syncFail": "同期に失敗しました"
+  },
+  "backup": {
+    "export": "データをエクスポート",
+    "exportBtn": "JSON をダウンロード",
+    "exportHint": "リスト、タスク、タグ、フィルター、テンプレート。",
+    "import": "データをインポート",
+    "importHint": "Rose でエクスポートした JSON ファイル。",
+    "imported": "{{n}}件のタスクをインポートしました。",
+    "invalid": "無効なファイルです。"
+  },
+  "kanban": {
+    "groupBy": "グループ化",
+    "g": {
+      "column": "セクション",
+      "date": "日付",
+      "priority": "優先度"
+    },
+    "noSection": "セクションなし",
+    "thisWeek": "今週",
+    "later": "それ以降",
+    "addTask": "タスクを追加",
+    "addColumn": "列を追加",
+    "columnName": "列の名前",
+    "renameColumn": "列の名前",
+    "confirmDeleteColumn": "列「{{name}}」を削除しますか？タスクはセクションなしになります。"
+  },
+  "timeline": {
+    "day": "日",
+    "week": "週",
+    "month": "月",
+    "tasks": "タスク",
+    "clickToSchedule": "クリックして日付を設定"
+  },
+  "matrix": {
+    "title": "アイゼンハワーマトリクス",
+    "allTags": "すべてのタグ",
+    "rules": "マトリクスのルール",
+    "urgent": "緊急の条件（期限）",
+    "important": "重要の条件（優先度）",
+    "u0": "今日または期限切れ",
+    "u1": "1日以内",
+    "u3": "3日以内",
+    "u7": "7日以内",
+    "i5": "高",
+    "i3": "中以上",
+    "urgentShort": "緊急",
+    "notUrgentShort": "緊急でない",
+    "importantShort": "重要",
+    "notImportantShort": "重要でない",
+    "q": {
+      "do": {
+        "name": "今すぐやる",
+        "desc": "緊急かつ重要"
+      },
+      "plan": {
+        "name": "計画する",
+        "desc": "重要だが緊急でない"
+      },
+      "delegate": {
+        "name": "任せる",
+        "desc": "緊急だが重要でない"
+      },
+      "drop": {
+        "name": "やめる",
+        "desc": "緊急でも重要でもない"
+      }
+    }
+  },
+  "sticky": {
+    "title": "付箋",
+    "new": "新しい付箋",
+    "none": "付箋はまだありません。",
+    "empty": "空の付箋",
+    "color": "色",
+    "popOut": "別ウィンドウで開く",
+    "hide": "非表示",
+    "placeholder": "アイデアを書く…",
+    "confirmDelete": "この付箋を削除しますか？"
+  },
+  "pomo": {
+    "title": "ポモドーロ",
+    "settings": "ポモドーロの設定",
+    "focus": "集中",
+    "short": "短い休憩",
+    "long": "長い休憩",
+    "longEvery": "長い休憩の間隔（集中回数）",
+    "autoBreak": "休憩を自動で開始",
+    "sound": "終了時に音を鳴らす",
+    "mode": {
+      "pomodoro": "ポモドーロ",
+      "stopwatch": "ストップウォッチ"
+    },
+    "noTask": "タスクなし",
+    "start": "開始",
+    "pause": "一時停止",
+    "resume": "再開",
+    "giveUp": "中止",
+    "finish": "終了",
+    "skip": "休憩をスキップ",
+    "overview": "集中の概要",
+    "todayPomos": "今日のポモドーロ",
+    "todayFocus": "今日の集中",
+    "week": "過去7日間",
+    "total": "合計",
+    "history": "履歴",
+    "noHistory": "まだセッションがありません。"
+  },
+  "habit": {
+    "title": "習慣",
+    "today": "今日",
+    "new": "新しい習慣",
+    "edit": "習慣を編集",
+    "empty": "習慣を作って毎日を記録しましょう。",
+    "streak": "連続日数",
+    "best": "最長連続",
+    "total": "達成日数",
+    "rate30": "達成率（30日）",
+    "daily": "毎日の習慣",
+    "goalPer": "目標：1日{{n}}",
+    "namePh": "習慣の名前",
+    "type": "種類",
+    "yesNo": "はい／いいえ",
+    "count": "回数",
+    "goal": "目標",
+    "unitPh": "単位（例：杯）",
+    "days": "曜日",
+    "reminder": "リマインダー（時刻）",
+    "archive": "アーカイブ"
+  },
+  "countdown": {
+    "title": "カウントダウン",
+    "new": "新しいカウントダウン",
+    "edit": "カウントダウンを編集",
+    "empty": "大切な日を忘れないように。",
+    "today": "今日です！",
+    "daysLeft_other": "日後",
+    "daysAgo_other": "日前",
+    "namePh": "名前（例：旅行）",
+    "date": "日付",
+    "yearly": "毎年繰り返す",
+    "pinned": "先頭に固定",
+    "notePh": "メモ（任意）"
+  },
+  "stats": {
+    "title": "統計",
+    "range": "期間",
+    "lastDays": "過去{{n}}日間",
+    "tab": {
+      "overview": "概要",
+      "tasks": "タスク",
+      "focus": "集中",
+      "habits": "習慣"
+    },
+    "tasksDone": "完了したタスク",
+    "focusTime": "集中時間",
+    "checkins": "習慣のチェックイン",
+    "openTasks": "未完了のタスク",
+    "score": "スコア",
+    "level": "レベル {{n}}",
+    "maxLevel": "最大レベル",
+    "toNext": "あと{{n}}ポイント",
+    "tasksPerDay": "1日あたりの完了タスク",
+    "focusPerDay": "1日あたりの集中",
+    "byList": "リスト別",
+    "byPriority": "優先度別",
+    "byTag": "タグ別",
+    "focusByTask": "タスク別の集中",
+    "habitRate": "習慣別の達成率",
+    "achievements": "実績",
+    "locked": "未達成",
+    "table": "表を表示",
+    "chart": "グラフを表示",
+    "a": {
+      "task": "{{n}}件のタスクを完了",
+      "pomo": "{{n}}回のポモドーロ",
+      "streak": "{{n}}日連続"
+    }
+  }
+}

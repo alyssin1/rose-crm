@@ -1,0 +1,18 @@
+modules = ["nodejs-20"]
+run = "npm run dev"
+
+# Preview no Replit (desenvolvimento)
+[[ports]]
+localPort = 5173
+externalPort = 80
+
+# Publicação: site ESTÁTICO (sem servidor rodando = o tipo mais barato do Replit)
+[deployment]
+deploymentTarget = "static"
+build = ["sh", "-c", "npm ci && npm run build"]
+publicDir = "dist"
+
+# SPA: qualquer rota abre o index.html
+[[deployment.rewrites]]
+from = "/*"
+to = "/index.html"

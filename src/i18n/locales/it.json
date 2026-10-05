@@ -1,0 +1,546 @@
+{
+  "app": {
+    "tagline": "Le tue attività, al tuo ritmo."
+  },
+  "auth": {
+    "google": "Accedi con Google",
+    "signOut": "Esci",
+    "denied": "L'account {{email}} non ha accesso a Rose. Chiedi l'autorizzazione all'amministratore."
+  },
+  "nav": {
+    "all": "Tutte",
+    "today": "Oggi",
+    "next7": "Prossimi 7 giorni",
+    "inbox": "Posta in arrivo",
+    "summary": "Riepilogo",
+    "lists": "Liste",
+    "filters": "Filtri",
+    "tags": "Tag",
+    "completed": "Completate",
+    "trash": "Cestino",
+    "tasks": "Attività",
+    "calendar": "Calendario",
+    "search": "Cerca",
+    "addList": "Aggiungi lista"
+  },
+  "settings": {
+    "theme": "Tema",
+    "dark": "Scuro",
+    "light": "Chiaro",
+    "language": "Lingua",
+    "title": "Impostazioni",
+    "name": "Nome",
+    "timeFormat": "Formato dell'ora",
+    "dateFormat": "Formato della data",
+    "weekStart": "Inizio della settimana",
+    "weekNumbers": "Mostra numeri della settimana",
+    "perTaskTz": "Fuso orario per attività",
+    "perTaskTzHint": "Permette di scegliere il fuso orario quando imposti l'ora.",
+    "shortcuts": "Scorciatoie",
+    "shortcutsHint": "N nuova attività · / o Ctrl+K cerca · Esc chiudi pannello",
+    "tab": {
+      "account": "Account",
+      "features": "Funzionalità",
+      "datetime": "Data e ora",
+      "appearance": "Aspetto",
+      "notifications": "Notifiche",
+      "integrations": "Integrazioni",
+      "backup": "Backup",
+      "about": "Informazioni"
+    },
+    "f": {
+      "calendar": "Calendario",
+      "matrix": "Matrice di Eisenhower",
+      "habit": "Abitudini",
+      "pomodoro": "Pomodoro",
+      "countdown": "Conto alla rovescia",
+      "sticky": "Note adesive"
+    }
+  },
+  "common": {
+    "cancel": "Annulla",
+    "save": "Salva",
+    "toggleSidebar": "Mostra/nascondi barra laterale",
+    "more": "Altro",
+    "soon": "in arrivo"
+  },
+  "list": {
+    "name": "Nome lista",
+    "rename": "Rinomina",
+    "emoji": "Emoji",
+    "delete": "Elimina",
+    "confirmDelete": "Eliminare \"{{name}}\"? Le attività vanno nel Cestino."
+  },
+  "filter": {
+    "new": "Nuovo filtro",
+    "hint": "Mostra le attività filtrate per lista, data, priorità, tag e altro.",
+    "lists": "Liste",
+    "priority": "Priorità",
+    "date": "Data",
+    "status": "Stato",
+    "d": {
+      "any": "Qualsiasi data",
+      "today": "Oggi e in ritardo",
+      "next7": "Prossimi 7 giorni",
+      "overdue": "In ritardo",
+      "nodate": "Senza data"
+    },
+    "s": {
+      "open": "Aperte",
+      "done": "Completate",
+      "all": "Tutte"
+    }
+  },
+  "tag": {
+    "hint": "Classifica le attività con i tag. Digita \"#\" quando aggiungi un'attività."
+  },
+  "task": {
+    "addPlaceholder": "Aggiungi attività a \"{{list}}\"",
+    "empty": "Nessuna attività qui.",
+    "emptyCompleted": "Nessuna attività completata.",
+    "complete": "Completa attività",
+    "untitled": "Senza titolo"
+  },
+  "group": {
+    "pinned": "Fissate",
+    "noList": "Senza lista",
+    "noTag": "Senza tag",
+    "noDate": "Senza data",
+    "overdue": "In ritardo"
+  },
+  "due": {
+    "today": "Oggi",
+    "tomorrow": "Domani",
+    "yesterday": "Ieri"
+  },
+  "priority": {
+    "title": "Priorità",
+    "0": "Nessuna",
+    "1": "Bassa",
+    "3": "Media",
+    "5": "Alta"
+  },
+  "sort": {
+    "title": "Ordina",
+    "groupBy": "Raggruppa per",
+    "orderBy": "Ordina per",
+    "order": "Ordine",
+    "asc": "Crescente",
+    "desc": "Decrescente",
+    "g": {
+      "date": "Data",
+      "list": "Lista",
+      "priority": "Priorità",
+      "tag": "Tag",
+      "none": "Nessuno"
+    },
+    "o": {
+      "date": "Data",
+      "modified": "Ora di modifica",
+      "created": "Data di creazione",
+      "title": "Titolo",
+      "tag": "Tag",
+      "priority": "Priorità"
+    }
+  },
+  "view": {
+    "title": "Vista",
+    "list": "Lista",
+    "kanban": "Kanban",
+    "timeline": "Linea temporale",
+    "showCompleted": "Mostra completate",
+    "showDetails": "Mostra dettagli",
+    "onlyLists": "solo liste"
+  },
+  "trash": {
+    "empty": "Svuota cestino",
+    "confirmEmpty": "Eliminare definitivamente tutto dal Cestino?",
+    "empty0": "Il Cestino è vuoto.",
+    "restore": "Ripristina",
+    "purge": "Elimina per sempre"
+  },
+  "detail": {
+    "dueDate": "Scadenza",
+    "titlePh": "Titolo",
+    "contentPh": "Descrizione",
+    "subtasks": "Sottoattività",
+    "addSubtask": "Aggiungi sottoattività",
+    "addTag": "tag",
+    "pin": "Fissa",
+    "unpin": "Rimuovi",
+    "wontDo": "Non lo farò",
+    "attach": "Carica allegato",
+    "activity": "Attività dell'attività",
+    "saveTemplate": "Salva come modello",
+    "duplicate": "Duplica",
+    "copyLink": "Copia link",
+    "toNote": "Converti in nota",
+    "export": "Esporta",
+    "print": "Stampa",
+    "delete": "Elimina",
+    "attachments": "Allegati",
+    "toTask": "Converti in attività"
+  },
+  "date": {
+    "tabDate": "Data",
+    "tabDuration": "Durata",
+    "today": "Oggi",
+    "tomorrow": "Domani",
+    "nextWeek": "Prossima settimana",
+    "nextMonth": "Prossimo mese",
+    "time": "Ora",
+    "allDay": "Tutto il giorno",
+    "reminder": "Promemoria",
+    "none": "Nessuno",
+    "rem": {
+      "on_time": "All'ora",
+      "5m": "5 minuti prima",
+      "30m": "30 minuti prima",
+      "1h": "1 ora prima",
+      "1d": "1 giorno prima"
+    },
+    "repeat": "Ripeti",
+    "freq": {
+      "DAILY": "Ogni giorno",
+      "WEEKLY": "Ogni settimana",
+      "MONTHLY": "Ogni mese",
+      "YEARLY": "Ogni anno"
+    },
+    "every": "Ogni",
+    "fromDue": "Ripeti dalla scadenza",
+    "fromCompletion": "Ripeti dal completamento",
+    "clear": "Cancella",
+    "ok": "OK"
+  },
+  "calendar": {
+    "allDay": "Tutto il giorno",
+    "noon": "Mezzogiorno",
+    "emptyAgenda": "Niente in programma nei prossimi giorni.",
+    "today": "Oggi",
+    "new": "Nuova attività",
+    "newPh": "Titolo dell'attività",
+    "days": "Giorni",
+    "weeks": "Settimane",
+    "mode": {
+      "year": "Anno",
+      "month": "Mese",
+      "week": "Settimana",
+      "day": "Giorno",
+      "agenda": "Agenda",
+      "multiday": "Multi-giorno",
+      "multiweek": "Multi-settimana"
+    }
+  },
+  "editor": {
+    "heading": "Titolo",
+    "bold": "Grassetto",
+    "italic": "Corsivo",
+    "underline": "Sottolineato",
+    "strike": "Barrato",
+    "bullets": "Elenco puntato",
+    "numbers": "Elenco numerato",
+    "quote": "Citazione",
+    "code": "Codice",
+    "link": "Link",
+    "clear": "Cancella formattazione"
+  },
+  "search": {
+    "placeholder": "Cerca",
+    "all": "Tutto",
+    "task": "Attività",
+    "list": "Lista",
+    "hint": "Digita le parole chiave per iniziare la ricerca.",
+    "none": "Nessun risultato."
+  },
+  "summary": {
+    "saveAs": "Salva come",
+    "copyAs": "Copia",
+    "copied": "Copiato!",
+    "text": "Testo",
+    "template": "Modello",
+    "filter": "Filtro",
+    "date": "Data",
+    "allLists": "Tutte le liste",
+    "more": "Altro",
+    "none": "Nessuno",
+    "withPriority": "Solo con priorità",
+    "display": "Opzioni di visualizzazione",
+    "grouping": "Raggruppamento",
+    "fields": "Campi",
+    "selected": "{{n}} selezionati",
+    "nextPeriod": "Attività del periodo successivo",
+    "done": "Fatto",
+    "undone": "Da fare",
+    "next": "Periodo successivo",
+    "empty": "Nessuna attività in questo periodo.",
+    "s": {
+      "all": "Tutti gli stati"
+    },
+    "g": {
+      "status": "Per stato di completamento",
+      "list": "Per lista",
+      "date": "Per data"
+    },
+    "f": {
+      "date": "Data",
+      "list": "Lista",
+      "tags": "Tag",
+      "priority": "Priorità"
+    },
+    "t": {
+      "blank": "Vuoto",
+      "daily": "Giornaliero",
+      "weekly": "Settimanale"
+    },
+    "p": {
+      "daily": "Riepilogo del giorno",
+      "weekly": "Riepilogo della settimana"
+    },
+    "r": {
+      "today": "Oggi",
+      "yesterday": "Ieri",
+      "week": "Questa settimana",
+      "lastWeek": "Settimana scorsa",
+      "month": "Questo mese",
+      "lastMonth": "Mese scorso",
+      "last7": "Ultimi 7 giorni",
+      "last30": "Ultimi 30 giorni"
+    }
+  },
+  "activity": {
+    "created": "Attività creata",
+    "title": "Titolo modificato: “{{from}}” → “{{to}}”",
+    "due": "Data modificata: {{from}} → {{to}}",
+    "priority": "Priorità: {{from}} → {{to}}",
+    "list": "Spostata in “{{to}}”",
+    "completed": "Completata",
+    "wontdo": "Segnata come “Non lo farò”",
+    "reopened": "Riaperta",
+    "pinned": "Fissata",
+    "unpinned": "Rimossa dai fissati",
+    "trashed": "Spostata nel Cestino",
+    "restored": "Ripristinata",
+    "attached": "Allegato aggiunto: {{name}}"
+  },
+  "template": {
+    "create": "Crea da modello",
+    "saved": "Modello salvato"
+  },
+  "offline": {
+    "offline": "Offline — le modifiche sono salvate su questo dispositivo",
+    "syncing": "Sincronizzazione di {{n}} modifica/che…",
+    "pending": "{{n}} in sospeso"
+  },
+  "notif": {
+    "push": "Notifiche sul dispositivo (Web Push)",
+    "pushHint": "Promemoria anche con l'app chiusa. Su iPhone aggiungi Rose alla schermata Home.",
+    "local": "Notifiche del browser",
+    "localHint": "Avvisi mentre Rose è aperto.",
+    "allow": "Consenti",
+    "granted": "Permesso concesso.",
+    "denied": "Permesso negato nel browser.",
+    "email": "Promemoria via e-mail",
+    "emailHint": "Inviati a {{email}}.",
+    "body": "Promemoria attività",
+    "unsupported": "Questo browser non supporta il Web Push.",
+    "nokey": "Chiave VAPID mancante.",
+    "ok": "Attivato."
+  },
+  "google": {
+    "calendar": "Calendario Google",
+    "noCalendar": "Solo Rose",
+    "connected": "Google Calendar connesso",
+    "disconnect": "Disconnetti",
+    "syncNow": "Sincronizza ora",
+    "sync": "Sincronizza",
+    "syncHint": "Gli eventi Google appaiono nel Calendario; le attività collegate a un calendario vanno su Google.",
+    "calendars": "Calendari",
+    "noCalendars": "Nessun calendario. Clicca Sincronizza.",
+    "notConnected": "Google Calendar",
+    "connect": "Connetti",
+    "connectHint": "Richiede l'accesso ai tuoi eventi e all'elenco dei calendari.",
+    "others": "Altri calendari",
+    "holidays": "Festività",
+    "syncOk": "Sincronizzato.",
+    "syncFail": "Sincronizzazione non riuscita"
+  },
+  "backup": {
+    "export": "Esporta dati",
+    "exportBtn": "Scarica JSON",
+    "exportHint": "Liste, attività, tag, filtri e modelli.",
+    "import": "Importa dati",
+    "importHint": "File JSON esportato da Rose.",
+    "imported": "{{n}} attività importate.",
+    "invalid": "File non valido."
+  },
+  "kanban": {
+    "groupBy": "Raggruppa per",
+    "g": {
+      "column": "Sezione",
+      "date": "Data",
+      "priority": "Priorità"
+    },
+    "noSection": "Senza sezione",
+    "thisWeek": "Questa settimana",
+    "later": "Più avanti",
+    "addTask": "Aggiungi attività",
+    "addColumn": "Aggiungi colonna",
+    "columnName": "Nome colonna",
+    "renameColumn": "Nome colonna",
+    "confirmDeleteColumn": "Eliminare la colonna “{{name}}”? Le attività restano senza sezione."
+  },
+  "timeline": {
+    "day": "Giorno",
+    "week": "Settimana",
+    "month": "Mese",
+    "tasks": "Attività",
+    "clickToSchedule": "Clicca per impostare la data"
+  },
+  "matrix": {
+    "title": "Matrice di Eisenhower",
+    "allTags": "Tutti i tag",
+    "rules": "Regole della matrice",
+    "urgent": "Urgente quando scade",
+    "important": "Importante quando la priorità è",
+    "u0": "oggi o in ritardo",
+    "u1": "entro 1 giorno",
+    "u3": "entro 3 giorni",
+    "u7": "entro 7 giorni",
+    "i5": "Alta",
+    "i3": "Media o alta",
+    "urgentShort": "Urgente",
+    "notUrgentShort": "Non urgente",
+    "importantShort": "Importante",
+    "notImportantShort": "Non importante",
+    "q": {
+      "do": {
+        "name": "Fare",
+        "desc": "Urgente e importante"
+      },
+      "plan": {
+        "name": "Pianificare",
+        "desc": "Importante, non urgente"
+      },
+      "delegate": {
+        "name": "Delegare",
+        "desc": "Urgente, non importante"
+      },
+      "drop": {
+        "name": "Eliminare",
+        "desc": "Né urgente né importante"
+      }
+    }
+  },
+  "sticky": {
+    "title": "Note adesive",
+    "new": "Nuova nota",
+    "none": "Ancora nessuna nota.",
+    "empty": "Nota vuota",
+    "color": "Colore",
+    "popOut": "Apri in una finestra propria",
+    "hide": "Nascondi",
+    "placeholder": "Scrivi un'idea…",
+    "confirmDelete": "Eliminare questa nota?"
+  },
+  "pomo": {
+    "title": "Pomodoro",
+    "settings": "Impostazioni Pomodoro",
+    "focus": "Concentrazione",
+    "short": "Pausa breve",
+    "long": "Pausa lunga",
+    "longEvery": "Pausa lunga ogni (sessioni)",
+    "autoBreak": "Avvia le pause automaticamente",
+    "sound": "Suono al termine",
+    "mode": {
+      "pomodoro": "Pomodoro",
+      "stopwatch": "Cronometro"
+    },
+    "noTask": "Nessuna attività",
+    "start": "Avvia",
+    "pause": "Pausa",
+    "resume": "Riprendi",
+    "giveUp": "Abbandona",
+    "finish": "Termina",
+    "skip": "Salta la pausa",
+    "overview": "Riepilogo concentrazione",
+    "todayPomos": "Pomodori oggi",
+    "todayFocus": "Concentrazione oggi",
+    "week": "Ultimi 7 giorni",
+    "total": "Totale",
+    "history": "Cronologia",
+    "noHistory": "Ancora nessuna sessione."
+  },
+  "habit": {
+    "title": "Abitudini",
+    "today": "Oggi",
+    "new": "Nuova abitudine",
+    "edit": "Modifica abitudine",
+    "empty": "Crea un'abitudine e tieni traccia dei tuoi giorni.",
+    "streak": "Serie",
+    "best": "Serie migliore",
+    "total": "Giorni completati",
+    "rate30": "Percentuale (30 giorni)",
+    "daily": "Abitudine giornaliera",
+    "goalPer": "Obiettivo: {{n}} al giorno",
+    "namePh": "Nome dell'abitudine",
+    "type": "Tipo",
+    "yesNo": "Sì o no",
+    "count": "Conteggio",
+    "goal": "Obiettivo",
+    "unitPh": "Unità (es. bicchieri)",
+    "days": "Giorni della settimana",
+    "reminder": "Promemoria (orario)",
+    "archive": "Archivia"
+  },
+  "countdown": {
+    "title": "Conto alla rovescia",
+    "new": "Nuovo conto alla rovescia",
+    "edit": "Modifica conto alla rovescia",
+    "empty": "Ricorda ogni data speciale.",
+    "today": "È oggi!",
+    "daysLeft_one": "giorno rimasto",
+    "daysLeft_other": "giorni rimasti",
+    "daysAgo_one": "giorno fa",
+    "daysAgo_other": "giorni fa",
+    "namePh": "Nome (es. Viaggio)",
+    "date": "Data",
+    "yearly": "Ripeti ogni anno",
+    "pinned": "Fissa in alto",
+    "notePh": "Nota (facoltativa)"
+  },
+  "stats": {
+    "title": "Statistiche",
+    "range": "Periodo",
+    "lastDays": "Ultimi {{n}} giorni",
+    "tab": {
+      "overview": "Panoramica",
+      "tasks": "Attività",
+      "focus": "Concentrazione",
+      "habits": "Abitudini"
+    },
+    "tasksDone": "Attività completate",
+    "focusTime": "Tempo di concentrazione",
+    "checkins": "Check-in abitudini",
+    "openTasks": "Attività aperte",
+    "score": "Punteggio",
+    "level": "Livello {{n}}",
+    "maxLevel": "Livello massimo",
+    "toNext": "mancano {{n}} punti",
+    "tasksPerDay": "Attività completate al giorno",
+    "focusPerDay": "Concentrazione al giorno",
+    "byList": "Per lista",
+    "byPriority": "Per priorità",
+    "byTag": "Per tag",
+    "focusByTask": "Concentrazione per attività",
+    "habitRate": "Percentuale di completamento per abitudine",
+    "achievements": "Traguardi",
+    "locked": "bloccato",
+    "table": "Vedi tabella",
+    "chart": "Vedi grafico",
+    "a": {
+      "task": "{{n}} attività completate",
+      "pomo": "{{n}} pomodori",
+      "streak": "Serie di {{n}} giorni"
+    }
+  }
+}

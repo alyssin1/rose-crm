@@ -1,0 +1,48 @@
+/* Identidade extraída do ícone: rosa carmim, terno cinza-prata, gravata branca, fundo grafite */
+:root {
+  --rose-500: #d62f45;
+  --rose-600: #b8233a;
+  --rose-400: #ec5468;
+  --silver-300: #c3c6d0;
+  --silver-500: #8d909c;
+
+  --font: 'Inter', system-ui, -apple-system, 'Segoe UI', 'Noto Sans JP', sans-serif;
+  --radius: 8px;
+  --sidebar-w: 220px;
+  --rail-w: 44px;
+}
+
+:root,
+:root[data-theme='dark'] {
+  --bg: #1b1b20;
+  --bg-elev: #232329;
+  --bg-hover: #2c2c34;
+  --border: #33333c;
+  --text: #ececf1;
+  --text-dim: #9a9aa6;
+  --accent: var(--rose-500);
+  --accent-text: #ffffff;
+  color-scheme: dark;
+}
+
+:root[data-theme='light'] {
+  --bg: #ffffff;
+  --bg-elev: #f6f6f8;
+  --bg-hover: #ececf0;
+  --border: #e3e3e8;
+  --text: #1d1d22;
+  --text-dim: #6b6b76;
+  --accent: var(--rose-600);
+  --accent-text: #ffffff;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; margin: 0; }
+body {
+  background: var(--bg); color: var(--text); font: 14px/1.4 var(--font);
+  /* áreas seguras do iPhone (notch e barra home) quando instalado como app */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  overscroll-behavior: none;
+}
+button { font: inherit; color: inherit; cursor: pointer; }

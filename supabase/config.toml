@@ -1,0 +1,6 @@
+# Rose · configuração das Edge Functions (a autenticação é feita dentro de cada função).
+[functions.rose-google-sync]
+verify_jwt = false
+
+[functions.rose-reminders]
+verify_jwt = false

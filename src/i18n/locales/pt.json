@@ -1,0 +1,546 @@
+{
+  "app": {
+    "tagline": "Suas tarefas, no seu ritmo."
+  },
+  "auth": {
+    "google": "Entrar com Google",
+    "signOut": "Sair",
+    "denied": "A conta {{email}} não tem acesso ao Rose. Peça a liberação ao administrador."
+  },
+  "nav": {
+    "all": "Todas",
+    "today": "Hoje",
+    "next7": "Próximos 7 dias",
+    "inbox": "Caixa de Entrada",
+    "summary": "Resumo",
+    "lists": "Listas",
+    "filters": "Filtros",
+    "tags": "Etiquetas",
+    "completed": "Concluído",
+    "trash": "Lixeira",
+    "tasks": "Tarefas",
+    "calendar": "Calendário",
+    "search": "Buscar",
+    "addList": "Adicionar lista"
+  },
+  "settings": {
+    "theme": "Tema",
+    "dark": "Escuro",
+    "light": "Claro",
+    "language": "Idioma",
+    "title": "Configurações",
+    "name": "Nome",
+    "timeFormat": "Formato da hora",
+    "dateFormat": "Formato da data",
+    "weekStart": "Início da semana",
+    "weekNumbers": "Mostrar números da semana",
+    "perTaskTz": "Fuso horário por tarefa",
+    "perTaskTzHint": "Permite escolher o fuso ao definir a hora.",
+    "shortcuts": "Atalhos",
+    "shortcutsHint": "N nova tarefa · / ou Ctrl+K buscar · Esc fechar painel",
+    "tab": {
+      "account": "Conta",
+      "features": "Funcionalidades",
+      "datetime": "Data e hora",
+      "appearance": "Aparência",
+      "notifications": "Notificações",
+      "integrations": "Integrações",
+      "backup": "Backup",
+      "about": "Sobre"
+    },
+    "f": {
+      "calendar": "Calendário",
+      "matrix": "Matriz de Eisenhower",
+      "habit": "Hábito",
+      "pomodoro": "Pomodoro",
+      "countdown": "Contagem Regressiva",
+      "sticky": "Nota adesiva"
+    }
+  },
+  "common": {
+    "cancel": "Cancelar",
+    "save": "Salvar",
+    "toggleSidebar": "Mostrar/ocultar barra lateral",
+    "more": "Mais",
+    "soon": "em breve"
+  },
+  "list": {
+    "name": "Nome da lista",
+    "rename": "Renomear",
+    "emoji": "Emoji",
+    "delete": "Excluir",
+    "confirmDelete": "Excluir \"{{name}}\"? As tarefas vão para a Lixeira."
+  },
+  "filter": {
+    "new": "Novo filtro",
+    "hint": "Mostrar tarefas filtradas por lista, data, prioridade, etiqueta e mais.",
+    "lists": "Listas",
+    "priority": "Prioridade",
+    "date": "Data",
+    "status": "Status",
+    "d": {
+      "any": "Qualquer data",
+      "today": "Hoje e atrasadas",
+      "next7": "Próximos 7 dias",
+      "overdue": "Atrasadas",
+      "nodate": "Sem data"
+    },
+    "s": {
+      "open": "Em aberto",
+      "done": "Concluídas",
+      "all": "Todas"
+    }
+  },
+  "tag": {
+    "hint": "Categorize suas tarefas com etiquetas. Digite \"#\" ao adicionar uma tarefa."
+  },
+  "task": {
+    "addPlaceholder": "Adicionar tarefa a \"{{list}}\"",
+    "empty": "Nenhuma tarefa por aqui.",
+    "emptyCompleted": "Nenhuma tarefa concluída.",
+    "complete": "Concluir tarefa",
+    "untitled": "Sem título"
+  },
+  "group": {
+    "pinned": "Fixado",
+    "noList": "Sem lista",
+    "noTag": "Sem etiqueta",
+    "noDate": "Sem Data",
+    "overdue": "Atrasado"
+  },
+  "due": {
+    "today": "Hoje",
+    "tomorrow": "Amanhã",
+    "yesterday": "Ontem"
+  },
+  "priority": {
+    "title": "Prioridade",
+    "0": "Nenhuma",
+    "1": "Baixa",
+    "3": "Média",
+    "5": "Alta"
+  },
+  "sort": {
+    "title": "Ordenação",
+    "groupBy": "Agrupar por",
+    "orderBy": "Ordenar por",
+    "order": "Ordem",
+    "asc": "Crescente",
+    "desc": "Decrescente",
+    "g": {
+      "date": "Data",
+      "list": "Lista",
+      "priority": "Prioridade",
+      "tag": "Etiqueta",
+      "none": "Nenhum"
+    },
+    "o": {
+      "date": "Data",
+      "modified": "Hora de modificação",
+      "created": "Data de modificação",
+      "title": "Título",
+      "tag": "Tag",
+      "priority": "Prioridade"
+    }
+  },
+  "view": {
+    "title": "Visualização",
+    "list": "Lista",
+    "kanban": "Kanban",
+    "timeline": "Linha do tempo",
+    "showCompleted": "Mostrar Concluído",
+    "showDetails": "Mostrar detalhes",
+    "onlyLists": "só em listas"
+  },
+  "trash": {
+    "empty": "Esvaziar lixeira",
+    "confirmEmpty": "Excluir permanentemente tudo da Lixeira?",
+    "empty0": "A Lixeira está vazia.",
+    "restore": "Restaurar",
+    "purge": "Excluir de vez"
+  },
+  "detail": {
+    "dueDate": "Dia do vencimento",
+    "titlePh": "Título",
+    "contentPh": "Descrição",
+    "subtasks": "Subtarefas",
+    "addSubtask": "Adicionar subtarefa",
+    "addTag": "etiqueta",
+    "pin": "Fixar",
+    "unpin": "Desafixar",
+    "wontDo": "Não farei",
+    "attach": "Carregar anexo",
+    "activity": "Atividades da Tarefa",
+    "saveTemplate": "Salvar como modelo",
+    "duplicate": "Duplicar",
+    "copyLink": "Copiar link",
+    "toNote": "Converter para nota",
+    "export": "Export",
+    "print": "Imprimir",
+    "delete": "Deletar",
+    "attachments": "Anexos",
+    "toTask": "Converter para tarefa"
+  },
+  "date": {
+    "tabDate": "Data",
+    "tabDuration": "Duração",
+    "today": "Hoje",
+    "tomorrow": "Amanhã",
+    "nextWeek": "Próxima semana",
+    "nextMonth": "Próximo mês",
+    "time": "Hora",
+    "allDay": "Dia inteiro",
+    "reminder": "Lembrete",
+    "none": "Nenhum",
+    "rem": {
+      "on_time": "No horário",
+      "5m": "5 minutos antes",
+      "30m": "30 minutos antes",
+      "1h": "1 hora antes",
+      "1d": "1 dia antes"
+    },
+    "repeat": "Repetir",
+    "freq": {
+      "DAILY": "Diariamente",
+      "WEEKLY": "Semanalmente",
+      "MONTHLY": "Mensalmente",
+      "YEARLY": "Anualmente"
+    },
+    "every": "A cada",
+    "fromDue": "Repetir a partir do vencimento",
+    "fromCompletion": "Repetir a partir da conclusão",
+    "clear": "Limpar",
+    "ok": "OK"
+  },
+  "calendar": {
+    "allDay": "Dia inteiro",
+    "noon": "Meio-dia",
+    "emptyAgenda": "Nada agendado para os próximos dias.",
+    "today": "Hoje",
+    "new": "Nova tarefa",
+    "newPh": "Título da tarefa",
+    "days": "Dias",
+    "weeks": "Semanas",
+    "mode": {
+      "year": "Ano",
+      "month": "Mês",
+      "week": "Semana",
+      "day": "Dia",
+      "agenda": "Agenda",
+      "multiday": "Multi-Dia",
+      "multiweek": "Multi-Semana"
+    }
+  },
+  "editor": {
+    "heading": "Título",
+    "bold": "Negrito",
+    "italic": "Itálico",
+    "underline": "Sublinhado",
+    "strike": "Tachado",
+    "bullets": "Lista",
+    "numbers": "Lista numerada",
+    "quote": "Citação",
+    "code": "Código",
+    "link": "Link",
+    "clear": "Limpar formatação"
+  },
+  "search": {
+    "placeholder": "Buscar",
+    "all": "Tudo",
+    "task": "Tarefa",
+    "list": "Lista",
+    "hint": "Digite palavras-chave para iniciar a busca.",
+    "none": "Nenhum resultado."
+  },
+  "summary": {
+    "saveAs": "Salvar como",
+    "copyAs": "Copiar",
+    "copied": "Copiado!",
+    "text": "Texto",
+    "template": "Modelo",
+    "filter": "Filtro",
+    "date": "Data",
+    "allLists": "Todas as listas",
+    "more": "Mais",
+    "none": "Nenhuma",
+    "withPriority": "Só com prioridade",
+    "display": "Opções de Exibição",
+    "grouping": "Agrupamento",
+    "fields": "Campos",
+    "selected": "{{n}} selecionados",
+    "nextPeriod": "Tarefas do Próximo Período",
+    "done": "Feito",
+    "undone": "Desfeito",
+    "next": "Próximo período",
+    "empty": "Nenhuma tarefa neste período.",
+    "s": {
+      "all": "Todos os status"
+    },
+    "g": {
+      "status": "Por status de conclusão",
+      "list": "Por lista",
+      "date": "Por data"
+    },
+    "f": {
+      "date": "Data",
+      "list": "Lista",
+      "tags": "Etiquetas",
+      "priority": "Prioridade"
+    },
+    "t": {
+      "blank": "Em branco",
+      "daily": "Diário",
+      "weekly": "Semanal"
+    },
+    "p": {
+      "daily": "Resumo do dia",
+      "weekly": "Resumo da semana"
+    },
+    "r": {
+      "today": "Hoje",
+      "yesterday": "Ontem",
+      "week": "Esta semana",
+      "lastWeek": "Semana passada",
+      "month": "Este mês",
+      "lastMonth": "Mês passado",
+      "last7": "Últimos 7 dias",
+      "last30": "Últimos 30 dias"
+    }
+  },
+  "activity": {
+    "created": "Tarefa criada",
+    "title": "Título alterado: “{{from}}” → “{{to}}”",
+    "due": "Data alterada: {{from}} → {{to}}",
+    "priority": "Prioridade: {{from}} → {{to}}",
+    "list": "Movida para “{{to}}”",
+    "completed": "Concluída",
+    "wontdo": "Marcada como “Não farei”",
+    "reopened": "Reaberta",
+    "pinned": "Fixada",
+    "unpinned": "Desafixada",
+    "trashed": "Movida para a Lixeira",
+    "restored": "Restaurada",
+    "attached": "Anexo adicionado: {{name}}"
+  },
+  "template": {
+    "create": "Criar a partir de modelo",
+    "saved": "Modelo salvo"
+  },
+  "offline": {
+    "offline": "Sem conexão — suas alterações ficam salvas neste aparelho",
+    "syncing": "Sincronizando {{n}} alteração(ões)…",
+    "pending": "{{n}} pendente(s)"
+  },
+  "notif": {
+    "push": "Notificações no aparelho (Web Push)",
+    "pushHint": "Lembretes mesmo com o app fechado. No iPhone, instale o Rose na Tela de Início.",
+    "local": "Notificações do navegador",
+    "localHint": "Avisos enquanto o Rose está aberto.",
+    "allow": "Permitir",
+    "granted": "Permissão concedida.",
+    "denied": "Permissão negada no navegador.",
+    "email": "Lembretes por e-mail",
+    "emailHint": "Enviados para {{email}}.",
+    "body": "Lembrete da tarefa",
+    "unsupported": "Este navegador não suporta Web Push.",
+    "nokey": "Chave VAPID ausente.",
+    "ok": "Ativado."
+  },
+  "google": {
+    "calendar": "Agenda do Google",
+    "noCalendar": "Só no Rose",
+    "connected": "Google Calendar conectado",
+    "disconnect": "Desconectar",
+    "syncNow": "Sincronizar agora",
+    "sync": "Sincronizar",
+    "syncHint": "Eventos do Google aparecem no Calendário; tarefas ligadas a uma agenda vão para o Google.",
+    "calendars": "Agendas",
+    "noCalendars": "Nenhuma agenda ainda. Clique em Sincronizar.",
+    "notConnected": "Google Calendar",
+    "connect": "Conectar",
+    "connectHint": "Pede acesso aos seus eventos e à lista de agendas.",
+    "others": "Outras agendas",
+    "holidays": "Feriados",
+    "syncOk": "Sincronizado.",
+    "syncFail": "Falha ao sincronizar"
+  },
+  "backup": {
+    "export": "Exportar dados",
+    "exportBtn": "Baixar JSON",
+    "exportHint": "Listas, tarefas, etiquetas, filtros e modelos.",
+    "import": "Importar dados",
+    "importHint": "Arquivo JSON exportado pelo Rose.",
+    "imported": "{{n}} tarefa(s) importada(s).",
+    "invalid": "Arquivo inválido."
+  },
+  "kanban": {
+    "groupBy": "Agrupar por",
+    "g": {
+      "column": "Seção",
+      "date": "Data",
+      "priority": "Prioridade"
+    },
+    "noSection": "Sem seção",
+    "thisWeek": "Esta semana",
+    "later": "Mais tarde",
+    "addTask": "Adicionar tarefa",
+    "addColumn": "Adicionar coluna",
+    "columnName": "Nome da coluna",
+    "renameColumn": "Nome da coluna",
+    "confirmDeleteColumn": "Excluir a coluna “{{name}}”? As tarefas ficam sem seção."
+  },
+  "timeline": {
+    "day": "Dia",
+    "week": "Semana",
+    "month": "Mês",
+    "tasks": "Tarefas",
+    "clickToSchedule": "Clique para definir a data"
+  },
+  "matrix": {
+    "title": "Matriz de Eisenhower",
+    "allTags": "Todas as etiquetas",
+    "rules": "Regras da matriz",
+    "urgent": "Urgente quando vence",
+    "important": "Importante quando a prioridade for",
+    "u0": "hoje ou atrasada",
+    "u1": "em até 1 dia",
+    "u3": "em até 3 dias",
+    "u7": "em até 7 dias",
+    "i5": "Alta",
+    "i3": "Média ou alta",
+    "urgentShort": "Urgente",
+    "notUrgentShort": "Não urgente",
+    "importantShort": "Importante",
+    "notImportantShort": "Não importante",
+    "q": {
+      "do": {
+        "name": "Fazer",
+        "desc": "Urgente e importante"
+      },
+      "plan": {
+        "name": "Planejar",
+        "desc": "Importante, não urgente"
+      },
+      "delegate": {
+        "name": "Delegar",
+        "desc": "Urgente, não importante"
+      },
+      "drop": {
+        "name": "Eliminar",
+        "desc": "Nem urgente nem importante"
+      }
+    }
+  },
+  "sticky": {
+    "title": "Notas adesivas",
+    "new": "Nova nota",
+    "none": "Nenhuma nota ainda.",
+    "empty": "Nota vazia",
+    "color": "Cor",
+    "popOut": "Abrir em janela própria",
+    "hide": "Ocultar",
+    "placeholder": "Escreva uma ideia…",
+    "confirmDelete": "Excluir esta nota?"
+  },
+  "pomo": {
+    "title": "Pomodoro",
+    "settings": "Configurações do Pomodoro",
+    "focus": "Foco",
+    "short": "Pausa curta",
+    "long": "Pausa longa",
+    "longEvery": "Pausa longa a cada (focos)",
+    "autoBreak": "Iniciar a pausa automaticamente",
+    "sound": "Som ao final",
+    "mode": {
+      "pomodoro": "Pomodoro",
+      "stopwatch": "Cronômetro"
+    },
+    "noTask": "Sem tarefa",
+    "start": "Iniciar",
+    "pause": "Pausar",
+    "resume": "Continuar",
+    "giveUp": "Desistir",
+    "finish": "Finalizar",
+    "skip": "Pular pausa",
+    "overview": "Resumo de foco",
+    "todayPomos": "Pomodoros hoje",
+    "todayFocus": "Foco hoje",
+    "week": "Últimos 7 dias",
+    "total": "Total",
+    "history": "Histórico",
+    "noHistory": "Nenhuma sessão ainda."
+  },
+  "habit": {
+    "title": "Hábito",
+    "today": "Hoje",
+    "new": "Novo hábito",
+    "edit": "Editar hábito",
+    "empty": "Crie um hábito e acompanhe seus dias.",
+    "streak": "Sequência",
+    "best": "Melhor sequência",
+    "total": "Dias concluídos",
+    "rate30": "Taxa (30 dias)",
+    "daily": "Hábito diário",
+    "goalPer": "Meta: {{n}} por dia",
+    "namePh": "Nome do hábito",
+    "type": "Tipo",
+    "yesNo": "Sim ou não",
+    "count": "Contagem",
+    "goal": "Meta",
+    "unitPh": "Unidade (ex.: copos)",
+    "days": "Dias da semana",
+    "reminder": "Lembrete (horário)",
+    "archive": "Arquivar"
+  },
+  "countdown": {
+    "title": "Contagem Regressiva",
+    "new": "Nova contagem",
+    "edit": "Editar contagem",
+    "empty": "Lembre-se de cada data especial.",
+    "today": "É hoje!",
+    "daysLeft_one": "dia restante",
+    "daysLeft_other": "dias restantes",
+    "daysAgo_one": "dia atrás",
+    "daysAgo_other": "dias atrás",
+    "namePh": "Nome (ex.: Viagem)",
+    "date": "Data",
+    "yearly": "Repetir todo ano",
+    "pinned": "Fixar no topo",
+    "notePh": "Nota (opcional)"
+  },
+  "stats": {
+    "title": "Estatísticas",
+    "range": "Período",
+    "lastDays": "Últimos {{n}} dias",
+    "tab": {
+      "overview": "Visão geral",
+      "tasks": "Tarefas",
+      "focus": "Foco",
+      "habits": "Hábitos"
+    },
+    "tasksDone": "Tarefas concluídas",
+    "focusTime": "Tempo de foco",
+    "checkins": "Check-ins de hábitos",
+    "openTasks": "Tarefas em aberto",
+    "score": "Pontuação",
+    "level": "Nível {{n}}",
+    "maxLevel": "Nível máximo",
+    "toNext": "faltam {{n}} pontos",
+    "tasksPerDay": "Tarefas concluídas por dia",
+    "focusPerDay": "Foco por dia",
+    "byList": "Por lista",
+    "byPriority": "Por prioridade",
+    "byTag": "Por etiqueta",
+    "focusByTask": "Foco por tarefa",
+    "habitRate": "Taxa de conclusão por hábito",
+    "achievements": "Conquistas",
+    "locked": "bloqueada",
+    "table": "Ver tabela",
+    "chart": "Ver gráfico",
+    "a": {
+      "task": "{{n}} tarefa(s) concluída(s)",
+      "pomo": "{{n}} pomodoro(s)",
+      "streak": "Sequência de {{n}} dias"
+    }
+  }
+}
