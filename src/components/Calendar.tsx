@@ -6,6 +6,7 @@ import { isoWeek } from '../lib/format'
 import type { Task } from '../lib/types'
 import { Icon } from './Icon'
 import { Popover } from './Popover'
+import { openTaskMenu } from './TaskContextMenu'
 
 export type CalMode = 'year' | 'month' | 'week' | 'day' | 'agenda' | 'multiday' | 'multiweek'
 const MODES: CalMode[] = ['year', 'month', 'week', 'day', 'agenda', 'multiday', 'multiweek']
@@ -165,6 +166,7 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
           e.stopPropagation()
           onSelect(task.id)
         }}
+        onContextMenu={(e) => openTaskMenu(e, task.id)}
         {...dragProps(task)}
         title={task.title}
       >
@@ -285,6 +287,7 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
                           e.stopPropagation()
                           onSelect(ev.task.id)
                         }}
+                        onContextMenu={(e) => openTaskMenu(e, ev.task.id)}
                         {...dragProps(ev.task)}
                       >
                         <b>{ev.task.title || t('task.untitled')}</b>

@@ -563,5 +563,10 @@
     "none": "No folder",
     "moveTo": "Move to folder",
     "confirmDelete": "Delete folder “{{name}}”? Lists are kept, they just leave the folder."
+  },
+  "ctx": {
+    "pickDate": "Pick date",
+    "moveTo": "Move to",
+    "noTags": "No tags yet."
   }
 }

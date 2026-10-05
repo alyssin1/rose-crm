@@ -6,6 +6,7 @@ import { tagIdsOf } from '../lib/views'
 import type { Priority, Task } from '../lib/types'
 import { Icon } from './Icon'
 import { Popover } from './Popover'
+import { openTaskMenu } from './TaskContextMenu'
 
 export interface MatrixRules {
   urgentDays: number // urgente = vence em até N dias (atrasadas incluídas)
@@ -174,6 +175,7 @@ export function Matrix({ selectedId, onSelect, onToggleSidebar }: Props) {
                     draggable
                     onDragStart={() => (dragId.current = x.id)}
                     onClick={() => onSelect(x.id)}
+                    onContextMenu={(e) => openTaskMenu(e, x.id)}
                   >
                     <button
                       className={`check p${x.priority}` + (x.status === 1 ? ' on' : x.status === 2 ? ' wont' : '')}

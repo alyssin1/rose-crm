@@ -7,6 +7,7 @@ import type { List, Task } from '../lib/types'
 import { Icon } from './Icon'
 import { Popover } from './Popover'
 import { confirmAsk, promptText } from './Dialogs'
+import { openTaskMenu } from './TaskContextMenu'
 
 export type KanbanGroup = 'column' | 'date' | 'priority'
 
@@ -223,6 +224,7 @@ function Card({ task, lang, selected, over, onSelect, onDragStart, onDragOverCar
       className={'kcard' + (selected ? ' sel' : '') + (task.status !== 0 ? ' done' : '') + (over ? ' drop-before' : '')}
       draggable
       onClick={() => onSelect(task.id)}
+      onContextMenu={(e) => openTaskMenu(e, task.id)}
       onDragStart={(e) => {
         e.dataTransfer.setData('text/rose-task', task.id)
         onDragStart()

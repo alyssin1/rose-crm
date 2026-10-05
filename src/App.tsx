@@ -24,6 +24,7 @@ import type { View } from './lib/types'
 import { useMobile } from './lib/useMobile'
 import { setFormat } from './lib/format'
 import { DialogHost } from './components/Dialogs'
+import { TaskContextHost } from './components/TaskContextMenu'
 
 type Theme = 'dark' | 'light'
 const GOOGLE_SCOPES = 'https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.calendarlist.readonly'
@@ -288,6 +289,7 @@ function Shell({ session, theme, setTheme }: { session: Session; theme: Theme; s
       </main>
 
       {stickyOn && <StickyLayer />}
+      <TaskContextHost onSelect={setSelected} weekStart={weekStart} />
       <DialogHost />
 
       {searching && (

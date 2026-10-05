@@ -563,5 +563,10 @@
     "none": "Sem pasta",
     "moveTo": "Mover para a pasta",
     "confirmDelete": "Excluir a pasta “{{name}}”? As listas continuam, só saem da pasta."
+  },
+  "ctx": {
+    "pickDate": "Escolher data",
+    "moveTo": "Mover para",
+    "noTags": "Nenhuma etiqueta ainda."
   }
 }

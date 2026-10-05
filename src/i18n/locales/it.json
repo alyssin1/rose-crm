@@ -563,5 +563,10 @@
     "none": "Nessuna cartella",
     "moveTo": "Sposta nella cartella",
     "confirmDelete": "Eliminare la cartella “{{name}}”? Le liste restano, escono solo dalla cartella."
+  },
+  "ctx": {
+    "pickDate": "Scegli data",
+    "moveTo": "Sposta in",
+    "noTags": "Ancora nessun tag."
   }
 }

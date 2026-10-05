@@ -10,6 +10,7 @@ import { Popover } from './Popover'
 import { Kanban } from './Kanban'
 import { Timeline } from './Timeline'
 import { confirmAsk } from './Dialogs'
+import { openTaskMenu } from './TaskContextMenu'
 
 const loadOpts = (key: string): ViewOptions => {
   try {
@@ -280,6 +281,7 @@ function Row({ task, view, opts, selected, onSelect, dnd, group }: { task: Task;
     <div
       className={'task-row' + (selected ? ' selected' : '') + (task.status !== 0 ? ' done' : '') + (dnd.overId === task.id ? ' drop-before' : '')}
       onClick={() => onSelect(task.id)}
+      onContextMenu={(e) => openTaskMenu(e, task.id)}
       draggable={view.type !== 'trash' && view.type !== 'completed'}
       onDragStart={(e) => {
         dnd.dragId.current = task.id
