@@ -36,7 +36,7 @@ export function Sidebar({ view, onView }: Props) {
   const row = (v: View, icon: IconName | null, label: string, count?: number, emoji?: string | null, color?: string | null, menu?: React.ReactNode, indent = false) => (
     <div key={viewKey(v)} className={'side-item' + (active === viewKey(v) ? ' active' : '') + (indent ? ' indent' : '')}>
       <button className="side-btn" onClick={() => onView(v)}>
-        {emoji ? <span className="emoji">{emoji}</span> : icon ? <Icon name={icon} size={16} /> : <span className="dot" style={{ background: color ?? 'var(--silver-500)' }} />}
+        {emoji ? <span className="emoji">{emoji}</span> : icon ? <Icon name={icon} size={20} /> : <span className="dot" style={{ background: color ?? 'var(--silver-500)' }} />}
         <span className="grow">{label}</span>
         {count ? <span className="count">{count}</span> : null}
       </button>

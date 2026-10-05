@@ -314,6 +314,7 @@ function Row({ task, view, opts, selected, onSelect, dnd, group }: { task: Task;
       <span className="title">{task.title || t('task.untitled')}</span>
       {opts.showDetails && (
         <span className="meta">
+          {task.priority > 0 && <span className={`prio p${task.priority}`}><Icon name="flag" size={12} className={`pf p${task.priority}`} /> {t(`priority.${task.priority}`)}</span>}
           {subs.length > 0 && <span className="subs">{subs.filter((x) => x.status !== 0).length}/{subs.length}</span>}
           {tagNames.map((n) => <span key={n} className="tag">#{n}</span>)}
           {showList && list && <span className="list-name">{list.emoji} {list.is_inbox ? t('nav.inbox') : list.name}</span>}

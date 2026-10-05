@@ -24,3 +24,29 @@
 .ctx-arrow { margin-left: auto; color: var(--text-dim); }
 .ctx-sub { padding-left: 14px; max-height: 180px; overflow: auto; }
 .ctx-empty { color: var(--text-dim); font-size: 12px; padding: 6px 8px; }
+
+/* ---------- medidas do TickTick (medidas no app real) ---------- */
+.rail { gap: 16px; padding: 13px 0; }
+.avatar { width: 28px; height: 28px; margin-bottom: 18px; }
+.rail-btn { width: 34px; height: 34px; }
+.rail-btn svg { width: 22px; height: 22px; }
+.sidebar { padding: 14px 10px 8px 10px; }
+.side-item { border-radius: 10px; min-height: 36px; }
+.side-btn { padding: 0 12px; gap: 6px; min-height: 36px; font-size: 14px; line-height: 20px; }
+.side-btn .grow { padding-left: 0; }
+.side-btn .count { font-size: 12px; color: color-mix(in srgb, var(--text) 40%, transparent); }
+.side-btn .emoji { width: 20px; font-size: 16px; }
+.side-btn .dot { width: 12px; height: 12px; margin: 0 4px; }
+.side-item.indent .side-btn { padding-left: 24px; }
+.side-group { padding: 14px 14px 6px; font-size: 12px; font-weight: 700; color: color-mix(in srgb, var(--text) 30%, transparent); }
+.side-hint { margin: 2px 4px 6px; }
+.side-sep { margin: 8px 12px; }
+.tasks-head h2 { font-size: 20px; }
+.tasks { padding: 0 36px; }
+.group-head b { font-size: 14px; font-weight: 600; }
+.group-head span { font-size: 12px; }
+.task-row { min-height: 40px; padding: 0 8px; font-size: 14px; }
+.meta { font-size: 12px; gap: 12px; }
+.meta .prio { display: inline-flex; align-items: center; gap: 4px; }
+.meta .prio.p5 { color: var(--p-high); } .meta .prio.p3 { color: var(--p-med); } .meta .prio.p1 { color: var(--p-low); }
+@media (max-width: 820px) { .tasks { padding: 0 12px; } .side-btn { font-size: 15px; } }

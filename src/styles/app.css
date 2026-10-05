@@ -1,4 +1,4 @@
-:root { --p-high: #e5484d; --p-med: #f5a524; --p-low: #4c8dff; --overdue: #e5484d; --today: #4c8dff; --sidebar-w: 186px; --detail-w: 480px; }
+:root { --p-high: #e5484d; --p-med: #f5a524; --p-low: #4c8dff; --overdue: #e5484d; --today: #4c8dff; --sidebar-w: 212px; --detail-w: 480px; }
 button:disabled { opacity: .45; cursor: not-allowed; }
 .grow { flex: 1; }
 input, select, textarea { font: inherit; color: var(--text); background: var(--bg-elev); border: 1px solid var(--border); border-radius: var(--radius); padding: 6px 8px; outline: none; }
