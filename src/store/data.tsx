@@ -681,6 +681,13 @@ export function DataProvider({ userId, children }: { userId: string; children: R
       const { error: e } = await supabase.functions.invoke('rose-google-sync', { body: { action: 'sync' } })
       if (e) {
         setSyncAvailable(false) // não repete a cada 5 min; o botão "Sincronizar" continua tentando
+        // a função devolve {error: "..."}: mostra o motivo real em vez de "non-2xx"
+        try {
+          const body = await (e as { context?: Response }).context?.json()
+          if (body?.error) return String(body.error)
+        } catch {
+          /* sem corpo legível */
+        }
         return e.message
       }
       setSyncAvailable(true)
