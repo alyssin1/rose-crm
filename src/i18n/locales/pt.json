@@ -56,7 +56,15 @@
       "countdown": "Contagem Regressiva",
       "sticky": "Nota adesiva"
     },
-    "dateAuto": "Automático (idioma)"
+    "dateAuto": "Automático (idioma)",
+    "fd": {
+      "calendar": "Gerencie suas tarefas com seis visualizações de calendário.",
+      "matrix": "Concentre-se no que é importante e urgente.",
+      "habit": "Desenvolva um hábito e mantenha o controle dele.",
+      "pomodoro": "Use o temporizador ou cronômetro Pomo para manter o foco.",
+      "countdown": "Lembre-se de cada dia especial.",
+      "sticky": "Registre ideias a qualquer momento em notas flutuantes."
+    }
   },
   "common": {
     "cancel": "Cancelar",

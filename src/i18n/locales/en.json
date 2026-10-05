@@ -56,7 +56,15 @@
       "countdown": "Countdown",
       "sticky": "Sticky Note"
     },
-    "dateAuto": "Automatic (language)"
+    "dateAuto": "Automatic (language)",
+    "fd": {
+      "calendar": "Manage your tasks with six calendar views.",
+      "matrix": "Focus on what is important and urgent.",
+      "habit": "Build a habit and keep track of it.",
+      "pomodoro": "Use the Pomo timer or stopwatch to stay focused.",
+      "countdown": "Remember every special day.",
+      "sticky": "Capture ideas anytime with floating notes."
+    }
   },
   "common": {
     "cancel": "Cancel",

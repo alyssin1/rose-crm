@@ -56,7 +56,15 @@
       "countdown": "Conto alla rovescia",
       "sticky": "Note adesive"
     },
-    "dateAuto": "Automatico (lingua)"
+    "dateAuto": "Automatico (lingua)",
+    "fd": {
+      "calendar": "Gestisci le attività con sei viste del calendario.",
+      "matrix": "Concentrati su ciò che è importante e urgente.",
+      "habit": "Costruisci un'abitudine e tienila sotto controllo.",
+      "pomodoro": "Usa il timer Pomo o il cronometro per restare concentrato.",
+      "countdown": "Ricorda ogni giorno speciale.",
+      "sticky": "Annota idee in qualsiasi momento con note fluttuanti."
+    }
   },
   "common": {
     "cancel": "Annulla",

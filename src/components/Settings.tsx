@@ -6,6 +6,7 @@ import { LANGS } from '../i18n'
 import { signInWithGoogle } from '../lib/supabase'
 import { askPermission, disablePush, enablePush, notificationsSupported, pushActive } from '../lib/notify'
 import { Icon, type IconName } from './Icon'
+import { FeatureCards } from './FeatureCards'
 
 type Tab = 'account' | 'features' | 'datetime' | 'appearance' | 'notifications' | 'integrations' | 'backup' | 'about'
 const TABS: { id: Tab; icon: IconName }[] = [
@@ -18,8 +19,6 @@ const TABS: { id: Tab; icon: IconName }[] = [
   { id: 'backup', icon: 'download' },
   { id: 'about', icon: 'note' },
 ]
-const FEATURES = ['calendar', 'matrix', 'sticky', 'habit', 'pomodoro', 'countdown'] as const
-const LIVE = new Set(['calendar', 'matrix', 'sticky', 'habit', 'pomodoro', 'countdown'])
 
 interface Props {
   session: Session
@@ -127,9 +126,11 @@ export function Settings({ session, theme, setTheme, initialTab = 'account', onC
           )}
 
           {tab === 'features' && (
-            <div className="settings-sec">
-              {FEATURES.map((f) => row(t(`settings.f.${f}`), <input type="checkbox" checked={f === 'matrix' ? !!p?.features?.[f] : p?.features?.[f] !== false} onChange={(e) => data.updateProfile({ features: { ...(p?.features ?? {}), [f]: e.target.checked } })} />, LIVE.has(f) ? undefined : t('common.soon')))}
-            </div>
+            <FeatureCards
+              keys={['calendar', 'matrix', 'habit', 'pomodoro', 'countdown', 'sticky']}
+              isOn={(k) => (k === 'matrix' ? !!p?.features?.[k] : p?.features?.[k] !== false)}
+              toggle={(k, on) => void data.updateProfile({ features: { ...(p?.features ?? {}), [k]: on } })}
+            />
           )}
 
           {tab === 'datetime' && (
