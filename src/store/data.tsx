@@ -80,6 +80,7 @@ interface DataApi {
   disconnectGoogle: () => Promise<void>
   toggleGoogleCalendar: (id: string, enabled: boolean) => Promise<void>
   syncGoogle: (manual?: boolean) => Promise<string | null>
+  rsvpEvent: (taskId: string, response: 'accepted' | 'declined' | 'tentative') => Promise<string | null>
   syncAvailable: boolean
   addColumn: (listId: string, name: string) => Promise<Column>
   renameColumn: (id: string, name: string) => Promise<void>
@@ -674,6 +675,21 @@ export function DataProvider({ userId, children }: { userId: string; children: R
     async toggleGoogleCalendar(id, enabled) {
       setGoogleCalendars((p) => p.map((c) => (c.id === id ? { ...c, enabled } : c)))
       await mutate({ table: 'rose_google_calendars', kind: 'update', patch: { enabled }, match: [eq('id', id)] })
+    },
+
+    async rsvpEvent(taskId, response) {
+      const { error: e } = await supabase.functions.invoke('rose-google-sync', { body: { action: 'rsvp', taskId, response } })
+      if (e) {
+        try {
+          const b = await (e as { context?: Response }).context?.json()
+          if (b?.error) return String(b.error)
+        } catch {
+          /* sem corpo */
+        }
+        return e.message
+      }
+      setTasks((p) => p.map((x) => (x.id === taskId && x.google_meta ? { ...x, google_meta: { ...x.google_meta, attendees: x.google_meta.attendees.map((a) => (a.self ? { ...a, status: response } : a)) } } : x)))
+      return null
     },
 
     async syncGoogle(manual = true) {

@@ -8,6 +8,7 @@ import { Icon } from './Icon'
 import { Popover } from './Popover'
 import { openTaskMenu } from './TaskContextMenu'
 import { NSelect } from './Select'
+import { EventPopup } from './EventPopup'
 
 export type CalMode = 'year' | 'month' | 'week' | 'day' | 'agenda' | 'multiday' | 'multiweek'
 const MODES: CalMode[] = ['year', 'month', 'week', 'day', 'agenda', 'multiday', 'multiweek']
@@ -78,6 +79,12 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
       return new Set()
     }
   })
+  const [popup, setPopup] = useState<{ id: string; x: number; y: number } | null>(null)
+  const openEvent = (e: React.MouseEvent, task: Task) => {
+    e.stopPropagation()
+    if (task.source === 'google') setPopup({ id: task.id, x: e.clientX + 8, y: e.clientY - 12 })
+    else onSelect(task.id)
+  }
   const [asideOpen, setAsideOpen] = useState(() => !window.matchMedia('(max-width: 820px)').matches)
   const [mini, setMini] = useState(new Date(cursor.getFullYear(), cursor.getMonth(), 1))
   useEffect(() => setMini(new Date(cursor.getFullYear(), cursor.getMonth(), 1)), [cursor])
@@ -205,10 +212,7 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
         key={task.id + day.toISOString()}
         className={'cal-chip' + (task.status !== 0 ? ' done' : '') + (selectedId === task.id ? ' sel' : '') + (ev.allDay || compact || !sameDay(ev.start, ev.end) ? ' solid' : ' timed')}
         style={{ ['--c' as string]: c, ['--fg' as string]: onColor(c) }}
-        onClick={(e) => {
-          e.stopPropagation()
-          onSelect(task.id)
-        }}
+        onClick={(e) => openEvent(e, task)}
         onContextMenu={(e) => openTaskMenu(e, task.id)}
         {...dragProps(task)}
         title={task.title}
@@ -339,10 +343,7 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
                         key={ev.task.id}
                         className={'cal-ev' + (ev.task.status !== 0 ? ' done' : '') + (selectedId === ev.task.id ? ' sel' : '')}
                         style={{ top, height: h, left: `calc((100% - 12px) * ${col / cols})`, width: `calc((100% - 12px) / ${cols} - 2px)`, ['--c' as string]: c, ['--fg' as string]: onColor(c) }}
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          onSelect(ev.task.id)
-                        }}
+                        onClick={(e) => openEvent(e, ev.task)}
                         onContextMenu={(e) => openTaskMenu(e, ev.task.id)}
                         {...dragProps(ev.task)}
                       >
@@ -387,7 +388,7 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
               <div className={'cal-ag-date' + (sameDay(d, today) ? ' today' : '')}><b>{d.getDate()}</b><small>{fmt({ weekday: 'short' }, d)}</small></div>
               <div className="cal-ag-list">
                 {events.filter((ev) => overlapsDay(ev, d)).map((ev) => (
-                  <div key={ev.task.id} className={'cal-ag-item' + (selectedId === ev.task.id ? ' sel' : '')} style={{ borderLeftColor: color(ev.task) }} onClick={() => onSelect(ev.task.id)}>
+                  <div key={ev.task.id} className={'cal-ag-item' + (selectedId === ev.task.id ? ' sel' : '')} style={{ borderLeftColor: color(ev.task) }} onClick={(e) => openEvent(e, ev.task)}>
                     <small>{ev.allDay ? t('calendar.allDay') : `${hhmm(ev.start)} - ${hhmm(ev.end)}`}</small>
                     <b>{ev.task.title || t('task.untitled')}</b>
                   </div>
@@ -466,17 +467,36 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
                 </label>
               )
             })}
-            {data.googleCalendars.filter((g) => g.enabled).length > 0 && <h4>{t('calendar.google')}</h4>}
-            {data.googleCalendars.filter((g) => g.enabled).map((g) => {
-              const k = 'g:' + g.google_calendar_id
-              return (
-                <label key={k} className="cal-chk" style={{ ['--c' as string]: g.background_color ?? 'var(--accent)' }}>
-                  <input type="checkbox" checked={!hidden.has(k)} onChange={() => toggleHidden(k)} />
-                  <i />
-                  <span>{g.name}</span>
-                </label>
-              )
-            })}
+            {[
+              { title: t('calendar.google'), items: data.googleCalendars.filter((g) => g.access_role === 'owner') },
+              { title: t('calendar.other'), items: data.googleCalendars.filter((g) => g.access_role !== 'owner') },
+            ].map((grp) =>
+              grp.items.length ? (
+                <div key={grp.title}>
+                  <h4>{grp.title}</h4>
+                  {grp.items.map((g) => {
+                    const k = 'g:' + g.google_calendar_id
+                    return (
+                      <label key={k} className="cal-chk" style={{ ['--c' as string]: g.background_color ?? 'var(--accent)' }}>
+                        <input
+                          type="checkbox"
+                          checked={g.enabled && !hidden.has(k)}
+                          onChange={async () => {
+                            if (!g.enabled) {
+                              await data.toggleGoogleCalendar(g.id, true)
+                              if (hidden.has(k)) toggleHidden(k)
+                              void data.syncGoogle(true)
+                            } else toggleHidden(k)
+                          }}
+                        />
+                        <i />
+                        <span>{g.name}</span>
+                      </label>
+                    )
+                  })}
+                </div>
+              ) : null,
+            )}
           </div>
         </aside>
       )}
@@ -540,6 +560,10 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
         </div>
       )}
       </div>
+      {popup && (() => {
+        const task = data.tasks.find((x) => x.id === popup.id)
+        return task ? <EventPopup task={task} color={color(task)} x={popup.x} y={popup.y} onClose={() => setPopup(null)} onEdit={() => onSelect(task.id)} /> : null
+      })()}
     </section>
   )
 }

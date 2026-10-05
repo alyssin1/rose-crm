@@ -250,7 +250,8 @@
     },
     "create": "Create",
     "myCals": "My calendars",
-    "google": "Google Calendar"
+    "google": "Google Calendar",
+    "other": "Other calendars"
   },
   "editor": {
     "heading": "Heading",
@@ -584,5 +585,42 @@
     "pickDate": "Pick date",
     "moveTo": "Move to",
     "noTags": "No tags yet."
+  },
+  "ev": {
+    "edit": "Edit",
+    "confirmDelete": "Delete “{{name}}”?",
+    "openGoogle": "Open in Google Calendar",
+    "joinMeet": "Join with Google Meet",
+    "joinPhone": "Join by phone",
+    "guests_one": "{{count}} guest",
+    "guests_other": "{{count}} guests",
+    "yes": "{{n}} yes",
+    "no": "{{n}} no",
+    "maybe": "{{n}} maybe",
+    "awaiting": "{{n}} awaiting",
+    "organizer": "Organizer",
+    "emailGuests": "Email guests",
+    "remMin_one": "{{count}} minute before",
+    "remMin_other": "{{count}} minutes before",
+    "remHours_one": "{{count}} hour before",
+    "remHours_other": "{{count}} hours before",
+    "remDays_one": "{{count}} day before",
+    "remDays_other": "{{count}} days before",
+    "going": "Going?",
+    "btnYes": "Yes",
+    "btnNo": "No",
+    "btnMaybe": "Maybe",
+    "rec": {
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "monthly": "Monthly",
+      "yearly": "Annually",
+      "every_daily": "Every {{n}} days",
+      "every_weekly": "Every {{n}} weeks",
+      "every_monthly": "Every {{n}} months",
+      "every_yearly": "Every {{n}} years",
+      "on": "on",
+      "count": "{{n}} times"
+    }
   }
 }

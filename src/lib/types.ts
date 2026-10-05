@@ -28,6 +28,7 @@ export interface Task {
   google_etag: string | null
   google_synced_at: string | null
   source: 'rose' | 'google'
+  google_meta?: GoogleMeta | null
   created_at: string
   updated_at: string
 }
@@ -242,3 +243,14 @@ export const DEFAULT_VIEW_OPTIONS: ViewOptions = {
 }
 
 export const viewKey = (v: View) => ('id' in v ? `${v.type}:${v.id}` : v.type)
+
+export interface GoogleMeta {
+  htmlLink: string | null
+  location: string | null
+  meet: string | null
+  phone: { label: string; pin: string | null } | null
+  organizer: { email: string | null; name: string | null; self: boolean } | null
+  attendees: { email: string; name: string | null; status: 'accepted' | 'declined' | 'tentative' | 'needsAction'; organizer: boolean; self: boolean; optional: boolean }[]
+  recurrence: string[] | null
+  reminders: number[]
+}

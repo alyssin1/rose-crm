@@ -250,7 +250,8 @@
     },
     "create": "Crea",
     "myCals": "I miei calendari",
-    "google": "Google Calendar"
+    "google": "Google Calendar",
+    "other": "Altri calendari"
   },
   "editor": {
     "heading": "Titolo",
@@ -584,5 +585,42 @@
     "pickDate": "Scegli data",
     "moveTo": "Sposta in",
     "noTags": "Ancora nessun tag."
+  },
+  "ev": {
+    "edit": "Modifica",
+    "confirmDelete": "Eliminare “{{name}}”?",
+    "openGoogle": "Apri in Google Calendar",
+    "joinMeet": "Partecipa con Google Meet",
+    "joinPhone": "Partecipa per telefono",
+    "guests_one": "{{count}} invitato",
+    "guests_other": "{{count}} invitati",
+    "yes": "{{n}} sì",
+    "no": "{{n}} no",
+    "maybe": "{{n}} forse",
+    "awaiting": "{{n}} in attesa",
+    "organizer": "Organizzatore",
+    "emailGuests": "Scrivi agli invitati",
+    "remMin_one": "{{count}} minuto prima",
+    "remMin_other": "{{count}} minuti prima",
+    "remHours_one": "{{count}} ora prima",
+    "remHours_other": "{{count}} ore prima",
+    "remDays_one": "{{count}} giorno prima",
+    "remDays_other": "{{count}} giorni prima",
+    "going": "Partecipi?",
+    "btnYes": "Sì",
+    "btnNo": "No",
+    "btnMaybe": "Forse",
+    "rec": {
+      "daily": "Ogni giorno",
+      "weekly": "Ogni settimana",
+      "monthly": "Ogni mese",
+      "yearly": "Ogni anno",
+      "every_daily": "Ogni {{n}} giorni",
+      "every_weekly": "Ogni {{n}} settimane",
+      "every_monthly": "Ogni {{n}} mesi",
+      "every_yearly": "Ogni {{n}} anni",
+      "on": "il",
+      "count": "{{n}} volte"
+    }
   }
 }

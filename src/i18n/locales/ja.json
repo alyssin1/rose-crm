@@ -250,7 +250,8 @@
     },
     "create": "作成",
     "myCals": "マイカレンダー",
-    "google": "Google カレンダー"
+    "google": "Google カレンダー",
+    "other": "他のカレンダー"
   },
   "editor": {
     "heading": "見出し",
@@ -582,5 +583,38 @@
     "pickDate": "日付を選択",
     "moveTo": "移動",
     "noTags": "タグはまだありません。"
+  },
+  "ev": {
+    "edit": "編集",
+    "confirmDelete": "「{{name}}」を削除しますか？",
+    "openGoogle": "Google カレンダーで開く",
+    "joinMeet": "Google Meet で参加",
+    "joinPhone": "電話で参加",
+    "guests_other": "ゲスト{{count}}人",
+    "yes": "{{n}}人が参加",
+    "no": "{{n}}人が辞退",
+    "maybe": "{{n}}人が未定",
+    "awaiting": "{{n}}人が未回答",
+    "organizer": "主催者",
+    "emailGuests": "ゲストにメール",
+    "remMin_other": "{{count}}分前",
+    "remHours_other": "{{count}}時間前",
+    "remDays_other": "{{count}}日前",
+    "going": "参加しますか？",
+    "btnYes": "はい",
+    "btnNo": "いいえ",
+    "btnMaybe": "未定",
+    "rec": {
+      "daily": "毎日",
+      "weekly": "毎週",
+      "monthly": "毎月",
+      "yearly": "毎年",
+      "every_daily": "{{n}}日ごと",
+      "every_weekly": "{{n}}週間ごと",
+      "every_monthly": "{{n}}か月ごと",
+      "every_yearly": "{{n}}年ごと",
+      "on": "",
+      "count": "{{n}}回"
+    }
   }
 }

@@ -39,6 +39,32 @@ interface GEvent {
   updated: string
   start?: { date?: string; dateTime?: string }
   end?: { date?: string; dateTime?: string }
+  htmlLink?: string
+  location?: string
+  hangoutLink?: string
+  recurringEventId?: string
+  recurrence?: string[]
+  organizer?: { email?: string; displayName?: string; self?: boolean }
+  attendees?: { email?: string; displayName?: string; responseStatus?: string; organizer?: boolean; self?: boolean; optional?: boolean }[]
+  conferenceData?: { entryPoints?: { entryPointType?: string; uri?: string; label?: string; pin?: string; regionCode?: string }[] }
+  reminders?: { useDefault?: boolean; overrides?: { method?: string; minutes?: number }[] }
+}
+
+/** Dados extras do evento para o pop-up do app (convidados, Meet, recorrência, lembretes). */
+function metaOf(ev: GEvent, recurrence: string[] | null, defaultReminders: { method?: string; minutes?: number }[]) {
+  const entry = ev.conferenceData?.entryPoints ?? []
+  const phone = entry.find((e) => e.entryPointType === 'phone')
+  const rem = ev.reminders?.useDefault ? defaultReminders : ev.reminders?.overrides ?? []
+  return {
+    htmlLink: ev.htmlLink ?? null,
+    location: ev.location ?? null,
+    meet: ev.hangoutLink ?? entry.find((e) => e.entryPointType === 'video')?.uri ?? null,
+    phone: phone ? { label: phone.label ?? phone.uri?.replace('tel:', '') ?? '', pin: phone.pin ?? null } : null,
+    organizer: ev.organizer ? { email: ev.organizer.email ?? null, name: ev.organizer.displayName ?? null, self: !!ev.organizer.self } : null,
+    attendees: (ev.attendees ?? []).map((a) => ({ email: a.email ?? '', name: a.displayName ?? null, status: a.responseStatus ?? 'needsAction', organizer: !!a.organizer, self: !!a.self, optional: !!a.optional })),
+    recurrence: recurrence ?? ev.recurrence ?? null,
+    reminders: rem.map((r) => r.minutes).filter((m): m is number => typeof m === 'number'),
+  }
 }
 
 // ---------- Google ----------
@@ -121,10 +147,12 @@ async function syncUser(db: SupabaseClient, userId: string, onlyCalendar?: strin
   }
 
   // 1) lista de agendas
-  const list = await g(token, '/users/me/calendarList?minAccessRole=reader&maxResults=250')
+  const list = await g(token, '/users/me/calendarList?minAccessRole=freeBusyReader&maxResults=250')
   if (list.status !== 200) throw new Error(`calendarList ${list.status}`)
   const { data: known } = await db.from('rose_google_calendars').select('*').eq('user_id', userId)
-  for (const c of list.body.items as { id: string; summaryOverride?: string; summary: string; backgroundColor?: string; accessRole: string }[]) {
+  const defaults = new Map<string, { method?: string; minutes?: number }[]>()
+  for (const c of list.body.items as { id: string; summaryOverride?: string; summary: string; backgroundColor?: string; accessRole: string; defaultReminders?: { method?: string; minutes?: number }[] }[]) {
+    defaults.set(c.id, c.defaultReminders ?? [])
     const prev = known?.find((k) => k.google_calendar_id === c.id)
     await db.from('rose_google_calendars').upsert(
       {
@@ -185,13 +213,39 @@ async function syncUser(db: SupabaseClient, userId: string, onlyCalendar?: strin
     })
     if (!full) params.set('updatedMin', new Date(Date.parse(cal.last_synced_at) - 60000).toISOString())
 
+    const localMap = new Map<string, Record<string, any>>() // eslint-disable-line @typescript-eslint/no-explicit-any
+    for (let from = 0; ; from += 1000) {
+      const { data: rows } = await db.from('rose_tasks').select('*').eq('user_id', userId).eq('google_calendar_id', cal.google_calendar_id).range(from, from + 999)
+      for (const r of rows ?? []) if (r.google_event_id) localMap.set(r.google_event_id, r)
+      if (!rows || rows.length < 1000) break
+    }
+    const inserts: Record<string, unknown>[] = []
+    const flushInserts = async () => {
+      while (inserts.length) {
+        const chunk = inserts.splice(0, 200)
+        const { error } = await db.from('rose_tasks').insert(chunk)
+        if (error) throw new Error('insert: ' + error.message)
+      }
+    }
+    const masters = new Map<string, string[] | null>()
+    let masterCalls = 0
+    const recurrenceOf = async (ev: GEvent) => {
+      if (!ev.recurringEventId) return null
+      if (masters.has(ev.recurringEventId)) return masters.get(ev.recurringEventId)!
+      if (masterCalls++ >= 80) return null
+      const m = await g(token, `${calPath}/events/${encodeURIComponent(ev.recurringEventId)}`)
+      const rec = m.status === 200 ? ((m.body.recurrence as string[]) ?? null) : null
+      masters.set(ev.recurringEventId, rec)
+      return rec
+    }
+
     let pageToken: string | undefined
     do {
       if (pageToken) params.set('pageToken', pageToken)
       const res = await g(token, `${calPath}/events?${params}`)
       if (res.status !== 200) throw new Error(`events.list ${res.status}`)
       for (const ev of res.body.items as GEvent[]) {
-        const { data: local } = await db.from('rose_tasks').select('*').eq('user_id', userId).eq('google_calendar_id', cal.google_calendar_id).eq('google_event_id', ev.id).maybeSingle()
+        const local = localMap.get(ev.id)
         if (ev.status === 'cancelled') {
           if (local) {
             if (local.source === 'google') await db.from('rose_tasks').delete().eq('id', local.id)
@@ -202,7 +256,7 @@ async function syncUser(db: SupabaseClient, userId: string, onlyCalendar?: strin
         }
         if (!ev.start) continue
         if (local) {
-          if (local.google_etag === ev.etag) continue // é o eco da nossa própria gravação
+          if (local.google_etag === ev.etag && local.google_meta) continue // eco da nossa gravação (e já tem os dados extras)
           if (local.google_synced_at && isDirty(local.updated_at, local.google_synced_at) && ms(local.updated_at) > ms(ev.updated)) continue // alteração local mais recente vence
         }
         const mapped = fromEvent(ev)
@@ -210,16 +264,18 @@ async function syncUser(db: SupabaseClient, userId: string, onlyCalendar?: strin
           title: ev.summary || '(sem título)',
           content: ev.description ? toHtml(ev.description) : '',
           ...mapped,
+          google_meta: metaOf(ev, await recurrenceOf(ev), defaults.get(cal.google_calendar_id) ?? []),
           google_etag: ev.etag,
           google_synced_at: new Date().toISOString(),
         }
         if (local) await db.from('rose_tasks').update(row).eq('id', local.id)
-        else
-          await db.from('rose_tasks').insert({ user_id: userId, list_id: null, source: 'google', google_calendar_id: cal.google_calendar_id, google_event_id: ev.id, status: 0, priority: 0, reminders: [], ...row })
+        else inserts.push({ user_id: userId, list_id: null, source: 'google', google_calendar_id: cal.google_calendar_id, google_event_id: ev.id, status: 0, priority: 0, reminders: [], ...row })
         stats.pulled++
       }
       pageToken = res.body.nextPageToken
+      await flushInserts()
     } while (pageToken)
+    await flushInserts()
 
     await db.from('rose_google_calendars').update({ last_synced_at: startedAt.toISOString(), ...(full ? { sync_token: startedAt.toISOString() } : {}) }).eq('id', cal.id)
 
@@ -262,6 +318,36 @@ Deno.serve(async (req) => {
 
   const who = await caller(req, db)
   if (!who) return json({ error: 'unauthorized' }, 401)
+
+  let body: { action?: string; taskId?: string; response?: string } = {}
+  try {
+    body = await req.json()
+  } catch {
+    /* sem corpo */
+  }
+  if (body.action === 'rsvp') {
+    if (who.kind !== 'user') return json({ error: 'forbidden' }, 403)
+    try {
+      const status = ['accepted', 'declined', 'tentative'].includes(body.response ?? '') ? body.response! : null
+      if (!status || !body.taskId) return json({ error: 'parâmetros inválidos' }, 400)
+      const { data: t } = await db.from('rose_tasks').select('id, google_calendar_id, google_event_id, google_meta').eq('id', body.taskId).eq('user_id', who.userId).maybeSingle()
+      if (!t?.google_event_id || !t.google_calendar_id) return json({ error: 'evento não encontrado' }, 404)
+      const { data: tok } = await db.from('rose_google_tokens').select('refresh_token').eq('user_id', who.userId).maybeSingle()
+      if (!tok) return json({ error: 'Google não conectado' }, 400)
+      const access = await accessToken(tok.refresh_token)
+      const path = `/calendars/${encodeURIComponent(t.google_calendar_id)}/events/${t.google_event_id}`
+      const cur = await g(access, path)
+      if (cur.status !== 200) return json({ error: `events.get ${cur.status}` }, 502)
+      const attendees = ((cur.body.attendees ?? []) as { self?: boolean; responseStatus?: string }[]).map((a) => (a.self ? { ...a, responseStatus: status } : a))
+      const res = await g(access, `${path}?sendUpdates=all`, { method: 'PATCH', body: JSON.stringify({ attendees }) })
+      if (res.status !== 200) return json({ error: `events.patch ${res.status}` }, 502)
+      const meta = { ...(t.google_meta as Record<string, unknown>), attendees: (res.body.attendees ?? []).map((a: { email?: string; displayName?: string; responseStatus?: string; organizer?: boolean; self?: boolean; optional?: boolean }) => ({ email: a.email ?? '', name: a.displayName ?? null, status: a.responseStatus ?? 'needsAction', organizer: !!a.organizer, self: !!a.self, optional: !!a.optional })) }
+      await db.from('rose_tasks').update({ google_meta: meta, google_etag: res.body.etag }).eq('id', t.id)
+      return json({ ok: true })
+    } catch (e) {
+      return json({ error: String(e) }, 500)
+    }
+  }
 
   try {
     if (who.kind === 'user') return json({ ok: true, ...(await syncUser(db, who.userId)) })
