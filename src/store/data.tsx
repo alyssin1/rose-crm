@@ -129,6 +129,26 @@ async function exec(op: Op): Promise<{ error: { message: string } | null }> {
   }
 }
 
+/** Carrega tarefas em páginas de 1000 (limite do PostgREST): todas as do Rose + eventos do Google numa janela de datas. */
+async function loadTasks(): Promise<{ data: Task[] | null; error: { message: string } | null }> {
+  const out: Task[] = []
+  const from = new Date(Date.now() - 60 * 86400000).toISOString()
+  const to = new Date(Date.now() + 240 * 86400000).toISOString()
+  const pages = async (build: (a: number, b: number) => PromiseLike<{ data: unknown[] | null; error: { message: string } | null }>) => {
+    for (let a = 0; ; a += 1000) {
+      const { data, error } = await build(a, a + 999)
+      if (error) return error
+      out.push(...((data ?? []) as Task[]))
+      if (!data || data.length < 1000) return null
+    }
+  }
+  const e1 = await pages((a, b) => supabase.from('rose_tasks').select('*').neq('source', 'google').order('created_at').range(a, b))
+  if (e1) return { data: null, error: e1 }
+  const e2 = await pages((a, b) => supabase.from('rose_tasks').select('*').eq('source', 'google').gte('due_at', from).lte('due_at', to).order('due_at').range(a, b))
+  if (e2) return { data: null, error: e2 }
+  return { data: out, error: null }
+}
+
 const EMPTY_GOOGLE: GoogleStatus = { connected: false }
 
 export function DataProvider({ userId, children }: { userId: string; children: ReactNode }) {
@@ -163,7 +183,7 @@ export function DataProvider({ userId, children }: { userId: string; children: R
   const loadAll = useCallback(async () => {
     const [l, t, tg, tt, f, tp, pr, gc, gs, co, sn, fs, hb, hl, cd, fo] = await Promise.all([
       supabase.from('rose_lists').select('*').order('sort_order'),
-      supabase.from('rose_tasks').select('*'),
+      loadTasks(),
       supabase.from('rose_tags').select('*').order('name'),
       supabase.from('rose_task_tags').select('*'),
       supabase.from('rose_filters').select('*').order('sort_order'),

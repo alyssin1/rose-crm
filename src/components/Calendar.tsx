@@ -8,7 +8,7 @@ import { Icon } from './Icon'
 import { Popover } from './Popover'
 import { openTaskMenu } from './TaskContextMenu'
 import { NSelect } from './Select'
-import { EventPopup } from './EventPopup'
+import { EventPopup, nameOf } from './EventPopup'
 
 export type CalMode = 'year' | 'month' | 'week' | 'day' | 'agenda' | 'multiday' | 'multiweek'
 const MODES: CalMode[] = ['year', 'month', 'week', 'day', 'agenda', 'multiday', 'multiweek']
@@ -490,7 +490,7 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
                           }}
                         />
                         <i />
-                        <span>{g.name}</span>
+                        <span title={g.name ?? ''}>{g.name?.includes('@') ? nameOf(null, g.name) : g.name}</span>
                       </label>
                     )
                   })}

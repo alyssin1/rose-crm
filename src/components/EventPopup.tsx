@@ -22,6 +22,16 @@ const colorFor = (s: string) => {
   return AVATARS[h % AVATARS.length]
 }
 
+/** Nome legível a partir do e-mail quando o Google não manda o nome (ex.: allan.brandao@… → Allan Brandao). */
+export const nameOf = (name: string | null | undefined, email: string) =>
+  name ||
+  email
+    .split('@')[0]
+    .split(/[._-]+/)
+    .filter(Boolean)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ')
+
 /** Texto da recorrência a partir da RRULE do Google (ex.: "Semanalmente em terça, quarta..."). */
 function recurrenceText(rec: string[] | null | undefined, lang: string, t: (k: string, o?: Record<string, unknown>) => string): string | null {
   const rule = rec?.find((r) => r.startsWith('RRULE:'))?.slice(6)
@@ -33,7 +43,7 @@ function recurrenceText(rec: string[] | null | undefined, lang: string, t: (k: s
   let out = interval > 1 ? t(`ev.rec.every_${unit}`, { n: interval }) : t(`ev.rec.${unit}`)
   if (p.FREQ === 'WEEKLY' && p.BYDAY) {
     const idx: Record<string, number> = { SU: 0, MO: 1, TU: 2, WE: 3, TH: 4, FR: 5, SA: 6 }
-    const names = p.BYDAY.split(',').map((d) => new Intl.DateTimeFormat(lang, { weekday: 'long' }).format(new Date(2023, 0, 1 + (idx[d.replace(/[-+0-9]/g, '')] ?? 0))))
+    const names = p.BYDAY.split(',').sort((a, b) => (idx[a.replace(/[-+0-9]/g, '')] ?? 0) - (idx[b.replace(/[-+0-9]/g, '')] ?? 0)).map((d) => new Intl.DateTimeFormat(lang, { weekday: 'long' }).format(new Date(2023, 0, 1 + (idx[d.replace(/[-+0-9]/g, '')] ?? 0))))
     out += ` ${t('ev.rec.on')} ${names.join(', ')}`
   }
   if (p.COUNT) out += `, ${t('ev.rec.count', { n: p.COUNT })}`
@@ -77,7 +87,8 @@ export function EventPopup({ task, color, x, y, onClose, onEdit }: Props) {
   const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
   const when = !start || !due ? '' : allDay ? (sameDay(start, due) ? cap(day) : `${cap(day)} – ${cap(new Intl.DateTimeFormat(lang, { weekday: 'long', month: 'long', day: 'numeric' }).format(due))}`) : `${cap(day)} · ${hhmm(start)} – ${hhmm(due)}`
   const rec = recurrenceText(meta?.recurrence, lang, t)
-  const calName = data.googleCalendars.find((c) => c.google_calendar_id === task.google_calendar_id)?.name ?? ''
+  const calRaw = data.googleCalendars.find((c) => c.google_calendar_id === task.google_calendar_id)?.name ?? ''
+  const calName = calRaw.includes('@') ? nameOf(null, calRaw) : calRaw
   const attendees = meta?.attendees ?? []
   const me = attendees.find((a) => a.self)
   const yes = attendees.filter((a) => a.status === 'accepted').length
@@ -167,12 +178,12 @@ export function EventPopup({ task, color, x, y, onClose, onEdit }: Props) {
                 {[...attendees].sort((a, b) => Number(b.organizer) - Number(a.organizer)).map((a) => (
                   <li key={a.email}>
                     <span className="av" style={{ background: colorFor(a.email) }}>
-                      {(a.name ?? a.email)[0]?.toUpperCase()}
+                      {nameOf(a.name, a.email)[0]?.toUpperCase()}
                       {a.status === 'accepted' && <i className="ok"><Icon name="check" size={9} /></i>}
                       {a.status === 'declined' && <i className="no"><Icon name="x" size={9} /></i>}
                     </span>
                     <div>
-                      <span>{a.name ?? a.email}</span>
+                      <span title={a.email}>{nameOf(a.name, a.email)}</span>
                       {a.organizer && <small>{t('ev.organizer')}</small>}
                     </div>
                   </li>

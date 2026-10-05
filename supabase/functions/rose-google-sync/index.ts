@@ -223,7 +223,7 @@ async function syncUser(db: SupabaseClient, userId: string, onlyCalendar?: strin
     const flushInserts = async () => {
       while (inserts.length) {
         const chunk = inserts.splice(0, 200)
-        const { error } = await db.from('rose_tasks').insert(chunk)
+        const { error } = await db.from('rose_tasks').upsert(chunk, { onConflict: 'user_id,google_calendar_id,google_event_id', ignoreDuplicates: true }) // trava única: execuções simultâneas não duplicam
         if (error) throw new Error('insert: ' + error.message)
       }
     }
