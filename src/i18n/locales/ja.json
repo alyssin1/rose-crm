@@ -247,7 +247,10 @@
       "agenda": "予定表",
       "multiday": "複数日",
       "multiweek": "複数週"
-    }
+    },
+    "create": "作成",
+    "myCals": "マイカレンダー",
+    "google": "Google カレンダー"
   },
   "editor": {
     "heading": "見出し",

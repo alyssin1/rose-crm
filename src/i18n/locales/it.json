@@ -247,7 +247,10 @@
       "agenda": "Agenda",
       "multiday": "Multi-giorno",
       "multiweek": "Multi-settimana"
-    }
+    },
+    "create": "Crea",
+    "myCals": "I miei calendari",
+    "google": "Google Calendar"
   },
   "editor": {
     "heading": "Titolo",

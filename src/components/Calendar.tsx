@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useData } from '../store/data'
 import { addDays, hhmm, sameDay, startOfDay } from '../lib/dates'
@@ -12,6 +12,14 @@ import { NSelect } from './Select'
 export type CalMode = 'year' | 'month' | 'week' | 'day' | 'agenda' | 'multiday' | 'multiweek'
 const MODES: CalMode[] = ['year', 'month', 'week', 'day', 'agenda', 'multiday', 'multiweek']
 const HOUR_H = 48
+/** Cor do texto sobre um fundo hex: escuro em fundos claros (como o Google Calendar). */
+const onColor = (hex: string) => {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim())
+  if (!m) return '#fff'
+  const n = parseInt(m[1], 16)
+  const lum = (0.299 * ((n >> 16) & 255) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)) / 255
+  return lum > 0.62 ? '#1f2328' : '#fff'
+}
 const PALETTE = ['#d62f45', '#4c8dff', '#2fb67c', '#f5a524', '#9b6bff', '#18a9c4', '#e86fb0', '#8d909c']
 
 interface Props {
@@ -63,6 +71,29 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
   const [draft, setDraft] = useState('')
   const [showDone, setShowDone] = useState(true)
   const today = startOfDay(new Date())
+  const [hidden, setHidden] = useState<Set<string>>(() => {
+    try {
+      return new Set(JSON.parse(localStorage.getItem('rose.cal.hidden') ?? '[]') as string[])
+    } catch {
+      return new Set()
+    }
+  })
+  const [asideOpen, setAsideOpen] = useState(() => !window.matchMedia('(max-width: 820px)').matches)
+  const [mini, setMini] = useState(new Date(cursor.getFullYear(), cursor.getMonth(), 1))
+  useEffect(() => setMini(new Date(cursor.getFullYear(), cursor.getMonth(), 1)), [cursor])
+  const keyOf = (task: Task) => (task.google_calendar_id ? 'g:' + task.google_calendar_id : 'l:' + (task.list_id ?? ''))
+  const toggleHidden = (k: string) =>
+    setHidden((prev) => {
+      const n = new Set(prev)
+      if (n.has(k)) n.delete(k)
+      else n.add(k)
+      try {
+        localStorage.setItem('rose.cal.hidden', JSON.stringify([...n]))
+      } catch {
+        /* sem storage */
+      }
+      return n
+    })
 
   const changeMode = (m: CalMode) => {
     setMode(m)
@@ -78,13 +109,24 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
     for (const task of data.tasks) {
       if (task.deleted_at || task.parent_id || task.kind === 'note') continue
       if (!showDone && task.status !== 0) continue
+      if (hidden.has(keyOf(task))) continue
       const ev = rangeOf(task)
       if (ev) out.push(ev)
     }
     return out.sort((a, b) => a.start.getTime() - b.start.getTime())
-  }, [data.tasks, showDone])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data.tasks, showDone, hidden])
 
+  const hashColor = (key: string) => {
+    let h = 0
+    for (const ch of key) h = (h * 31 + ch.charCodeAt(0)) >>> 0
+    return PALETTE[h % PALETTE.length]
+  }
   const color = (task: Task) => {
+    if (task.google_calendar_id) {
+      const g = data.googleCalendars.find((c) => c.google_calendar_id === task.google_calendar_id)
+      if (g?.background_color) return g.background_color
+    }
     const list = data.lists.find((l) => l.id === task.list_id)
     if (list?.color) return list.color
     const key = list?.id ?? task.google_calendar_id ?? 'x'
@@ -112,7 +154,7 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
 
   const title = (() => {
     if (mode === 'year') return String(cursor.getFullYear())
-    if (mode === 'month') return fmt({ month: 'long' }) + (cursor.getFullYear() !== new Date().getFullYear() ? ' ' + cursor.getFullYear() : '')
+    if (mode === 'month') return cap(fmt({ month: 'long', year: 'numeric' }))
     if (mode === 'day') return cap(fmt({ weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }))
     const first = mode === 'multiday' ? cursor : mode === 'agenda' ? cursor : weekFirst(cursor)
     const len = mode === 'week' ? 7 : mode === 'multiday' ? multiDays : mode === 'agenda' ? 14 : multiWeeks * 7
@@ -161,8 +203,8 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
     return (
       <div
         key={task.id + day.toISOString()}
-        className={'cal-chip' + (task.status !== 0 ? ' done' : '') + (selectedId === task.id ? ' sel' : '')}
-        style={{ background: `color-mix(in srgb, ${c} 38%, #1e1e1e)` }}
+        className={'cal-chip' + (task.status !== 0 ? ' done' : '') + (selectedId === task.id ? ' sel' : '') + (ev.allDay || compact || !sameDay(ev.start, ev.end) ? ' solid' : ' timed')}
+        style={{ ['--c' as string]: c, ['--fg' as string]: onColor(c) }}
         onClick={(e) => {
           e.stopPropagation()
           onSelect(task.id)
@@ -171,8 +213,9 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
         {...dragProps(task)}
         title={task.title}
       >
+        {!(ev.allDay || compact || !sameDay(ev.start, ev.end)) && <i className="cal-dot" />}
+        {!ev.allDay && startsHere && !compact && <small className="cal-time">{hhmm(ev.start)}</small>}
         <span>{task.title || t('task.untitled')}</span>
-        {!ev.allDay && startsHere && !compact && <small>{hhmm(ev.start)}</small>}
       </div>
     )
   }
@@ -283,7 +326,7 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
                       <div
                         key={ev.task.id}
                         className={'cal-ev' + (ev.task.status !== 0 ? ' done' : '') + (selectedId === ev.task.id ? ' sel' : '')}
-                        style={{ top, height: h, left: `${(col / cols) * 100}%`, width: `${100 / cols - 1}%`, background: `color-mix(in srgb, ${c} 32%, var(--bg))`, borderLeftColor: c }}
+                        style={{ top, height: h, left: `${(col / cols) * 100}%`, width: `${100 / cols - 1}%`, ['--c' as string]: c, ['--fg' as string]: onColor(c) }}
                         onClick={(e) => {
                           e.stopPropagation()
                           onSelect(ev.task.id)
@@ -365,23 +408,75 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
   })()
 
   return (
-    <section className="calendar">
-      <header className="tasks-head">
-        {onToggleSidebar && <button className="icon-btn" onClick={onToggleSidebar} title={t('common.toggleSidebar')}><Icon name="sidebar" size={18} /></button>}
+    <section className="calendar gcal">
+      {asideOpen && (
+        <aside className="cal-aside">
+          <button className="cal-create" onClick={(e) => openQuick(new Date(today.getFullYear(), today.getMonth(), today.getDate()), e)}>
+            <Icon name="plus" size={20} /> {t('calendar.create')}
+          </button>
+
+          <div className="mini">
+            <div className="mini-head">
+              <b>{cap(fmt({ month: 'long', year: 'numeric' }, mini))}</b>
+              <button className="icon-btn round" onClick={() => setMini(new Date(mini.getFullYear(), mini.getMonth() - 1, 1))} aria-label="‹"><Icon name="left" size={14} /></button>
+              <button className="icon-btn round" onClick={() => setMini(new Date(mini.getFullYear(), mini.getMonth() + 1, 1))} aria-label="›"><Icon name="right" size={14} /></button>
+            </div>
+            <div className="mini-grid">
+              {Array.from({ length: 7 }, (_, i) => addDays(weekFirst(mini), i)).map((d) => <i key={'w' + d.getDay()}>{fmt({ weekday: 'narrow' }, d).toUpperCase()}</i>)}
+              {Array.from({ length: 42 }, (_, i) => addDays(weekFirst(mini), i)).map((d) => (
+                <button
+                  key={d.toISOString()}
+                  className={(d.getMonth() !== mini.getMonth() ? 'out ' : '') + (sameDay(d, today) ? 'today ' : '') + (sameDay(d, cursor) && !sameDay(d, today) ? 'cur' : '')}
+                  onClick={() => setCursor(startOfDay(d))}
+                >
+                  {d.getDate()}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="cal-cals">
+            <h4>{t('calendar.myCals')}</h4>
+            {data.lists.filter((l) => !l.archived).map((l) => {
+              const k = 'l:' + l.id
+              const c = l.color ?? hashColor(l.id)
+              return (
+                <label key={k} className="cal-chk" style={{ ['--c' as string]: c }}>
+                  <input type="checkbox" checked={!hidden.has(k)} onChange={() => toggleHidden(k)} />
+                  <i />
+                  <span>{l.is_inbox ? t('nav.inbox') : l.name}</span>
+                </label>
+              )
+            })}
+            {data.googleCalendars.filter((g) => g.enabled).length > 0 && <h4>{t('calendar.google')}</h4>}
+            {data.googleCalendars.filter((g) => g.enabled).map((g) => {
+              const k = 'g:' + g.google_calendar_id
+              return (
+                <label key={k} className="cal-chk" style={{ ['--c' as string]: g.background_color ?? 'var(--accent)' }}>
+                  <input type="checkbox" checked={!hidden.has(k)} onChange={() => toggleHidden(k)} />
+                  <i />
+                  <span>{g.name}</span>
+                </label>
+              )
+            })}
+          </div>
+        </aside>
+      )}
+
+      <div className="cal-main">
+      <header className="cal-head">
+        <button className="icon-btn" onClick={() => setAsideOpen((o) => !o)} title={t('common.toggleSidebar')}><Icon name="sidebar" size={20} /></button>
+        <button className="cal-today" onClick={() => setCursor(today)}>{t('calendar.today')}</button>
+        <button className="icon-btn round" onClick={() => step(-1)} aria-label="‹"><Icon name="left" size={18} /></button>
+        <button className="icon-btn round" onClick={() => step(1)} aria-label="›"><Icon name="right" size={18} /></button>
         <h2>{title}</h2>
         <div className="grow" />
-        <button className="icon-btn boxed" title={t('calendar.new')} onClick={(e) => openQuick(new Date(today.getFullYear(), today.getMonth(), today.getDate()), e)}><Icon name="plus" size={16} /></button>
         <NSelect value={mode} onChange={(e) => changeMode(e.target.value as CalMode)} className="cal-mode-sel">
           {MODES.map((m) => <option key={m} value={m}>{t(`calendar.mode.${m}`)}</option>)}
         </NSelect>
-        <div className="cal-nav">
-          <button onClick={() => step(-1)} aria-label="‹"><Icon name="left" size={14} /></button>
-          <button onClick={() => setCursor(today)}>{t('calendar.today')}</button>
-          <button onClick={() => step(1)} aria-label="›"><Icon name="right" size={14} /></button>
-        </div>
         <Popover
           align="right"
-          trigger={(_o, toggle) => <button className="icon-btn" onClick={toggle} title={t('common.more')}><Icon name="more" size={17} /></button>}
+          trigger={(_o, toggle) => <button className="icon-btn" onClick={toggle} title={t('common.more')}><Icon name="more" size={18} /></button>}
         >
           {(close) => (
             <div className="menu wide">
@@ -426,6 +521,7 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
           />
         </div>
       )}
+      </div>
     </section>
   )
 }
