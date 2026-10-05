@@ -433,21 +433,26 @@
     "q": {
       "do": {
         "name": "Do",
-        "desc": "Urgent & important"
+        "desc": "Urgent & important",
+        "full": "Urgent & Important"
       },
       "plan": {
         "name": "Plan",
-        "desc": "Important, not urgent"
+        "desc": "Important, not urgent",
+        "full": "Not Urgent & Important"
       },
       "delegate": {
         "name": "Delegate",
-        "desc": "Urgent, not important"
+        "desc": "Urgent, not important",
+        "full": "Urgent & Not Important"
       },
       "drop": {
         "name": "Eliminate",
-        "desc": "Neither urgent nor important"
+        "desc": "Neither urgent nor important",
+        "full": "Not Urgent & Not Important"
       }
-    }
+    },
+    "empty": "No tasks"
   },
   "sticky": {
     "title": "Sticky notes",

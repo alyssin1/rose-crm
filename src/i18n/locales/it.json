@@ -433,21 +433,26 @@
     "q": {
       "do": {
         "name": "Fare",
-        "desc": "Urgente e importante"
+        "desc": "Urgente e importante",
+        "full": "Urgente e importante"
       },
       "plan": {
         "name": "Pianificare",
-        "desc": "Importante, non urgente"
+        "desc": "Importante, non urgente",
+        "full": "Non urgente e importante"
       },
       "delegate": {
         "name": "Delegare",
-        "desc": "Urgente, non importante"
+        "desc": "Urgente, non importante",
+        "full": "Urgente e non importante"
       },
       "drop": {
         "name": "Eliminare",
-        "desc": "Né urgente né importante"
+        "desc": "Né urgente né importante",
+        "full": "Non urgente e non importante"
       }
-    }
+    },
+    "empty": "Nessuna attività"
   },
   "sticky": {
     "title": "Note adesive",

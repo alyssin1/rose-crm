@@ -331,3 +331,31 @@ function Row({ task, view, opts, selected, onSelect, dnd, group }: { task: Task;
     </div>
   )
 }
+
+/** Lista agrupada (por data) reutilizável fora da TaskList, usada nos quadrantes da Matriz. */
+export function TaskGroups({ tasks, selectedId, onSelect }: { tasks: Task[]; selectedId: string | null; onSelect: (id: string | null) => void }) {
+  const { t, i18n } = useTranslation()
+  const lang = i18n.language.slice(0, 2)
+  const data = useData()
+  const dragId = useRef<string | null>(null)
+  const [overId, setOverId] = useState<string | null>(null)
+  const label = (k: string, d?: Date) => {
+    if (k === 'day' && d) {
+      const diff = dayDiff(d, new Date())
+      const rest = diff === 0 ? t('due.today') : diff === 1 ? t('due.tomorrow') : new Intl.DateTimeFormat(lang, { day: 'numeric', month: 'short' }).format(d)
+      return `${weekdayName(d, lang)}, ${rest}`
+    }
+    return t(`group.${k}`)
+  }
+  const opts: ViewOptions = { ...DEFAULT_VIEW_OPTIONS }
+  const groups = groupTasks(sortTasks(tasks, opts, data), opts, data, label)
+  const view: View = { type: 'all' }
+  const dnd: Dnd = { dragId, overId, setOverId, drop: async () => {} }
+  return (
+    <>
+      {groups.map((g) => (
+        <GroupBlock key={g.id} g={g} view={view} opts={opts} selectedId={selectedId} onSelect={onSelect} dnd={dnd} />
+      ))}
+    </>
+  )
+}
