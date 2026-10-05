@@ -251,7 +251,12 @@
     "create": "Criar",
     "myCals": "Minhas agendas",
     "google": "Google Agenda",
-    "other": "Outras agendas"
+    "other": "Outras agendas",
+    "more": "+{{n}} mais",
+    "untitled": "(Sem título)",
+    "addTitle": "Adicionar título",
+    "moreOptions": "Mais opções",
+    "save": "Salvar"
   },
   "editor": {
     "heading": "Título",

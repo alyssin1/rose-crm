@@ -246,6 +246,8 @@ export const viewKey = (v: View) => ('id' in v ? `${v.type}:${v.id}` : v.type)
 
 export interface GoogleMeta {
   htmlLink: string | null
+  /** cor própria do evento (1–11 do Google); null = cor da agenda */
+  colorId?: string | null
   location: string | null
   meet: string | null
   phone: { label: string; pin: string | null } | null

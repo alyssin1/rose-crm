@@ -42,6 +42,7 @@ interface GEvent {
   htmlLink?: string
   location?: string
   hangoutLink?: string
+  colorId?: string
   recurringEventId?: string
   recurrence?: string[]
   organizer?: { email?: string; displayName?: string; self?: boolean }
@@ -57,6 +58,7 @@ function metaOf(ev: GEvent, recurrence: string[] | null, defaultReminders: { met
   const rem = ev.reminders?.useDefault ? defaultReminders : ev.reminders?.overrides ?? []
   return {
     htmlLink: ev.htmlLink ?? null,
+    colorId: ev.colorId ?? null,
     location: ev.location ?? null,
     meet: ev.hangoutLink ?? entry.find((e) => e.entryPointType === 'video')?.uri ?? null,
     phone: phone ? { label: phone.label ?? phone.uri?.replace('tel:', '') ?? '', pin: phone.pin ?? null } : null,
@@ -256,7 +258,7 @@ async function syncUser(db: SupabaseClient, userId: string, onlyCalendar?: strin
         }
         if (!ev.start) continue
         if (local) {
-          if (local.google_etag === ev.etag && local.google_meta) continue // eco da nossa gravação (e já tem os dados extras)
+          if (local.google_etag === ev.etag && local.google_meta && "colorId" in local.google_meta) continue // eco da nossa gravação (e já tem os dados extras)
           if (local.google_synced_at && isDirty(local.updated_at, local.google_synced_at) && ms(local.updated_at) > ms(ev.updated)) continue // alteração local mais recente vence
         }
         const mapped = fromEvent(ev)

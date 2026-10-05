@@ -251,7 +251,12 @@
     "create": "作成",
     "myCals": "マイカレンダー",
     "google": "Google カレンダー",
-    "other": "他のカレンダー"
+    "other": "他のカレンダー",
+    "more": "他 {{n}} 件",
+    "untitled": "(タイトルなし)",
+    "addTitle": "タイトルを追加",
+    "moreOptions": "その他のオプション",
+    "save": "保存"
   },
   "editor": {
     "heading": "見出し",

@@ -251,7 +251,12 @@
     "create": "Crea",
     "myCals": "I miei calendari",
     "google": "Google Calendar",
-    "other": "Altri calendari"
+    "other": "Altri calendari",
+    "more": "Altri {{n}}",
+    "untitled": "(Senza titolo)",
+    "addTitle": "Aggiungi titolo",
+    "moreOptions": "Altre opzioni",
+    "save": "Salva"
   },
   "editor": {
     "heading": "Titolo",

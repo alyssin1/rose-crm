@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useData } from '../store/data'
 import { addDays, hhmm, sameDay, startOfDay } from '../lib/dates'
 import { isoWeek } from '../lib/format'
+import { shade } from '../lib/gcolors'
 import type { Task } from '../lib/types'
 import { Icon } from './Icon'
 import { Popover } from './Popover'
@@ -13,14 +14,9 @@ import { EventPopup, nameOf } from './EventPopup'
 export type CalMode = 'year' | 'month' | 'week' | 'day' | 'agenda' | 'multiday' | 'multiweek'
 const MODES: CalMode[] = ['year', 'month', 'week', 'day', 'agenda', 'multiday', 'multiweek']
 const HOUR_H = 48
-/** Cor do texto sobre um fundo hex: escuro em fundos claros (como o Google Calendar). */
-const onColor = (hex: string) => {
-  const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim())
-  if (!m) return '#fff'
-  const n = parseInt(m[1], 16)
-  const lum = (0.299 * ((n >> 16) & 255) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)) / 255
-  return lum > 0.62 ? '#1f2328' : '#fff'
-}
+const SNAP = 15 // minutos
+const INDENT = 22 // recuo (px) de um evento que começa dentro de outro mais longo, como no Google
+const LANE_H = 24 // altura de cada faixa na vista mensal
 const PALETTE = ['#d62f45', '#4c8dff', '#2fb67c', '#f5a524', '#9b6bff', '#18a9c4', '#e86fb0', '#8d909c']
 
 interface Props {
@@ -38,6 +34,25 @@ interface Ev {
   allDay: boolean
 }
 
+/** gesto em andamento na grade de horas */
+interface Gesture {
+  kind: 'move' | 'resize' | 'create'
+  id?: string
+  x0: number
+  y0: number
+  moved: boolean
+  day: Date
+  grab: number // minutos entre o início do evento e o ponto agarrado
+  dur: number
+  anchor: number
+}
+interface Preview {
+  id?: string
+  day: Date
+  s: number // minutos desde 0h
+  e: number
+}
+
 const rangeOf = (task: Task): Ev | null => {
   if (!task.due_at) return null
   const due = new Date(task.due_at)
@@ -47,14 +62,30 @@ const rangeOf = (task: Task): Ev | null => {
   return { task, start: start <= end ? start : end, end: start <= end ? end : start, allDay }
 }
 
+/** último dia ocupado (um evento que termina 0h não ocupa o dia seguinte) */
+const lastDay = (ev: Ev) => (ev.allDay || ev.end.getHours() || ev.end.getMinutes() || sameDay(ev.start, ev.end) ? startOfDay(ev.end) : addDays(startOfDay(ev.end), -1))
 const overlapsDay = (ev: Ev, day: Date) => {
-  const s = startOfDay(ev.start).getTime()
-  const e = startOfDay(ev.end).getTime()
   const d = startOfDay(day).getTime()
-  return d >= s && d <= e
+  return d >= startOfDay(ev.start).getTime() && d <= lastDay(ev).getTime()
+}
+/** ocupa a faixa de "dia inteiro" (dia inteiro ou mais de um dia) */
+const isBar = (ev: Ev) => ev.allDay || !sameDay(ev.start, lastDay(ev))
+const minOf = (d: Date) => d.getHours() * 60 + d.getMinutes()
+const atMin = (day: Date, m: number) => {
+  const d = new Date(day)
+  d.setHours(0, m, 0, 0)
+  return d
+}
+
+/** minha resposta ao convite (só quando sou convidado, não organizador) */
+const rsvpOf = (task: Task) => {
+  const me = task.google_meta?.attendees?.find((a) => a.self)
+  if (!me || me.organizer) return ''
+  return me.status === 'needsAction' ? ' needs' : me.status === 'declined' ? ' declined' : me.status === 'tentative' ? ' maybe' : ''
 }
 
 export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0, showWeekNumbers = false }: Props) {
+  void onToggleSidebar
   const { t, i18n } = useTranslation()
   const lang = i18n.language.slice(0, 2)
   const data = useData()
@@ -68,10 +99,15 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
   const [cursor, setCursor] = useState(startOfDay(new Date()))
   const [multiDays, setMultiDays] = useState(3)
   const [multiWeeks, setMultiWeeks] = useState(2)
-  const [quick, setQuick] = useState<{ date: Date; x: number; y: number } | null>(null)
+  const [quick, setQuick] = useState<{ date: Date; end?: Date; x: number; y: number } | null>(null)
   const [draft, setDraft] = useState('')
   const [showDone, setShowDone] = useState(true)
-  const today = startOfDay(new Date())
+  const [now, setNow] = useState(new Date())
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 60000)
+    return () => clearInterval(id)
+  }, [])
+  const today = startOfDay(now)
   const [hidden, setHidden] = useState<Set<string>>(() => {
     try {
       return new Set(JSON.parse(localStorage.getItem('rose.cal.hidden') ?? '[]') as string[])
@@ -80,8 +116,10 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
     }
   })
   const [popup, setPopup] = useState<{ id: string; x: number; y: number } | null>(null)
+  const suppressClick = useRef(false)
   const openEvent = (e: React.MouseEvent, task: Task) => {
     e.stopPropagation()
+    if (suppressClick.current) return
     if (task.source === 'google') setPopup({ id: task.id, x: e.clientX + 8, y: e.clientY - 12 })
     else onSelect(task.id)
   }
@@ -120,7 +158,7 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
       const ev = rangeOf(task)
       if (ev) out.push(ev)
     }
-    return out.sort((a, b) => a.start.getTime() - b.start.getTime())
+    return out.sort((a, b) => a.start.getTime() - b.start.getTime() || b.end.getTime() - a.end.getTime())
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data.tasks, showDone, hidden])
 
@@ -129,18 +167,25 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
     for (const ch of key) h = (h * 31 + ch.charCodeAt(0)) >>> 0
     return PALETTE[h % PALETTE.length]
   }
-  const color = (task: Task) => {
-    if (task.google_calendar_id) {
-      const g = data.googleCalendars.find((c) => c.google_calendar_id === task.google_calendar_id)
-      if (g?.background_color) return g.background_color
-    }
+  const calOf = (task: Task) => (task.google_calendar_id ? data.googleCalendars.find((c) => c.google_calendar_id === task.google_calendar_id) : undefined)
+  /** cor base (paleta da API ou da lista) */
+  const baseColor = (task: Task) => {
+    const g = calOf(task)
+    if (g?.background_color) return g.background_color
     const list = data.lists.find((l) => l.id === task.list_id)
-    if (list?.color) return list.color
-    const key = list?.id ?? task.google_calendar_id ?? 'x'
-    let h = 0
-    for (const ch of key) h = (h * 31 + ch.charCodeAt(0)) >>> 0
-    return PALETTE[h % PALETTE.length]
+    return list?.color ?? hashColor(list?.id ?? task.google_calendar_id ?? 'x')
   }
+  /** variáveis de cor como o Google exibe (claro/escuro) */
+  const colorVars = (task: Task) => {
+    const s = shade(baseColor(task), task.google_meta?.colorId)
+    return { ['--c' as string]: s.light, ['--cd' as string]: s.dark }
+  }
+  const popupColor = (task: Task) => {
+    const s = shade(baseColor(task), task.google_meta?.colorId)
+    return document.documentElement.dataset.theme === 'light' ? s.light : s.dark
+  }
+  /** só dá para mover eventos do Rose ou de agendas do Google em que tenho escrita */
+  const editable = (task: Task) => task.source !== 'google' || ['owner', 'writer'].includes(calOf(task)?.access_role ?? '')
 
   // ---------- navegação ----------
   const step = (dir: 1 | -1) => {
@@ -149,7 +194,7 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
     else if (mode === 'month') c.setMonth(c.getMonth() + dir)
     else if (mode === 'week') c.setDate(c.getDate() + 7 * dir)
     else if (mode === 'day') c.setDate(c.getDate() + dir)
-    else if (mode === 'agenda') c.setDate(c.getDate() + 14 * dir)
+    else if (mode === 'agenda') c.setDate(c.getDate() + 30 * dir)
     else if (mode === 'multiday') c.setDate(c.getDate() + multiDays * dir)
     else c.setDate(c.getDate() + 7 * multiWeeks * dir)
     setCursor(c)
@@ -161,94 +206,251 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
 
   const title = (() => {
     if (mode === 'year') return String(cursor.getFullYear())
-    if (mode === 'month') return cap(fmt({ month: 'long', year: 'numeric' }))
+    if (mode === 'month' || mode === 'agenda') return cap(fmt({ month: 'long', year: 'numeric' }))
     if (mode === 'day') return cap(fmt({ weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }))
-    const first = mode === 'multiday' ? cursor : mode === 'agenda' ? cursor : weekFirst(cursor)
-    const len = mode === 'week' ? 7 : mode === 'multiday' ? multiDays : mode === 'agenda' ? 14 : multiWeeks * 7
+    const first = mode === 'multiday' ? cursor : weekFirst(cursor)
+    const len = mode === 'week' ? 7 : mode === 'multiday' ? multiDays : multiWeeks * 7
     const last = addDays(first, len - 1)
-    return `${fmt({ day: 'numeric', month: 'short' }, first)} – ${fmt({ day: 'numeric', month: 'short', year: 'numeric' }, last)}`
+    if (first.getMonth() === last.getMonth()) return cap(fmt({ month: 'long', year: 'numeric' }, first))
+    return `${cap(fmt({ month: 'short' }, first))} – ${fmt({ month: 'short', year: 'numeric' }, last)}`
   })()
 
   // ---------- criação / movimentação ----------
-  const openQuick = (date: Date, e: React.MouseEvent) => {
+  const openQuick = (date: Date, e: { clientX: number; clientY: number }, end?: Date) => {
     setDraft('')
-    setQuick({ date, x: Math.min(e.clientX, window.innerWidth - 260), y: Math.min(e.clientY, window.innerHeight - 90) })
+    setPopup(null)
+    setQuick({ date, end, x: Math.max(8, Math.min(e.clientX + 12, window.innerWidth - 420)), y: Math.max(8, Math.min(e.clientY - 40, window.innerHeight - 220)) })
   }
 
-  const createQuick = async () => {
+  const createQuick = async (more = false) => {
     const v = draft.trim()
     const q = quick
     setQuick(null)
-    if (!v || !q) return
-    const hasTime = q.date.getHours() !== 0 || q.date.getMinutes() !== 0
-    const task = await data.addTask({ title: v, list_id: data.inbox?.id ?? null, due_at: q.date.toISOString(), all_day: !hasTime })
+    if (!q || (!v && !more)) return
+    const hasTime = !!q.end || q.date.getHours() !== 0 || q.date.getMinutes() !== 0
+    const task = await data.addTask(
+      q.end
+        ? { title: v, list_id: data.inbox?.id ?? null, start_at: q.date.toISOString(), due_at: q.end.toISOString(), all_day: false }
+        : { title: v, list_id: data.inbox?.id ?? null, due_at: q.date.toISOString(), all_day: !hasTime },
+    )
     onSelect(task.id)
   }
 
   const moveTo = (id: string, target: Date, keepTime: boolean) => {
     const task = data.tasks.find((x) => x.id === id)
-    if (!task?.due_at) return
-    const old = new Date(task.due_at)
+    if (!task?.due_at || !editable(task)) return
+    const ev = rangeOf(task)!
     const next = new Date(target)
-    if (keepTime) next.setHours(old.getHours(), old.getMinutes(), 0, 0)
-    const delta = next.getTime() - old.getTime()
-    const patch: Partial<Task> = { due_at: next.toISOString() }
+    if (keepTime) next.setHours(ev.start.getHours(), ev.start.getMinutes(), 0, 0)
+    const delta = next.getTime() - ev.start.getTime()
+    const patch: Partial<Task> = { due_at: new Date(new Date(task.due_at).getTime() + delta).toISOString() }
     if (task.start_at) patch.start_at = new Date(new Date(task.start_at).getTime() + delta).toISOString()
     void data.updateTask(id, patch)
   }
 
-  const dragProps = (task: Task) => ({
-    draggable: true,
-    onDragStart: (e: React.DragEvent) => e.dataTransfer.setData('text/rose-task', task.id),
-  })
+  const dragProps = (task: Task) =>
+    editable(task)
+      ? { draggable: true, onDragStart: (e: React.DragEvent) => e.dataTransfer.setData('text/rose-task', task.id) }
+      : {}
+
+  // ---------- gestos na grade de horas (mover, redimensionar, criar arrastando) ----------
+  const gesture = useRef<Gesture | null>(null)
+  const [preview, setPreview] = useState<Preview | null>(null)
+  const previewRef = useRef<Preview | null>(null)
+  previewRef.current = preview
+
+  const pointAt = (x: number, y: number) => {
+    const col = document.elementsFromPoint(x, y).find((el) => (el as HTMLElement).dataset?.day) as HTMLElement | undefined
+    if (!col) return null
+    const r = col.getBoundingClientRect()
+    return { day: new Date(Number(col.dataset.day)), min: ((y - r.top) / HOUR_H) * 60 }
+  }
+  const snap = (m: number) => Math.round(m / SNAP) * SNAP
+
+  const commit = (g: Gesture, p: Preview, x: number, y: number) => {
+    if (g.kind === 'create') {
+      openQuick(atMin(p.day, p.s), { clientX: x, clientY: y }, atMin(p.day, p.e))
+      return
+    }
+    const task = data.tasks.find((k) => k.id === g.id)
+    if (!task) return
+    const s = atMin(p.day, p.s)
+    const e = atMin(p.day, p.e)
+    if (task.source !== 'google' && !task.start_at) {
+      // tarefa do Rose: o prazo é o início e a duração fica em duration_minutes
+      void data.updateTask(task.id, g.kind === 'resize' ? { duration_minutes: p.e - p.s } : { due_at: s.toISOString(), all_day: false })
+    } else void data.updateTask(task.id, { start_at: s.toISOString(), due_at: e.toISOString(), all_day: false })
+  }
+
+  useEffect(() => {
+    const move = (e: PointerEvent) => {
+      const g = gesture.current
+      if (!g) return
+      if (!g.moved && Math.hypot(e.clientX - g.x0, e.clientY - g.y0) < 5) return
+      g.moved = true
+      const pt = pointAt(e.clientX, e.clientY)
+      if (!pt) return
+      if (g.kind === 'move') {
+        const s = Math.max(0, Math.min(1440 - g.dur, snap(pt.min - g.grab)))
+        setPreview({ id: g.id, day: pt.day, s, e: s + g.dur })
+      } else if (g.kind === 'resize') {
+        const p = previewRef.current
+        if (!p) return
+        setPreview({ ...p, e: Math.max(p.s + SNAP, Math.min(1440, snap(pt.min))) })
+      } else {
+        const m = Math.max(0, Math.min(1440, snap(pt.min)))
+        setPreview({ day: g.day, s: Math.min(g.anchor, m), e: Math.max(g.anchor + SNAP, m) })
+      }
+    }
+    const up = (e: PointerEvent) => {
+      const g = gesture.current
+      gesture.current = null
+      if (!g) return
+      const p = previewRef.current
+      setPreview(null)
+      if (g.kind === 'create') {
+        const s = g.anchor
+        commit(g, g.moved && p ? p : { day: g.day, s, e: Math.min(1440, s + 60) }, e.clientX, e.clientY)
+        return
+      }
+      if (g.moved) {
+        suppressClick.current = true
+        setTimeout(() => (suppressClick.current = false), 0)
+        if (p) commit(g, p, e.clientX, e.clientY)
+      }
+    }
+    window.addEventListener('pointermove', move)
+    window.addEventListener('pointerup', up)
+    return () => {
+      window.removeEventListener('pointermove', move)
+      window.removeEventListener('pointerup', up)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data.tasks])
+
+  const startMove = (e: React.PointerEvent, ev: Ev, day: Date) => {
+    if (e.button !== 0 || !editable(ev.task)) return
+    e.stopPropagation()
+    const pt = pointAt(e.clientX, e.clientY)
+    const s = minOf(ev.start)
+    gesture.current = { kind: 'move', id: ev.task.id, x0: e.clientX, y0: e.clientY, moved: false, day, grab: (pt?.min ?? s) - s, dur: Math.max(SNAP, (ev.end.getTime() - ev.start.getTime()) / 60000), anchor: 0 }
+  }
+  const startResize = (e: React.PointerEvent, ev: Ev, day: Date) => {
+    if (e.button !== 0) return
+    e.stopPropagation()
+    e.preventDefault()
+    const s = minOf(ev.start)
+    gesture.current = { kind: 'resize', id: ev.task.id, x0: e.clientX, y0: e.clientY, moved: true, day, grab: 0, dur: 0, anchor: 0 }
+    setPreview({ id: ev.task.id, day, s, e: s + (ev.end.getTime() - ev.start.getTime()) / 60000 })
+  }
+  const startCreate = (e: React.PointerEvent, day: Date) => {
+    if (e.button !== 0 || (e.target as HTMLElement).closest('.cal-ev')) return
+    const r = (e.currentTarget as HTMLElement).getBoundingClientRect()
+    const anchor = Math.floor((((e.clientY - r.top) / HOUR_H) * 60) / SNAP) * SNAP
+    gesture.current = { kind: 'create', x0: e.clientX, y0: e.clientY, moved: false, day, grab: 0, dur: 0, anchor }
+  }
 
   // ---------- peças ----------
-  const chip = (ev: Ev, day: Date, compact = false) => {
+  const label = (task: Task) => task.title || t('calendar.untitled')
+
+  /** faixa (dia inteiro / vários dias) ou item com hora na vista mensal */
+  const bar = (ev: Ev, key: string, style: React.CSSProperties, contStart = false, contEnd = false) => {
     const task = ev.task
-    const c = color(task)
-    const startsHere = sameDay(ev.start, day)
+    const solid = isBar(ev)
     return (
       <div
-        key={task.id + day.toISOString()}
-        className={'cal-chip' + (task.status !== 0 ? ' done' : '') + (selectedId === task.id ? ' sel' : '') + (ev.allDay || compact || !sameDay(ev.start, ev.end) ? ' solid' : ' timed')}
-        style={{ ['--c' as string]: c, ['--fg' as string]: onColor(c) }}
+        key={key}
+        className={'cal-chip' + (task.status !== 0 ? ' done' : '') + (selectedId === task.id ? ' sel' : '') + (solid ? ' solid' : ' timed') + rsvpOf(task) + (contStart ? ' cont-s' : '') + (contEnd ? ' cont-e' : '')}
+        style={{ ...colorVars(task), ...style }}
         onClick={(e) => openEvent(e, task)}
         onContextMenu={(e) => openTaskMenu(e, task.id)}
         {...dragProps(task)}
-        title={task.title}
+        title={label(task)}
       >
-        {!(ev.allDay || compact || !sameDay(ev.start, ev.end)) && <i className="cal-dot" />}
-        {!ev.allDay && startsHere && !compact && <small className="cal-time">{hhmm(ev.start)}</small>}
-        <span>{task.title || t('task.untitled')}</span>
+        {!solid && <i className="cal-dot" />}
+        {!ev.allDay && (!solid || !contStart) && <small className="cal-time">{hhmm(ev.start)}</small>}
+        <span>{label(task)}</span>
       </div>
     )
   }
 
+  /** distribui faixas numa semana: cada evento ocupa colunas [a, b] na primeira linha livre */
+  const weekLanes = (first: Date, len: number, list: Ev[]) => {
+    const items = list
+      .map((ev) => {
+        const a = Math.max(0, Math.round((startOfDay(ev.start).getTime() - first.getTime()) / 86400000))
+        const b = Math.min(len - 1, Math.round((lastDay(ev).getTime() - first.getTime()) / 86400000))
+        return { ev, a, b, lane: 0, contS: startOfDay(ev.start) < first, contE: lastDay(ev) > addDays(first, len - 1) }
+      })
+      .filter((x) => x.b >= 0 && x.a <= len - 1)
+      .sort((x, y) => Number(isBar(y.ev)) - Number(isBar(x.ev)) || x.a - y.a || y.b - y.a - (x.b - x.a) || x.ev.start.getTime() - y.ev.start.getTime())
+    const used: boolean[][] = []
+    for (const it of items) {
+      let lane = 0
+      while (Array.from({ length: it.b - it.a + 1 }, (_, i) => used[lane]?.[it.a + i]).some(Boolean)) lane++
+      used[lane] ??= []
+      for (let c = it.a; c <= it.b; c++) used[lane][c] = true
+      it.lane = lane
+    }
+    return items
+  }
+
+  const monthRef = useRef<HTMLDivElement>(null)
+  const [monthH, setMonthH] = useState(600)
+  useLayoutEffect(() => {
+    const el = monthRef.current
+    if (!el) return
+    const ro = new ResizeObserver(() => setMonthH(el.clientHeight))
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [mode])
+
   const monthGrid = (first: Date, weeks: number) => {
-    const cells = Array.from({ length: weeks * 7 }, (_, i) => addDays(first, i))
+    const rowH = (monthH - 32) / weeks
+    const fit = Math.max(1, Math.floor((rowH - 30) / LANE_H)) // faixas que cabem abaixo do número do dia
     return (
-      <div className="cal-month" style={{ gridTemplateRows: `auto repeat(${weeks}, 1fr)` }}>
-        {cells.slice(0, 7).map((d) => (
-          <div key={'h' + d.getDay()} className="cal-wd">{fmt({ weekday: 'short' }, d)}</div>
-        ))}
-        {cells.map((d) => {
-          const list = events.filter((ev) => overlapsDay(ev, d))
-          const max = weeks > 3 ? 3 : 5
+      <div className="cal-month gm" ref={monthRef} style={{ gridTemplateRows: `32px repeat(${weeks}, 1fr)` }}>
+        <div className="gm-head">
+          {Array.from({ length: 7 }, (_, i) => addDays(first, i)).map((d) => (
+            <div key={'h' + d.getDay()} className="cal-wd">{fmt({ weekday: 'short' }, d)}</div>
+          ))}
+        </div>
+        {Array.from({ length: weeks }, (_, w) => {
+          const wf = addDays(first, w * 7)
+          const days = Array.from({ length: 7 }, (_, i) => addDays(wf, i))
+          const items = weekLanes(wf, 7, events.filter((ev) => days.some((d) => overlapsDay(ev, d))))
+          const perCol = days.map((_, c) => items.filter((it) => it.a <= c && it.b >= c))
+          const over = perCol.map((l) => l.length > fit)
+          const limit = (c: number) => (over[c] ? fit - 1 : fit)
           return (
-            <div
-              key={d.toISOString()}
-              className={'cal-cell' + (d.getMonth() !== cursor.getMonth() && mode === 'month' ? ' out' : '') + (sameDay(d, today) ? ' today' : '')}
-              onClick={(e) => openQuick(new Date(d.getFullYear(), d.getMonth(), d.getDate()), e)}
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={(e) => {
-                const id = e.dataTransfer.getData('text/rose-task')
-                if (id) moveTo(id, d, true)
-              }}
-            >
-              <b className="cal-daynum">{d.getDate() === 1 ? fmt({ day: 'numeric', month: 'short' }, d) : d.getDate()}{showWeekNumbers && d.getDay() === (weekStart % 7) && <em className="cal-wk" title="ISO">W{isoWeek(addDays(d, 3))}</em>}</b>
-              {list.slice(0, max).map((ev) => chip(ev, d))}
-              {list.length > max && (
-                <button className="cal-more" onClick={(e) => { e.stopPropagation(); setCursor(d); changeMode('day') }}>+{list.length - max}</button>
+            <div key={w} className="gm-week" style={{ gridTemplateRows: `30px repeat(${Math.max(fit, 1)}, ${LANE_H}px) 1fr` }}>
+              {days.map((d, c) => (
+                <div
+                  key={'bg' + c}
+                  className={'cal-cell' + (d.getMonth() !== cursor.getMonth() && mode === 'month' ? ' out' : '') + (sameDay(d, today) ? ' today' : '')}
+                  style={{ gridColumn: c + 1, gridRow: '1 / -1' }}
+                  onClick={(e) => openQuick(new Date(d.getFullYear(), d.getMonth(), d.getDate()), e)}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => {
+                    const id = e.dataTransfer.getData('text/rose-task')
+                    if (id) moveTo(id, d, true)
+                  }}
+                >
+                  <b className="cal-daynum" onClick={(e) => { e.stopPropagation(); setCursor(d); changeMode('day') }}>
+                    {d.getDate() === 1 ? fmt({ day: 'numeric', month: 'short' }, d) : d.getDate()}
+                    {showWeekNumbers && c === 0 && <em className="cal-wk" title="ISO">W{isoWeek(addDays(d, 3))}</em>}
+                  </b>
+                </div>
+              ))}
+              {items
+                .filter((it) => Array.from({ length: it.b - it.a + 1 }, (_, i) => it.lane < limit(it.a + i)).every(Boolean))
+                .map((it) => bar(it.ev, it.ev.task.id + w, { gridColumn: `${it.a + 1} / ${it.b + 2}`, gridRow: it.lane + 2 }, it.contS, it.contE))}
+              {perCol.map((l, c) =>
+                over[c] ? (
+                  <button key={'m' + c} className="cal-more" style={{ gridColumn: c + 1, gridRow: fit + 1 }} onClick={(e) => { e.stopPropagation(); setCursor(days[c]); changeMode('day') }}>
+                    {t('calendar.more', { n: l.filter((it) => it.lane >= limit(c)).length + l.filter((it) => it.lane < limit(c) && Array.from({ length: it.b - it.a + 1 }, (_, i) => it.lane >= limit(it.a + i)).some(Boolean)).length })}
+                  </button>
+                ) : null,
               )}
             </div>
           )
@@ -262,13 +464,11 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
     const h = Math.floor(Math.abs(o) / 60)
     return `GMT${o < 0 ? '-' : '+'}${String(h).padStart(2, '0')}`
   })()
-  const range = (a: Date, b: Date) => {
-    const f = (d: Date) => (d.getMinutes() ? hhmm(d) : hhmm(d))
-    return `${f(a)} – ${f(b)}`
-  }
 
   const timeGrid = (days: Date[]) => {
     const hours = Array.from({ length: 24 }, (_, h) => h)
+    const bars = weekLanes(days[0], days.length, events.filter((ev) => isBar(ev) && days.some((d) => overlapsDay(ev, d))))
+    const lanes = bars.reduce((m, b) => Math.max(m, b.lane + 1), 0)
     return (
       <div className="cal-time">
         <div className="cal-time-head" style={{ gridTemplateColumns: `66px repeat(${days.length}, 1fr)` }}>
@@ -276,88 +476,86 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
           {days.map((d) => (
             <div key={d.toISOString()} className={'cal-th' + (sameDay(d, today) ? ' today' : '')}>
               <small>{fmt({ weekday: 'short' }, d)}</small>
-              <b>{d.getDate()}</b>
+              <b onClick={() => { setCursor(d); changeMode('day') }}>{d.getDate()}</b>
             </div>
           ))}
-          <div className="cal-allday-label">{t('calendar.allDay')}</div>
-          {days.map((d) => (
-            <div
-              key={'ad' + d.toISOString()}
-              className="cal-allday"
-              onClick={(e) => openQuick(d, e)}
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={(e) => {
-                const id = e.dataTransfer.getData('text/rose-task')
-                const task = data.tasks.find((x) => x.id === id)
-                if (task) {
-                  const dd = new Date(d)
-                  void data.updateTask(id, { due_at: dd.toISOString(), start_at: null, all_day: true })
-                }
-              }}
-            >
-              {events.filter((ev) => (ev.allDay || !sameDay(ev.start, ev.end)) && overlapsDay(ev, d)).map((ev) => chip(ev, d, true))}
-            </div>
-          ))}
+          <div className="cal-allday-label" />
+          <div className="cal-allrow" style={{ gridColumn: `2 / span ${days.length}`, gridTemplateColumns: `repeat(${days.length}, 1fr)`, gridTemplateRows: `repeat(${Math.max(1, lanes)}, ${LANE_H}px)` }}>
+            {days.map((d, c) => (
+              <div
+                key={'ad' + c}
+                className="cal-allday"
+                style={{ gridColumn: c + 1, gridRow: '1 / -1' }}
+                onClick={(e) => openQuick(d, e)}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={(e) => {
+                  const id = e.dataTransfer.getData('text/rose-task')
+                  const task = data.tasks.find((x) => x.id === id)
+                  if (task && editable(task)) void data.updateTask(id, { due_at: new Date(d).toISOString(), start_at: null, all_day: true })
+                }}
+              />
+            ))}
+            {bars.map((it) => bar(it.ev, it.ev.task.id, { gridColumn: `${it.a + 1} / ${it.b + 2}`, gridRow: it.lane + 1 }, it.contS, it.contE))}
+          </div>
         </div>
-        <div className="cal-time-body" ref={(el) => { if (el && !el.dataset.init) { el.dataset.init = "1"; el.scrollTop = 7 * HOUR_H } }}>
+        <div className="cal-time-body" ref={(el) => { if (el && !el.dataset.init) { el.dataset.init = '1'; el.scrollTop = 7 * HOUR_H } }}>
           <div className="cal-time-grid" style={{ gridTemplateColumns: `66px repeat(${days.length}, 1fr)`, height: 24 * HOUR_H }}>
             <div className="cal-hours">
               {hours.map((h) => <span key={h} style={{ top: h * HOUR_H }}>{h === 0 ? '' : h === 12 ? t('calendar.noon') : `${String(h).padStart(2, '0')}:00`}</span>)}
             </div>
             {days.map((d) => {
-              const list = events.filter((ev) => !ev.allDay && sameDay(ev.start, ev.end) && sameDay(ev.start, d))
+              let list = events.filter((ev) => !isBar(ev) && sameDay(ev.start, d))
+              // pré-visualização do arraste: o evento acompanha o ponteiro (inclusive para outro dia)
+              if (preview?.id) {
+                const src = events.find((ev) => ev.task.id === preview.id)
+                list = list.filter((ev) => ev.task.id !== preview.id)
+                if (src && sameDay(preview.day, d)) list.push({ ...src, start: atMin(d, preview.s), end: atMin(d, preview.e) })
+              }
+              const ghost = (preview && !preview.id && sameDay(preview.day, d) && preview) || (quick?.end && sameDay(quick.date, d) ? { s: minOf(quick.date), e: minOf(quick.end) || 1440 } : null)
               return (
-                <div
-                  key={d.toISOString()}
-                  className="cal-col"
-                  onClick={(e) => {
-                    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-                    const mins = Math.floor(((e.clientY - rect.top) / HOUR_H) * 4) * 15
-                    const dd = new Date(d)
-                    dd.setHours(0, mins, 0, 0)
-                    openQuick(dd, e)
-                  }}
-                  onDragOver={(e) => e.preventDefault()}
-                  onDrop={(e) => {
-                    const id = e.dataTransfer.getData('text/rose-task')
-                    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-                    const mins = Math.floor(((e.clientY - rect.top) / HOUR_H) * 4) * 15
-                    const dd = new Date(d)
-                    dd.setHours(0, mins, 0, 0)
-                    const task = data.tasks.find((x) => x.id === id)
-                    if (!task) return
-                    const patch: Partial<Task> = { due_at: dd.toISOString(), all_day: false, start_at: null }
-                    void data.updateTask(id, patch)
-                  }}
-                >
+                <div key={d.toISOString()} className="cal-col" data-day={d.getTime()} onPointerDown={(e) => startCreate(e, d)}>
                   {hours.map((h) => <i key={h} className="cal-line" style={{ top: h * HOUR_H }} />)}
-                  {sameDay(d, today) && <i className="cal-now" style={{ top: ((new Date().getHours() * 60 + new Date().getMinutes()) / 60) * HOUR_H }}><em>{hhmm(new Date())}</em></i>}
-                  {layout(list).map(({ ev, col, cols }) => {
-                    const top = ((ev.start.getHours() * 60 + ev.start.getMinutes()) / 60) * HOUR_H + 1
+                  {sameDay(d, today) && <i className="cal-now" style={{ top: (minOf(now) / 60) * HOUR_H }}><em>{hhmm(now)}</em></i>}
+                  {layout(list).map(({ ev, left, width, indent, z, ring }) => {
+                    const top = (minOf(ev.start) / 60) * HOUR_H + 1
                     const durMin = (ev.end.getTime() - ev.start.getTime()) / 60000
-                    const h = Math.max(22, (durMin / 60) * HOUR_H - 2)
+                    const h = Math.max(20, (durMin / 60) * HOUR_H - 2)
                     const oneLine = durMin <= 30
-                    const c = color(ev.task)
+                    const dragging = preview?.id === ev.task.id
                     return (
                       <div
                         key={ev.task.id}
-                        className={'cal-ev' + (ev.task.status !== 0 ? ' done' : '') + (selectedId === ev.task.id ? ' sel' : '')}
-                        style={{ top, height: h, left: `calc((100% - 12px) * ${col / cols})`, width: `calc((100% - 12px) / ${cols} - 2px)`, ['--c' as string]: c, ['--fg' as string]: onColor(c) }}
+                        className={'cal-ev' + (ev.task.status !== 0 ? ' done' : '') + (selectedId === ev.task.id ? ' sel' : '') + rsvpOf(ev.task) + (ring ? ' ring' : '') + (dragging ? ' dragging' : '') + (editable(ev.task) ? ' editable' : '')}
+                        style={{
+                          top,
+                          height: h,
+                          left: `calc(${indent}px + (100% - 12px - ${indent}px) * ${left})`,
+                          width: `calc((100% - 12px - ${indent}px) * ${width})`,
+                          zIndex: dragging ? 50 : z,
+                          ...colorVars(ev.task),
+                        }}
+                        onPointerDown={(e) => startMove(e, ev, d)}
                         onClick={(e) => openEvent(e, ev.task)}
                         onContextMenu={(e) => openTaskMenu(e, ev.task.id)}
-                        {...dragProps(ev.task)}
                       >
                         {oneLine ? (
-                          <b>{ev.task.title || t('task.untitled')}, <span>{hhmm(ev.start)}</span></b>
+                          <b>{label(ev.task)}, <span>{hhmm(ev.start)}</span></b>
                         ) : (
                           <>
-                            <b>{ev.task.title || t('task.untitled')}</b>
-                            <small>{range(ev.start, ev.end)}</small>
+                            <b>{label(ev.task)}</b>
+                            <small>{hhmm(ev.start)} – {hhmm(ev.end)}</small>
                           </>
                         )}
+                        {editable(ev.task) && <i className="cal-ev-rs" onPointerDown={(e) => startResize(e, ev, d)} />}
                       </div>
                     )
                   })}
+                  {ghost && (
+                    <div className="cal-ev ghost" style={{ top: (ghost.s / 60) * HOUR_H + 1, height: Math.max(20, ((ghost.e - ghost.s) / 60) * HOUR_H - 2), left: 0, width: 'calc(100% - 12px)', zIndex: 60 }}>
+                      <b>{draft || t('calendar.untitled')}</b>
+                      <small>{hhmm(atMin(d, ghost.s))} – {hhmm(atMin(d, ghost.e))}</small>
+                    </div>
+                  )}
                 </div>
               )
             })}
@@ -366,6 +564,64 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
       </div>
     )
   }
+
+  const agenda = () => {
+    const days = Array.from({ length: 30 }, (_, i) => addDays(cursor, i)).filter((d) => events.some((ev) => overlapsDay(ev, d)))
+    if (!days.length) return <p className="empty">{t('calendar.emptyAgenda')}</p>
+    return (
+      <div className="cal-sched">
+        {days.map((d) => {
+          const list = events.filter((ev) => overlapsDay(ev, d)).sort((a, b) => Number(isBar(b)) - Number(isBar(a)) || a.start.getTime() - b.start.getTime())
+          const isToday = sameDay(d, today)
+          const nowIdx = isToday ? list.findIndex((ev) => !isBar(ev) && ev.start > now) : -1
+          return (
+            <div key={d.toISOString()} className={'cs-day' + (isToday ? ' today' : '')}>
+              <button className="cs-date" onClick={() => { setCursor(d); changeMode('day') }}>
+                <b>{d.getDate()}</b>
+                <small>{fmt({ month: 'short' }, d).replace('.', '')}, {fmt({ weekday: 'short' }, d).replace('.', '')}</small>
+              </button>
+              <div className="cs-list">
+                {list.map((ev, i) => (
+                  <div key={ev.task.id}>
+                    {i === nowIdx && <i className="cs-now" />}
+                    <div className={'cs-item' + rsvpOf(ev.task) + (ev.task.status !== 0 ? ' done' : '') + (selectedId === ev.task.id ? ' sel' : '')} style={colorVars(ev.task)} onClick={(e) => openEvent(e, ev.task)} onContextMenu={(e) => openTaskMenu(e, ev.task.id)}>
+                      <i className="cs-dot" />
+                      <span className="cs-time">{isBar(ev) ? t('calendar.allDay') : ev.end.getTime() > ev.start.getTime() ? `${hhmm(ev.start)} – ${hhmm(ev.end)}` : hhmm(ev.start)}</span>
+                      <b>{label(ev.task)}</b>
+                      {ev.task.google_meta?.location && <small>{ev.task.google_meta.location}</small>}
+                    </div>
+                  </div>
+                ))}
+                {isToday && nowIdx === -1 && <i className="cs-now" />}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    )
+  }
+
+  const year = () => (
+    <div className="cal-year gy">
+      {Array.from({ length: 12 }, (_, m) => {
+        const first = new Date(cursor.getFullYear(), m, 1)
+        const gridFirst = weekFirst(first)
+        return (
+          <div key={m} className="cal-mini">
+            <button className="cal-mini-title" onClick={() => { setCursor(first); changeMode('month') }}>{cap(fmt({ month: 'long' }, first))}</button>
+            <div className="cal-mini-grid">
+              {Array.from({ length: 7 }, (_, i) => addDays(gridFirst, i)).map((d, i) => <i key={'w' + i}>{fmt({ weekday: 'narrow' }, d).toUpperCase()}</i>)}
+              {Array.from({ length: 42 }, (_, i) => addDays(gridFirst, i)).map((d) => (
+                <button key={d.toISOString()} className={(d.getMonth() !== m ? 'out ' : '') + (sameDay(d, today) && d.getMonth() === m ? 'today' : '')} onClick={() => { setCursor(d); changeMode('day') }}>
+                  {d.getDate()}
+                </button>
+              ))}
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
 
   const body = (() => {
     if (mode === 'month') {
@@ -378,52 +634,8 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
     if (mode === 'week') return timeGrid(Array.from({ length: 7 }, (_, i) => addDays(weekFirst(cursor), i)))
     if (mode === 'day') return timeGrid([cursor])
     if (mode === 'multiday') return timeGrid(Array.from({ length: multiDays }, (_, i) => addDays(cursor, i)))
-    if (mode === 'agenda') {
-      const days = Array.from({ length: 14 }, (_, i) => addDays(cursor, i)).filter((d) => events.some((ev) => overlapsDay(ev, d)))
-      if (!days.length) return <p className="empty">{t('calendar.emptyAgenda')}</p>
-      return (
-        <div className="cal-agenda">
-          {days.map((d) => (
-            <div key={d.toISOString()} className="cal-ag-day">
-              <div className={'cal-ag-date' + (sameDay(d, today) ? ' today' : '')}><b>{d.getDate()}</b><small>{fmt({ weekday: 'short' }, d)}</small></div>
-              <div className="cal-ag-list">
-                {events.filter((ev) => overlapsDay(ev, d)).map((ev) => (
-                  <div key={ev.task.id} className={'cal-ag-item' + (selectedId === ev.task.id ? ' sel' : '')} style={{ borderLeftColor: color(ev.task) }} onClick={(e) => openEvent(e, ev.task)}>
-                    <small>{ev.allDay ? t('calendar.allDay') : `${hhmm(ev.start)} - ${hhmm(ev.end)}`}</small>
-                    <b>{ev.task.title || t('task.untitled')}</b>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      )
-    }
-    // ano
-    return (
-      <div className="cal-year">
-        {Array.from({ length: 12 }, (_, m) => {
-          const first = new Date(cursor.getFullYear(), m, 1)
-          const gridFirst = weekFirst(first)
-          return (
-            <div key={m} className="cal-mini">
-              <button className="cal-mini-title" onClick={() => { setCursor(first); changeMode('month') }}>{cap(fmt({ month: 'long' }, first))}</button>
-              <div className="cal-mini-grid">
-                {Array.from({ length: 42 }, (_, i) => addDays(gridFirst, i)).map((d) => {
-                  const inMonth = d.getMonth() === m
-                  const has = inMonth && events.some((ev) => overlapsDay(ev, d))
-                  return (
-                    <button key={d.toISOString()} className={(inMonth ? '' : 'out ') + (sameDay(d, today) ? 'today ' : '') + (has ? 'has' : '')} onClick={() => { setCursor(d); changeMode('day') }}>
-                      {inMonth ? d.getDate() : ''}
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-          )
-        })}
-      </div>
-    )
+    if (mode === 'agenda') return agenda()
+    return year()
   })()
 
   return (
@@ -458,7 +670,7 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
             <h4>{t('calendar.myCals')}</h4>
             {data.lists.filter((l) => !l.archived).map((l) => {
               const k = 'l:' + l.id
-              const c = l.color ?? hashColor(l.id)
+              const c = shade(l.color ?? hashColor(l.id)).dark
               return (
                 <label key={k} className="cal-chk" style={{ ['--c' as string]: c }}>
                   <input type="checkbox" checked={!hidden.has(k)} onChange={() => toggleHidden(k)} />
@@ -476,8 +688,9 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
                   <h4>{grp.title}</h4>
                   {grp.items.map((g) => {
                     const k = 'g:' + g.google_calendar_id
+                    const s = shade(g.background_color ?? '#039be5')
                     return (
-                      <label key={k} className="cal-chk" style={{ ['--c' as string]: g.background_color ?? 'var(--accent)' }}>
+                      <label key={k} className="cal-chk" style={{ ['--c' as string]: s.light, ['--cd' as string]: s.dark }}>
                         <input
                           type="checkbox"
                           checked={g.enabled && !hidden.has(k)}
@@ -502,91 +715,129 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
       )}
 
       <div className="cal-main">
-      <header className="cal-head">
-        <button className="icon-btn" onClick={() => setAsideOpen((o) => !o)} title={t('common.toggleSidebar')}><Icon name="sidebar" size={20} /></button>
-        <button className="cal-today" onClick={() => setCursor(today)}>{t('calendar.today')}</button>
-        <button className="icon-btn round" onClick={() => step(-1)} aria-label="‹"><Icon name="left" size={18} /></button>
-        <button className="icon-btn round" onClick={() => step(1)} aria-label="›"><Icon name="right" size={18} /></button>
-        <h2>{title}</h2>
-        <div className="grow" />
-        <NSelect value={mode} onChange={(e) => changeMode(e.target.value as CalMode)} className="cal-mode-sel">
-          {MODES.map((m) => <option key={m} value={m}>{t(`calendar.mode.${m}`)}</option>)}
-        </NSelect>
-        <Popover
-          align="right"
-          trigger={(_o, toggle) => <button className="icon-btn" onClick={toggle} title={t('common.more')}><Icon name="more" size={18} /></button>}
-        >
-          {(close) => (
-            <div className="menu wide">
-              <button onClick={() => { setShowDone(!showDone); close() }}><Icon name="checkSquare" size={15} /> {t('view.showCompleted')} {showDone && <Icon name="check" size={14} />}</button>
-              {mode === 'multiday' && (
-                <label className="menu-select"><span>{t('calendar.days')}</span>
-                  <NSelect value={multiDays} onChange={(e) => setMultiDays(Number(e.target.value))}>{[2, 3, 4, 5, 6].map((n) => <option key={n}>{n}</option>)}</NSelect>
-                </label>
-              )}
-              {mode === 'multiweek' && (
-                <label className="menu-select"><span>{t('calendar.weeks')}</span>
-                  <NSelect value={multiWeeks} onChange={(e) => setMultiWeeks(Number(e.target.value))}>{[2, 3, 4, 5].map((n) => <option key={n}>{n}</option>)}</NSelect>
-                </label>
-              )}
-              <button onClick={() => { close(); window.print() }}><Icon name="print" size={15} /> {t('detail.print')}</button>
-            </div>
-          )}
-        </Popover>
-      </header>
+        <header className="cal-head">
+          <button className="icon-btn" onClick={() => setAsideOpen((o) => !o)} title={t('common.toggleSidebar')}><Icon name="sidebar" size={20} /></button>
+          <button className="cal-today" onClick={() => setCursor(today)}>{t('calendar.today')}</button>
+          <button className="icon-btn round" onClick={() => step(-1)} aria-label="‹"><Icon name="left" size={18} /></button>
+          <button className="icon-btn round" onClick={() => step(1)} aria-label="›"><Icon name="right" size={18} /></button>
+          <h2>{title}</h2>
+          <div className="grow" />
+          <NSelect value={mode} onChange={(e) => changeMode(e.target.value as CalMode)} className="cal-mode-sel">
+            {MODES.map((m) => <option key={m} value={m}>{t(`calendar.mode.${m}`)}</option>)}
+          </NSelect>
+          <Popover
+            align="right"
+            trigger={(_o, toggle) => <button className="icon-btn" onClick={toggle} title={t('common.more')}><Icon name="more" size={18} /></button>}
+          >
+            {(close) => (
+              <div className="menu wide">
+                <button onClick={() => { setShowDone(!showDone); close() }}><Icon name="checkSquare" size={15} /> {t('view.showCompleted')} {showDone && <Icon name="check" size={14} />}</button>
+                {mode === 'multiday' && (
+                  <label className="menu-select"><span>{t('calendar.days')}</span>
+                    <NSelect value={multiDays} onChange={(e) => setMultiDays(Number(e.target.value))}>{[2, 3, 4, 5, 6].map((n) => <option key={n}>{n}</option>)}</NSelect>
+                  </label>
+                )}
+                {mode === 'multiweek' && (
+                  <label className="menu-select"><span>{t('calendar.weeks')}</span>
+                    <NSelect value={multiWeeks} onChange={(e) => setMultiWeeks(Number(e.target.value))}>{[2, 3, 4, 5].map((n) => <option key={n}>{n}</option>)}</NSelect>
+                  </label>
+                )}
+                <button onClick={() => { close(); window.print() }}><Icon name="print" size={15} /> {t('detail.print')}</button>
+              </div>
+            )}
+          </Popover>
+        </header>
 
-      <div className="cal-body">{body}</div>
+        <div className="cal-body">{body}</div>
 
-      <div className="cal-modes">
-        {MODES.map((m) => (
-          <button key={m} className={mode === m ? 'on' : ''} onClick={() => changeMode(m)}>{t(`calendar.mode.${m}`)}</button>
-        ))}
+        <div className="cal-modes">
+          {MODES.map((m) => (
+            <button key={m} className={mode === m ? 'on' : ''} onClick={() => changeMode(m)}>{t(`calendar.mode.${m}`)}</button>
+          ))}
+        </div>
       </div>
 
       {quick && (
-        <div className="cal-quick" style={{ left: quick.x, top: quick.y }} onMouseDown={(e) => e.stopPropagation()}>
-          <small>{fmt({ weekday: 'short', day: 'numeric', month: 'short' }, quick.date)}{quick.date.getHours() || quick.date.getMinutes() ? ` · ${hhmm(quick.date)}` : ''}</small>
-          <input
-            autoFocus
-            value={draft}
-            placeholder={t('calendar.newPh')}
-            onChange={(e) => setDraft(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') void createQuick()
-              if (e.key === 'Escape') setQuick(null)
-            }}
-            onBlur={() => setTimeout(() => setQuick(null), 150)}
-          />
-        </div>
+        <>
+          <div className="cq-scrim" onPointerDown={() => setQuick(null)} />
+          <div className="cal-quick gq" style={{ left: quick.x, top: quick.y }} role="dialog">
+            <div className="gq-bar"><button className="icon-btn round" onClick={() => setQuick(null)} aria-label="×"><Icon name="x" size={18} /></button></div>
+            <input
+              autoFocus
+              className="gq-title"
+              value={draft}
+              placeholder={t('calendar.addTitle')}
+              onChange={(e) => setDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') void createQuick()
+                if (e.key === 'Escape') setQuick(null)
+              }}
+            />
+            <div className="gq-row">
+              <Icon name="clock" size={18} />
+              <span>
+                {cap(fmt({ weekday: 'long', day: 'numeric', month: 'long' }, quick.date))}
+                {quick.end ? ` · ${hhmm(quick.date)} – ${hhmm(quick.end)}` : quick.date.getHours() || quick.date.getMinutes() ? ` · ${hhmm(quick.date)}` : ''}
+              </span>
+            </div>
+            <div className="gq-row">
+              <Icon name="inbox" size={18} />
+              <span>{t('nav.inbox')}</span>
+            </div>
+            <div className="gq-foot">
+              <button className="gq-more" onClick={() => void createQuick(true)}>{t('calendar.moreOptions')}</button>
+              <button className="gq-save" onClick={() => void createQuick()} disabled={!draft.trim()}>{t('calendar.save')}</button>
+            </div>
+          </div>
+        </>
       )}
-      </div>
       {popup && (() => {
         const task = data.tasks.find((x) => x.id === popup.id)
-        return task ? <EventPopup task={task} color={color(task)} x={popup.x} y={popup.y} onClose={() => setPopup(null)} onEdit={() => onSelect(task.id)} /> : null
+        return task ? <EventPopup task={task} color={popupColor(task)} x={popup.x} y={popup.y} onClose={() => setPopup(null)} onEdit={() => onSelect(task.id)} /> : null
       })()}
     </section>
   )
 }
 
-/** Distribui eventos sobrepostos em colunas lado a lado. */
+/**
+ * Sobreposição como no Google Calendar:
+ * - eventos que começam juntos (até 45 min de diferença) dividem a largura em colunas que se sobrepõem
+ *   (o primeiro ocupa 1,7× a sua fração e o seguinte começa na sua fração);
+ * - um evento que começa depois, dentro de outro, entra recuado 22px por cima dele.
+ */
 function layout(list: Ev[]) {
-  const sorted = [...list].sort((a, b) => a.start.getTime() - b.start.getTime())
-  const out: { ev: Ev; col: number; cols: number }[] = []
-  let cluster: { ev: Ev; col: number }[] = []
-  let clusterEnd = 0
-  const flush = () => {
-    const cols = Math.max(1, ...cluster.map((c) => c.col + 1))
-    cluster.forEach((c) => out.push({ ...c, cols }))
-    cluster = []
+  const sorted = [...list].sort((a, b) => a.start.getTime() - b.start.getTime() || b.end.getTime() - a.end.getTime())
+  interface Placed {
+    ev: Ev
+    group: number
+    indent: number
+    z: number
   }
-  for (const ev of sorted) {
-    if (cluster.length && ev.start.getTime() >= clusterEnd) flush()
-    const used = new Set(cluster.filter((c) => c.ev.end.getTime() > ev.start.getTime()).map((c) => c.col))
-    let col = 0
-    while (used.has(col)) col++
-    cluster.push({ ev, col })
-    clusterEnd = Math.max(clusterEnd, ev.end.getTime())
-  }
-  flush()
-  return out
+  const placed: Placed[] = []
+  const groups: { indent: number; start: number; members: Placed[] }[] = []
+  const NEAR = 45 * 60000
+  sorted.forEach((ev, i) => {
+    const s = ev.start.getTime()
+    const over = placed.filter((p) => p.ev.end.getTime() > s && p.ev.start.getTime() < ev.end.getTime())
+    const near = over.filter((p) => s - groups[p.group].start < NEAR).sort((a, b) => b.indent - a.indent)[0]
+    let p: Placed
+    if (near) {
+      p = { ev, group: near.group, indent: near.indent, z: i + 1 }
+      groups[near.group].members.push(p)
+    } else {
+      const indent = over.length ? Math.max(...over.map((o) => o.indent)) + INDENT : 0
+      p = { ev, group: groups.length, indent, z: i + 1 }
+      groups.push({ indent, start: s, members: [p] })
+    }
+    placed.push(p)
+  })
+  return placed.map((p) => {
+    const g = groups[p.group]
+    const n = g.members.length
+    const k = g.members.indexOf(p)
+    const left = k / n
+    const width = k === n - 1 ? 1 / n : Math.min(1 - left, 1.7 / n)
+    const ring = n > 1 || p.indent > 0 || placed.some((o) => o !== p && o.ev.end > p.ev.start && o.ev.start < p.ev.end)
+    return { ev: p.ev, left, width, indent: p.indent, z: p.z, ring }
+  })
 }

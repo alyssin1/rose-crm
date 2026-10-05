@@ -9,3 +9,4 @@ dev.log
 *.tsbuildinfo
 supabase/.env.functions
 *.local.sql
+supabase/.temp/
