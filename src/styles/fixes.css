@@ -52,3 +52,22 @@
 @media (max-width: 820px) { .tasks { padding: 0 12px; } .side-btn { font-size: 15px; } }
 
 .avatar { width: 30px; height: 30px; border-radius: 8px; }
+
+/* ---------- área da lista: medidas do TickTick (painel 263px; margem 18; linha 40; checkbox x+34; título x+58) ---------- */
+.tasks { padding: 0 18px; }
+.tasks-head { padding: 18px 0 8px; gap: 8px; }
+.tasks-head h2 { margin: 0 0 0 4px; font-size: 20px; line-height: 28px; }
+.add-task { height: 34px; border-radius: 8px; padding: 0 10px; margin-bottom: 0; font-size: 14px; }
+.add-task input { padding: 0; height: 34px; font-size: 14px; }
+.group-head { padding: 18px 0 3px; gap: 4px; line-height: 21px; }
+.group-head b { font-size: 14px; font-weight: 600; line-height: 21px; }
+.task-row { position: relative; min-height: 40px; padding: 0 8px 0 16px; gap: 8px; border-bottom: 0; border-radius: 8px; }
+.task-row::after { content: ''; position: absolute; left: 40px; right: 10px; bottom: 0; height: 1px; background: var(--border); }
+.task-row:hover::after, .task-row.selected::after { opacity: 0; }
+.task-row .check { width: 16px; height: 16px; }
+.task-row .title { font-size: 14px; line-height: 21px; }
+.meta .list-name { max-width: 74px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.meta { gap: 10px; }
+@media (max-width: 820px) { .tasks { padding: 0 12px; } }
+.tasks-head > .icon-btn:first-child { width: 24px; height: 28px; padding: 0; }
+.tasks-head h2 { margin-left: 0; }
