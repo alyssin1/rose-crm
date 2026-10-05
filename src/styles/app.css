@@ -126,7 +126,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); }
 .dp-quick button { background: none; border: 0; color: var(--text-dim); padding: 6px 10px; border-radius: 8px; }
 .dp-quick button:hover { background: var(--bg-hover); color: var(--text); }
 .dp-month { display: flex; justify-content: space-between; align-items: center; margin: 4px 2px 6px; }
-.dp-month b::first-letter { text-transform: uppercase; }
+.dp-month b::first-letter { text-transform: none; }
 .dp-month span { display: inline-flex; gap: 2px; }
 .dp-month button { background: none; border: 0; color: var(--text-dim); padding: 2px 6px; border-radius: 6px; }
 .dp-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; }

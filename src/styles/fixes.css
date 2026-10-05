@@ -124,3 +124,43 @@
 @media (max-width: 820px) { .mx-grid { grid-template-columns: 1fr; grid-template-rows: none; } .mx-quad { min-height: 260px; } }
 .mx-head { height: 64px; }
 .mx-qhead { height: 40px; padding: 0 12px; }
+
+/* ---------- painel de detalhe (medidas do TickTick: 320px, padding 25, barra de 64px, título 19/700) ---------- */
+.detail { width: 320px; max-width: none; }
+.detail-top { height: 64px; padding: 0 20px 0 25px; border-bottom: 0; gap: 6px; }
+.detail-top .chip { height: 30px; padding: 0 5px; font-size: 14px; gap: 6px; }
+.detail-body { padding: 8px 25px 0; gap: 10px; }
+.detail-title { font-size: 19px; font-weight: 700; line-height: 24px; padding: 0; }
+.detail-body .rich-body { font-size: 14px; line-height: 21px; }
+.detail-body .rich-body:empty::before { color: color-mix(in srgb, var(--text) 30%, transparent); }
+.detail-body .rich-bar { display: none; }
+.detail-body .rich:focus-within .rich-bar { display: flex; }
+.detail-foot { height: 48px; padding: 0 20px 0 25px; border-top: 0; flex: none; }
+@media (max-width: 820px) { .detail { width: 100%; } }
+.main { min-width: 0; overflow: hidden; }
+.detail { overflow: hidden; }
+.detail-title { margin-bottom: 4px; }
+.detail-foot { gap: 6px; }
+.detail-foot select { min-width: 0; max-width: 120px; flex: 0 1 auto; text-overflow: ellipsis; font-size: 14px; }
+.detail-foot > svg { flex: none; }
+
+/* ---------- seletor de data (medidas do TickTick: 262px, abas 30px, ícones 26px, dias 28px, linhas 34px, botões 30px) ---------- */
+.datepicker { width: 262px; padding: 13px 17px 17px; border-radius: 14px; }
+.dp-tabs { height: 30px; padding: 0; margin: 0 0 24px; background: color-mix(in srgb, var(--text) 5%, transparent); border-radius: 8px; }
+.dp-tabs button { padding: 0; font-size: 13px; border-radius: 8px; }
+.dp-tabs .on { background: color-mix(in srgb, var(--text) 9%, transparent); }
+.dp-quick { justify-content: space-between; padding: 0 6px; margin: 0 0 24px; }
+.dp-quick button { width: 26px; height: 26px; padding: 0; display: grid; place-items: center; border-radius: 6px; }
+.dp-quick svg { width: 26px; height: 26px; }
+.dp-month { height: 20px; margin: 0 0 6px 1px; font-size: 14px; }
+.dp-grid { margin: 0 -6px; row-gap: 2px; column-gap: 0; }
+.dp-grid i { height: 28px; line-height: 28px; padding: 0; font-size: 12px; }
+.dp-grid button { width: 28px; height: 28px; margin: 0 auto; font-size: 12px; padding: 0; }
+.dp-rows { margin: 17px -12px 0; border-top: 0; }
+.dp-row { height: 34px; padding: 0 12px; gap: 10px; font-size: 13px; color: color-mix(in srgb, var(--text) 80%, transparent); border-radius: 8px; margin-bottom: 2px; }
+.dp-row:hover { background: color-mix(in srgb, var(--text) 6%, transparent); }
+.dp-sub { padding: 2px 12px 8px 38px; }
+.dp-actions { margin-top: 16px; gap: 8px; }
+.dp-actions button { height: 30px; padding: 0; font-size: 14px; border-radius: 8px; }
+.dp-actions button:first-child { flex: 1.24; color: color-mix(in srgb, var(--text) 60%, transparent); border-color: color-mix(in srgb, var(--text) 14%, transparent); }
+.dp-actions .btn-primary { flex: 1; color: #fff; }

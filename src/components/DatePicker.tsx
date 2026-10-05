@@ -120,7 +120,7 @@ export function DatePicker({ task, weekStart = 0, onApply, onClose }: Props) {
       </div>
 
       <div className="dp-month">
-        <b>{new Intl.DateTimeFormat(lang, { month: 'long', year: 'numeric' }).format(monthStart)}</b>
+        <b>{new Intl.DateTimeFormat(lang, { month: 'long' }).format(monthStart)} {monthStart.getFullYear()}</b>
         <span>
           <button onClick={() => setView(new Date(monthStart.getFullYear(), monthStart.getMonth() - 1, 1))} aria-label="‹"><Icon name="left" size={14} /></button>
           <button onClick={() => setView(today)} aria-label="•">•</button>
