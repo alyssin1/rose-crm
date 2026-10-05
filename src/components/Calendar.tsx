@@ -112,7 +112,7 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
 
   const title = (() => {
     if (mode === 'year') return String(cursor.getFullYear())
-    if (mode === 'month') return cap(fmt({ month: 'long', year: 'numeric' }))
+    if (mode === 'month') return fmt({ month: 'long' }) + (cursor.getFullYear() !== new Date().getFullYear() ? ' ' + cursor.getFullYear() : '')
     if (mode === 'day') return cap(fmt({ weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }))
     const first = mode === 'multiday' ? cursor : mode === 'agenda' ? cursor : weekFirst(cursor)
     const len = mode === 'week' ? 7 : mode === 'multiday' ? multiDays : mode === 'agenda' ? 14 : multiWeeks * 7
@@ -162,7 +162,7 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
       <div
         key={task.id + day.toISOString()}
         className={'cal-chip' + (task.status !== 0 ? ' done' : '') + (selectedId === task.id ? ' sel' : '')}
-        style={{ background: `color-mix(in srgb, ${c} 28%, transparent)`, borderLeftColor: c }}
+        style={{ background: `color-mix(in srgb, ${c} 38%, #1e1e1e)` }}
         onClick={(e) => {
           e.stopPropagation()
           onSelect(task.id)
@@ -171,8 +171,8 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
         {...dragProps(task)}
         title={task.title}
       >
-        {!ev.allDay && startsHere && !compact && <small>{hhmm(ev.start)}</small>}
         <span>{task.title || t('task.untitled')}</span>
+        {!ev.allDay && startsHere && !compact && <small>{hhmm(ev.start)}</small>}
       </div>
     )
   }
@@ -371,6 +371,9 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
         <h2>{title}</h2>
         <div className="grow" />
         <button className="icon-btn boxed" title={t('calendar.new')} onClick={(e) => openQuick(new Date(today.getFullYear(), today.getMonth(), today.getDate()), e)}><Icon name="plus" size={16} /></button>
+        <NSelect value={mode} onChange={(e) => changeMode(e.target.value as CalMode)} className="cal-mode-sel">
+          {MODES.map((m) => <option key={m} value={m}>{t(`calendar.mode.${m}`)}</option>)}
+        </NSelect>
         <div className="cal-nav">
           <button onClick={() => step(-1)} aria-label="‹"><Icon name="left" size={14} /></button>
           <button onClick={() => setCursor(today)}>{t('calendar.today')}</button>

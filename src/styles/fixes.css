@@ -195,3 +195,26 @@
 .pomo-task .sel-btn2 { max-width: 260px; }
 .settings-row .sel-btn2, .modal .sel-btn2 { min-width: 150px; }
 .modal .sel-wrap { display: flex; } .modal .sel-btn2 { width: 100%; }
+
+/* ---------- Calendário (medidas do TickTick: cabeçalho de dias 32px, célula = altura/linhas, dia 24px, chip 18px) ---------- */
+.calendar { padding: 0; }
+.calendar .tasks-head { padding: 17px 22px 0 16px; height: 56px; gap: 8px; }
+.calendar .tasks-head h2 { color: color-mix(in srgb, var(--text) 80%, transparent); text-transform: lowercase; }
+.calendar .icon-btn.boxed { width: 28px; height: 28px; border-radius: 8px; padding: 0; }
+.cal-mode-sel.sel-btn2 { min-height: 28px; padding: 0 8px 0 10px; border-radius: 8px; background: none; border-color: var(--border); font-size: 14px; }
+.cal-nav { height: 28px; border-radius: 8px; }
+.cal-nav button { padding: 0 12px; font-size: 14px; color: color-mix(in srgb, var(--text) 80%, transparent); }
+.cal-body { padding-bottom: 0; }
+.cal-month { border: 0; }
+.cal-wd { height: 32px; line-height: 32px; padding: 0; font-size: 12px; color: color-mix(in srgb, var(--text) 40%, transparent); text-transform: none; border: 0; border-bottom: 1px solid var(--border); background: none; }
+.cal-cell { padding: 2px; gap: 2px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.cal-cell.out .cal-daynum { color: color-mix(in srgb, var(--text) 40%, transparent); }
+.cal-daynum { width: auto; min-width: 24px; height: 24px; line-height: 24px; display: inline-block; text-align: center; font-size: 14px; font-weight: 500; margin: 0 0 2px 0; padding: 0 4px; border-radius: 9999px; align-self: flex-start; }
+.cal-cell.today .cal-daynum { background: var(--accent); color: var(--accent-text); padding: 0; width: 24px; }
+.cal-chip { height: 18px; line-height: 18px; padding: 0 4px; border-left: 0; border-radius: 3px; font-size: 12px; font-weight: 500; gap: 6px; color: color-mix(in srgb, var(--text) 85%, transparent); }
+.cal-chip span { flex: 1; min-width: 0; }
+.cal-chip small { margin-left: auto; font-size: 11px; font-weight: 400; color: color-mix(in srgb, var(--text) 55%, transparent); }
+.cal-modes { padding: 4px; border-radius: 999px; background: #262626; bottom: 14px; }
+:root[data-theme="light"] .cal-modes { background: #fff; }
+.cal-modes button { padding: 6px 14px; font-size: 14px; font-weight: 500; color: var(--text); }
+.cal-modes .on { background: color-mix(in srgb, var(--text) 10%, transparent); }
