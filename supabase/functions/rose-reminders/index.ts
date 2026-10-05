@@ -1,7 +1,7 @@
 // Rose · dispara lembretes (Web Push + e-mail). Rodar a cada minuto via cron (x-cron-secret).
 // Segredos: CRON_SECRET, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT, RESEND_API_KEY (opcional), MAIL_FROM (opcional).
 import webpush from 'npm:web-push@3.6.7'
-import { admin, caller, cors, json, plain } from '../_shared/util.ts'
+import { admin, caller, cors, env, json, plain } from '../_shared/util.ts'
 
 const OFFSET_MIN: Record<string, number> = { on_time: 0, '5m': 5, '30m': 30, '1h': 60, '1d': 1440 }
 const LABEL: Record<string, Record<string, string>> = {
@@ -18,10 +18,10 @@ Deno.serve(async (req) => {
   const who = await caller(req, db)
   if (!who || who.kind !== 'cron') return json({ error: 'unauthorized' }, 401)
 
-  const pub = Deno.env.get('VAPID_PUBLIC_KEY')
-  const prv = Deno.env.get('VAPID_PRIVATE_KEY')
-  if (pub && prv) webpush.setVapidDetails(Deno.env.get('VAPID_SUBJECT') ?? 'mailto:admin@example.com', pub, prv)
-  const resend = Deno.env.get('RESEND_API_KEY')
+  const pub = env('VAPID_PUBLIC_KEY')
+  const prv = env('VAPID_PRIVATE_KEY')
+  if (pub && prv) webpush.setVapidDetails(env('VAPID_SUBJECT') ?? 'mailto:admin@example.com', pub, prv)
+  const resend = env('RESEND_API_KEY')
 
   const now = Date.now()
   const { data: tasks, error } = await db
@@ -83,7 +83,7 @@ Deno.serve(async (req) => {
             method: 'POST',
             headers: { Authorization: `Bearer ${resend}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              from: Deno.env.get('MAIL_FROM') ?? 'Rose <onboarding@resend.dev>',
+              from: env('MAIL_FROM') ?? 'Rose <onboarding@resend.dev>',
               to,
               subject: `⏰ ${t.title || 'Rose'} — ${when}`,
               text: `${t.title}\n${when}\n\n${plain(t.content ?? '')}`,
@@ -134,7 +134,7 @@ Deno.serve(async (req) => {
         const res = await fetch('https://api.resend.com/emails', {
           method: 'POST',
           headers: { Authorization: `Bearer ${resend}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ from: Deno.env.get('MAIL_FROM') ?? 'Rose <onboarding@resend.dev>', to, subject: `⏰ ${title}`, text: title }),
+          body: JSON.stringify({ from: env('MAIL_FROM') ?? 'Rose <onboarding@resend.dev>', to, subject: `⏰ ${title}`, text: title }),
         })
         if (res.ok) habitSent++
       }

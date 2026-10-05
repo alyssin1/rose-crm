@@ -5,6 +5,7 @@ const env = Object.fromEntries(
   fs.readFileSync(`${root}/.env`, 'utf8').replace(/^﻿/, '').split(/\r?\n/).filter((l) => l.includes('=')).map((l) => [l.slice(0, l.indexOf('=')), l.slice(l.indexOf('=') + 1)]),
 )
 const keys = ['GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET', 'CRON_SECRET', 'VAPID_PUBLIC_KEY', 'VAPID_PRIVATE_KEY', 'VAPID_SUBJECT', 'RESEND_API_KEY']
-const out = keys.map((k) => `${k}=${env[k] ?? ''}`).join('\n') + '\n'
+// prefixo ROSE_: o projeto Supabase é compartilhado com o Hub, então não podemos colidir com os segredos dele
+const out = keys.map((k) => `ROSE_${k}=${env[k] ?? ''}`).join('\n') + '\n'
 fs.writeFileSync(`${root}/supabase/.env.functions`, out, 'utf8')
 console.log(keys.map((k) => `${k}: ${env[k] ? 'preenchido' : 'VAZIO'}`).join('\n'))

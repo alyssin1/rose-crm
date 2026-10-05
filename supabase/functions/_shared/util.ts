@@ -1,5 +1,8 @@
 import { createClient, type SupabaseClient } from 'npm:@supabase/supabase-js@2'
 
+/** Segredos do Rose levam o prefixo ROSE_ (o projeto Supabase é compartilhado com o Hub: não colidir com os dele). O nome sem prefixo vale como alternativa. */
+export const env = (k: string): string | undefined => Deno.env.get('ROSE_' + k) ?? Deno.env.get(k)
+
 export const cors = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-cron-secret',
@@ -14,7 +17,7 @@ export const admin = (): SupabaseClient =>
 
 /** Quem chamou: 'cron' (segredo compartilhado) ou o usuário dono do JWT. */
 export async function caller(req: Request, db: SupabaseClient): Promise<{ kind: 'cron' } | { kind: 'user'; userId: string } | null> {
-  const secret = Deno.env.get('CRON_SECRET')
+  const secret = env('CRON_SECRET')
   if (secret && req.headers.get('x-cron-secret') === secret) return { kind: 'cron' }
   const token = req.headers.get('authorization')?.replace(/^Bearer\s+/i, '')
   if (!token) return null

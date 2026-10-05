@@ -22,7 +22,7 @@ Pré-requisitos no `.env` (raiz): `GOOGLE_CLIENT_SECRET` (segredo **novo** do cl
 node scripts/make-functions-env.cjs        # gera supabase/.env.functions só com os segredos das funções
 npx supabase login                         # abre o navegador
 npx supabase link --project-ref jdfoxhdllpnlmbotfbqk
-npx supabase secrets set --env-file supabase/.env.functions
+npx supabase secrets set --env-file supabase/.env.functions   # nomes ROSE_* (não colidem com o Hub)
 npx supabase functions deploy rose-google-sync --no-verify-jwt
 npx supabase functions deploy rose-reminders --no-verify-jwt
 ```

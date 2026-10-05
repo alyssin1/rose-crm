@@ -4,7 +4,7 @@
 //  - Webhook do Google (x-goog-channel-id ...) → sincroniza o dono do canal
 // Segredos necessários: GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, CRON_SECRET.
 import type { SupabaseClient } from 'npm:@supabase/supabase-js@2'
-import { admin, caller, cors, json, plain, toHtml } from '../_shared/util.ts'
+import { admin, caller, cors, env, json, plain, toHtml } from '../_shared/util.ts'
 
 const GOOGLE = 'https://www.googleapis.com/calendar/v3'
 const FULL_EVERY_MS = 12 * 3600 * 1000 // a janela de eventos "anda": refaz a leitura completa a cada 12 h
@@ -47,8 +47,8 @@ async function accessToken(refresh: string): Promise<string> {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({
-      client_id: Deno.env.get('GOOGLE_CLIENT_ID')!,
-      client_secret: Deno.env.get('GOOGLE_CLIENT_SECRET')!,
+      client_id: env('GOOGLE_CLIENT_ID')!,
+      client_secret: env('GOOGLE_CLIENT_SECRET')!,
       refresh_token: refresh,
       grant_type: 'refresh_token',
     }),
@@ -225,7 +225,7 @@ async function syncUser(db: SupabaseClient, userId: string, onlyCalendar?: strin
 
     // 4) canal de push (webhook) para receber avisos do Google em tempo real
     const expiring = !cal.channel_expires_at || Date.parse(cal.channel_expires_at) - Date.now() < 2 * 86400000
-    if (expiring && Deno.env.get('CRON_SECRET')) {
+    if (expiring && env('CRON_SECRET')) {
       const channelId = crypto.randomUUID()
       const res = await g(token, `${calPath}/events/watch`, {
         method: 'POST',
@@ -233,7 +233,7 @@ async function syncUser(db: SupabaseClient, userId: string, onlyCalendar?: strin
           id: channelId,
           type: 'web_hook',
           address: `${Deno.env.get('SUPABASE_URL')}/functions/v1/rose-google-sync`,
-          token: Deno.env.get('CRON_SECRET'),
+          token: env('CRON_SECRET'),
         }),
       })
       if (res.status === 200) await db.from('rose_google_calendars').update({ channel_id: channelId, channel_expires_at: new Date(Number(res.body.expiration)).toISOString() }).eq('id', cal.id)
@@ -249,7 +249,7 @@ Deno.serve(async (req) => {
   // webhook do Google
   const channel = req.headers.get('x-goog-channel-id')
   if (channel) {
-    if (req.headers.get('x-goog-channel-token') !== Deno.env.get('CRON_SECRET')) return json({ error: 'forbidden' }, 403)
+    if (req.headers.get('x-goog-channel-token') !== env('CRON_SECRET')) return json({ error: 'forbidden' }, 403)
     if (req.headers.get('x-goog-resource-state') === 'sync') return json({ ok: true }) // ping inicial do canal
     const { data: cal } = await db.from('rose_google_calendars').select('user_id, google_calendar_id').eq('channel_id', channel).maybeSingle()
     if (!cal) return json({ ok: true })
