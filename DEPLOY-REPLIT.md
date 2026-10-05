@@ -25,11 +25,14 @@ Abra o preview do Replit. O login com Google só volta para a URL depois do pass
 Não use Autoscale nem Reserved VM (não há servidor para rodar).
 
 ## 5) Liberar a URL no Supabase (obrigatório para o login)
-Supabase → GEx Dashboard Gerencial → Authentication → **URL Configuration → Redirect URLs → Add URL**:
-- `https://<seu-app>.replit.app`
-- (opcional, para o preview) `https://*.replit.dev`
+Supabase → GEx Dashboard Gerencial → Authentication → **URL Configuration → Redirect URLs → Add URL**, um por linha, **endereço exato**:
+- o do preview (copie da barra de endereço do Webview do Replit, ex.: `https://xxxx.replit.dev`)
+- `https://<seu-app>.replit.app` (depois de publicar)
 
+⚠️ **Nunca use curinga** (`https://*.replit.dev`, `*.replit.app`): qualquer pessoa pode hospedar um app nesses domínios e receber o login de quem clicar num link malicioso.
 **Não** mude o *Site URL* (é o do Dashboard Gerencial) nem o provedor Google.
+Se o login "cair" no `dashboard-gerencial.replit.app`, é sinal de que o endereço atual não está na lista.
+⚠️ Nunca cole a URL de retorno do login em chats ou issues: ela contém tokens da sua sessão.
 
 ## 6) iPhone
 Abra `https://<seu-app>.replit.app` no **Safari** → Compartilhar → **Adicionar à Tela de Início**.
@@ -37,5 +40,5 @@ Notificações push só funcionam depois de publicar as Edge Functions (ver `sup
 
 ## Se algo falhar
 - Tela branca/erro de chave: confira os 3 Secrets (sem aspas, sem espaço) e republique — as variáveis `VITE_*` são embutidas no build.
-- "redirect_uri_mismatch"/volta para o login: faltou o passo 5.
+- Volta para o login ou cai em outro site: faltou o passo 5 (endereço exato).
 - Atualização não aparece: feche e reabra o app (o service worker atualiza sozinho na próxima abertura).
