@@ -1,11 +1,41 @@
 import { useEffect, useRef, useState } from 'react'
+import { createRoot, type Root } from 'react-dom/client'
 import { useTranslation } from 'react-i18next'
-import { useData } from '../store/data'
+import { DataCtx, useData } from '../store/data'
 import type { StickyNote } from '../lib/types'
 import { Icon } from './Icon'
 import { Popover } from './Popover'
 import { RichEditor, toPlain } from './RichEditor'
 import { confirmAsk } from './Dialogs'
+
+// Janela flutuante do navegador (Document Picture-in-Picture): sem barra de endereço e sempre por cima.
+// ponytail: o navegador só permite uma janela dessas por vez; abrir outra nota troca a anterior.
+const pip: { id: string | null; root: Root | null } = { id: null, root: null }
+let rerenderPip: (() => void) | null = null
+type PipApi = { requestWindow: (o: { width: number; height: number }) => Promise<Window> }
+
+async function openPip(id: string, w: number, h: number) {
+  const api = (window as unknown as { documentPictureInPicture?: PipApi }).documentPictureInPicture
+  if (!api) return false
+  const win = await api.requestWindow({ width: w, height: h })
+  // leva os estilos e o tema do app para a janela nova
+  for (const el of document.head.querySelectorAll('style, link[rel="stylesheet"]')) win.document.head.appendChild(el.cloneNode(true))
+  win.document.documentElement.dataset.theme = document.documentElement.dataset.theme ?? 'dark'
+  win.document.title = 'Rose'
+  win.document.body.style.margin = '0'
+  const host = win.document.body.appendChild(win.document.createElement('div'))
+  host.className = 'pip-note'
+  pip.root?.unmount()
+  pip.id = id
+  pip.root = createRoot(host)
+  win.addEventListener('pagehide', () => {
+    pip.root?.unmount()
+    pip.root = null
+    pip.id = null
+  })
+  rerenderPip?.()
+  return true
+}
 
 export const NOTE_COLORS: Record<string, { bg: string; bar: string }> = {
   yellow: { bg: '#fff4a8', bar: '#f5e26b' },
@@ -50,8 +80,9 @@ function Note({ note, floating }: { note: StickyNote; floating: boolean }) {
     if (w !== note.w || h !== note.h) void data.updateNote(note.id, { w, h })
   }
 
-  const popOut = () => {
-    window.open(`/#sticky=${note.id}`, `rose-note-${note.id}`, `popup,width=${note.w + 20},height=${note.h + 20}`)
+  const popOut = async () => {
+    const ok = await openPip(note.id, note.w, note.h).catch(() => false)
+    if (!ok) window.open(`/#sticky=${note.id}`, `rose-note-${note.id}`, `popup,width=${note.w + 20},height=${note.h + 20}`)
     void data.updateNote(note.id, { is_open: false }) // sai da tela principal; fica só na janela
   }
 
@@ -73,7 +104,7 @@ function Note({ note, floating }: { note: StickyNote; floating: boolean }) {
           )}
         </Popover>
         <div className="grow" />
-        {floating && <button title={t('sticky.popOut')} onPointerDown={(e) => e.stopPropagation()} onClick={popOut}><Icon name="link" size={13} /></button>}
+        {floating && <button title={t('sticky.popOut')} onPointerDown={(e) => e.stopPropagation()} onClick={() => void popOut()}><Icon name="link" size={13} /></button>}
         {floating && <button title={t('sticky.hide')} onPointerDown={(e) => e.stopPropagation()} onClick={() => void data.updateNote(note.id, { is_open: false })}><Icon name="x" size={13} /></button>}
         <button
           title={t('list.delete')}
@@ -98,6 +129,12 @@ function Note({ note, floating }: { note: StickyNote; floating: boolean }) {
 /** Camada com todas as notas abertas, por cima do app. */
 export function StickyLayer() {
   const data = useData()
+  const draw = () => {
+    const n = pip.id ? data.notes.find((x) => x.id === pip.id) : null
+    if (pip.root && n) pip.root.render(<DataCtx.Provider value={data}><Note note={n} floating={false} /></DataCtx.Provider>)
+  }
+  rerenderPip = draw
+  useEffect(draw)
   return (
     <>
       {data.notes.filter((n) => n.is_open).map((n) => (
