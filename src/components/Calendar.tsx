@@ -89,11 +89,13 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
   const { t, i18n } = useTranslation()
   const lang = i18n.language.slice(0, 2)
   const data = useData()
+  const phone = window.matchMedia('(max-width: 820px)').matches
+  const modeKey = phone ? 'rose.cal.mode.m' : 'rose.cal.mode' // o celular guarda a própria visão (padrão 3 dias)
   const [mode, setMode] = useState<CalMode>(() => {
     try {
-      return (localStorage.getItem('rose.cal.mode') as CalMode) || 'month'
+      return (localStorage.getItem(modeKey) as CalMode) || (phone ? 'multiday' : 'month')
     } catch {
-      return 'month'
+      return phone ? 'multiday' : 'month'
     }
   })
   const [cursor, setCursor] = useState(startOfDay(new Date()))
@@ -143,7 +145,7 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
   const changeMode = (m: CalMode) => {
     setMode(m)
     try {
-      localStorage.setItem('rose.cal.mode', m)
+      localStorage.setItem(modeKey, m)
     } catch {
       /* sem storage */
     }
@@ -739,6 +741,7 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
         </aside>
       )}
 
+      {asideOpen && <div className="cal-aside-back" onClick={() => setAsideOpen(false)} />}
       <div className="cal-main">
         <header className="cal-head">
           <button className="icon-btn" onClick={() => setAsideOpen((o) => !o)} title={t('common.toggleSidebar')}><Icon name="sidebar" size={20} /></button>

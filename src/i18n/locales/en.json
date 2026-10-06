@@ -634,5 +634,18 @@
       "on": "on",
       "count": "{{n}} times"
     }
+  },
+  "home": {
+    "title": "Home",
+    "more": "More",
+    "hello": "Hi, {{name}}",
+    "tasksCount_one": "{{count}} task",
+    "tasksCount_other": "{{count}} tasks",
+    "nothingToday": "Nothing for today.",
+    "next": "Next event",
+    "moreToday_one": "{{count}} more today",
+    "moreToday_other": "{{count}} more today",
+    "noEvents": "No more events today.",
+    "tasksCount_zero": "No tasks"
   }
 }

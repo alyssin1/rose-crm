@@ -634,5 +634,18 @@
       "on": "em",
       "count": "{{n}} vezes"
     }
+  },
+  "home": {
+    "title": "Início",
+    "more": "Mais",
+    "hello": "Olá, {{name}}",
+    "tasksCount_one": "{{count}} tarefa",
+    "tasksCount_other": "{{count}} tarefas",
+    "nothingToday": "Nada para hoje.",
+    "next": "Próximo evento",
+    "moreToday_one": "mais {{count}} hoje",
+    "moreToday_other": "mais {{count}} hoje",
+    "noEvents": "Sem mais eventos hoje.",
+    "tasksCount_zero": "Nenhuma tarefa"
   }
 }

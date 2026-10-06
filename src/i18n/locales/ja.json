@@ -628,5 +628,18 @@
       "on": "",
       "count": "{{n}}回"
     }
+  },
+  "home": {
+    "title": "ホーム",
+    "more": "その他",
+    "hello": "こんにちは、{{name}}さん",
+    "tasksCount_one": "{{count}} 件のタスク",
+    "tasksCount_other": "{{count}} 件のタスク",
+    "nothingToday": "今日の予定はありません。",
+    "next": "次の予定",
+    "moreToday_one": "今日はあと {{count}} 件",
+    "moreToday_other": "今日はあと {{count}} 件",
+    "noEvents": "今日の予定はもうありません。",
+    "tasksCount_zero": "タスクなし"
   }
 }

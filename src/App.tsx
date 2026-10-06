@@ -25,6 +25,7 @@ import { useMobile } from './lib/useMobile'
 import { setFormat } from './lib/format'
 import { DialogHost } from './components/Dialogs'
 import { TaskContextHost } from './components/TaskContextMenu'
+import { MobileHome, MobileNav, MoreSheet, type MoreItem, type Section } from './components/Mobile'
 
 type Theme = 'dark' | 'light'
 const GOOGLE_SCOPES = 'https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.calendarlist.readonly'
@@ -91,7 +92,8 @@ function Shell({ session, theme, setTheme }: { session: Session; theme: Theme; s
   const data = useData()
   const pomo = usePomodoro() // hooks sempre antes de qualquer return antecipado
   setFormat(data.profile) // formato de hora/data (idempotente; re-renderiza junto com o perfil)
-  const [section, setSection] = useState<'tasks' | 'calendar' | 'matrix' | 'pomodoro' | 'habits' | 'countdown' | 'stats'>('tasks')
+  const [section, setSection] = useState<Section>(() => (window.matchMedia('(max-width: 820px)').matches ? 'home' : 'tasks'))
+  const [more, setMore] = useState(false)
   const [view, setView] = useState<View>({ type: 'all' })
   const [selected, setSelected] = useState<string | null>(null)
   const mobile = useMobile()
@@ -232,6 +234,19 @@ function Shell({ session, theme, setTheme }: { session: Session; theme: Theme; s
   const weekStart = data.profile?.week_start ?? 0
   const showSidebar = sideOpen && section === 'tasks'
   const toggleSide = section === 'tasks' ? () => setSideOpen((o) => !o) : undefined // só existe barra lateral em Tarefas
+  const toggleTheme = () => { const n = theme === 'dark' ? 'light' : 'dark'; setTheme(n); void data.updateProfile({ theme: n }) }
+  const moreItems: MoreItem[] = [
+    ...(matrixOn ? [{ icon: 'matrix' as const, label: t('matrix.title'), on: () => go('matrix') }] : []),
+    ...(pomoOn ? [{ icon: 'timer' as const, label: t('pomo.title'), on: () => go('pomodoro') }] : []),
+    ...(habitOn ? [{ icon: 'target' as const, label: t('habit.title'), on: () => go('habits') }] : []),
+    ...(countdownOn ? [{ icon: 'hourglass' as const, label: t('countdown.title'), on: () => go('countdown') }] : []),
+    { icon: 'chart', label: t('stats.title'), on: () => go('stats') },
+    { icon: 'summary', label: t('nav.summary'), on: () => change({ type: 'summary' }) },
+    { icon: 'search', label: t('nav.search'), on: () => setSearching(true) },
+    { icon: theme === 'dark' ? 'sun' : 'moon', label: t('settings.theme'), on: toggleTheme },
+    { icon: 'more', label: t('settings.title'), on: () => setSettings(true) },
+    { icon: 'logout', label: t('auth.signOut'), on: () => void supabase.auth.signOut() },
+  ]
 
   return (
     <div className={'shell' + (showSidebar ? '' : ' side-closed') + (mobile && showSidebar ? ' drawer-open' : '')}>
@@ -259,7 +274,7 @@ function Shell({ session, theme, setTheme }: { session: Session; theme: Theme; s
         )}
         <button className="rail-btn" title={`${t('nav.search')} (Ctrl+K)`} onClick={() => setSearching(true)}><Icon name="search" size={20} /></button>
         <div className="grow" />
-        <button className="rail-btn" title={t('settings.theme')} onClick={() => { const n = theme === 'dark' ? 'light' : 'dark'; setTheme(n); void data.updateProfile({ theme: n }) }}><Icon name={theme === 'dark' ? 'sun' : 'moon'} size={18} /></button>
+        <button className="rail-btn" title={t('settings.theme')} onClick={toggleTheme}><Icon name={theme === 'dark' ? 'sun' : 'moon'} size={18} /></button>
         <button className="rail-btn" title={t('settings.title')} onClick={() => setSettings(true)}><Icon name="more" size={18} /></button>
         <button className="rail-btn" title={t('auth.signOut')} onClick={() => supabase.auth.signOut()}><Icon name="logout" size={18} /></button>
       </nav>
@@ -268,7 +283,9 @@ function Shell({ session, theme, setTheme }: { session: Session; theme: Theme; s
       {(showSidebar || mobile) && <Sidebar view={view} onView={change} />}
 
       <main className={'main' + (selected ? ' with-detail' : '')}>
-        {section === 'calendar' ? (
+        {section === 'home' ? (
+          <MobileHome name={name} theme={theme} onView={change} onGo={go} onSelect={(id) => { setSection('tasks'); setSelected(id) }} onSearch={() => setSearching(true)} onSettings={() => setSettings(true)} onTheme={toggleTheme} />
+        ) : section === 'calendar' ? (
           <Calendar selectedId={selected} onSelect={setSelected} onToggleSidebar={toggleSide} weekStart={weekStart} showWeekNumbers={!!data.profile?.show_week_numbers} />
         ) : section === 'pomodoro' ? (
           <Pomodoro onToggleSidebar={toggleSide} />
@@ -287,6 +304,9 @@ function Shell({ session, theme, setTheme }: { session: Session; theme: Theme; s
         )}
         {selected && (section !== 'tasks' || view.type !== 'summary') && <TaskDetail taskId={selected} onClose={() => setSelected(null)} />}
       </main>
+
+      {mobile && <MobileNav section={section} onGo={go} more={more} setMore={setMore} calendarOn={calendarOn} />}
+      {mobile && more && <MoreSheet items={moreItems} onClose={() => setMore(false)} />}
 
       {stickyOn && <StickyLayer />}
       <TaskContextHost onSelect={setSelected} weekStart={weekStart} />

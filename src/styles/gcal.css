@@ -89,7 +89,7 @@
 .gcal .cal-modes { display: none; }
 @media (max-width: 820px) {
   .gcal .cal-modes { display: flex; }
-  .gcal .cal-aside { position: fixed; z-index: 36; left: 0; top: 0; bottom: 58px; width: min(86vw, 300px); background: var(--bg); box-shadow: 8px 0 28px rgba(0,0,0,.4); }
+  .gcal .cal-aside { position: fixed; z-index: 36; left: 0; top: 0; bottom: var(--mnav); width: min(86vw, 300px); background: var(--bg); box-shadow: 8px 0 28px rgba(0,0,0,.4); }
   .gcal .cal-head { padding-left: 4px; }
   .gcal .cal-head h2 { font-size: 18px; margin-left: 6px; }
   .gcal .cal-today { margin: 0 4px; padding: 0 12px; }

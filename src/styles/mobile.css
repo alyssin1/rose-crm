@@ -20,13 +20,13 @@
   .main { order: 1; flex: 1; min-height: 0; min-width: 0; overflow: hidden; }
 
   /* gaveta de listas */
-  .sidebar { position: fixed; z-index: 35; left: 0; top: 0; bottom: 58px; width: min(86vw, 330px); transform: translateX(-104%); transition: transform .2s ease; box-shadow: 8px 0 28px rgba(0,0,0,.4); padding-top: calc(8px + env(safe-area-inset-top)); }
+  .sidebar { position: fixed; z-index: 35; left: 0; top: 0; bottom: var(--mnav); width: min(86vw, 330px); transform: translateX(-104%); transition: transform .2s ease; box-shadow: 8px 0 28px rgba(0,0,0,.4); padding-top: calc(8px + env(safe-area-inset-top)); }
   .shell.drawer-open .sidebar { transform: none; }
-  .drawer-back { display: block; position: fixed; z-index: 34; inset: 0 0 58px 0; background: rgba(0,0,0,.5); }
+  .drawer-back { display: block; position: fixed; z-index: 34; inset: 0 0 var(--mnav) 0; background: rgba(0,0,0,.5); }
   .side-more { opacity: 1; }
 
   /* detalhe da tarefa em tela cheia */
-  .detail { position: fixed; z-index: 30; inset: 0 0 58px 0; width: 100%; max-width: none; border-left: 0; background: var(--bg); padding-top: env(safe-area-inset-top); }
+  .detail { position: fixed; z-index: 30; inset: 0 0 var(--mnav) 0; width: 100%; max-width: none; border-left: 0; background: var(--bg); padding-top: env(safe-area-inset-top); }
   .detail-close { display: inline-grid; }
   .detail-foot select { max-width: 120px; }
 
@@ -52,4 +52,65 @@
   /* notas adesivas: ocupam a largura da tela */
   .sticky.floating { left: 8px !important; right: 8px; width: auto !important; top: calc(60px + env(safe-area-inset-top)) !important; height: 46vh !important; resize: none; }
   .offline-bar { padding-top: calc(3px + env(safe-area-inset-top)); }
+}
+
+/* ===== celular no padrão do app do Nubank ===== */
+:root { --mnav: calc(62px + env(safe-area-inset-bottom)); }
+.mnav, .msheet, .msheet-back, .cal-aside-back { display: none; }
+
+@media (max-width: 820px) {
+  .rail { display: none; }
+
+  /* barra de baixo: 4 abas com ícone e nome */
+  .mnav { display: flex; order: 3; flex: none; height: var(--mnav); padding: 4px 8px env(safe-area-inset-bottom); background: var(--bg); border-top: 1px solid var(--border); z-index: 40; }
+  .mnav button { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; border: 0; background: none; color: var(--text-dim); font-size: 11px; font-weight: 500; -webkit-tap-highlight-color: transparent; }
+  .mnav button.on { color: var(--accent); }
+  .mnav button.on span { font-weight: 600; }
+
+  /* Início */
+  .mh { flex: 1; min-height: 0; overflow-y: auto; padding-bottom: 24px; background: var(--bg); }
+  .mh-top { display: flex; align-items: center; gap: 4px; padding: calc(16px + env(safe-area-inset-top)) 16px 0 24px; background: var(--accent); color: var(--accent-text, #fff); }
+  .mh-avatar { width: 44px; height: 44px; border-radius: 50%; border: 0; background: rgba(255,255,255,.18); color: inherit; font-size: 18px; font-weight: 600; }
+  .mh-ic { width: 44px; height: 44px; border: 0; border-radius: 50%; background: none; color: inherit; display: grid; place-items: center; }
+  .mh-ic:active, .mh-avatar:active { background: rgba(255,255,255,.24); }
+  .mh-hello { margin: 0; padding: 20px 24px 28px; background: var(--accent); color: var(--accent-text, #fff); font-size: 20px; font-weight: 600; letter-spacing: -.2px; }
+
+  .mh-shortcuts { display: flex; gap: 16px; overflow-x: auto; padding: 24px 24px 20px; scrollbar-width: none; }
+  .mh-shortcuts::-webkit-scrollbar { display: none; }
+  .mh-shortcuts button, .msheet-grid button { flex: none; width: 72px; display: flex; flex-direction: column; align-items: center; gap: 8px; border: 0; background: none; color: var(--text); font-size: 13px; font-weight: 500; line-height: 16px; text-align: center; -webkit-tap-highlight-color: transparent; }
+  .mh-shortcuts i, .msheet-grid i { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; background: color-mix(in srgb, var(--text) 8%, var(--bg)); color: var(--text); font-style: normal; }
+  .mh-shortcuts button:active i, .msheet-grid button:active i { background: color-mix(in srgb, var(--text) 14%, var(--bg)); }
+
+  .mh-block { display: flex; flex-direction: column; align-items: stretch; gap: 6px; width: 100%; padding: 24px; border: 0; border-top: 1px solid var(--border); background: none; color: var(--text); text-align: left; -webkit-tap-highlight-color: transparent; }
+  .mh-block:not(.static):active { background: var(--bg-hover); }
+  .mh-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .mh-row b { font-size: 18px; font-weight: 600; }
+  .mh-row svg { color: var(--text-dim); }
+  .mh-big { font-size: 22px; font-weight: 600; margin-top: 6px; }
+  .mh-mid { font-size: 17px; font-weight: 600; }
+  .mh-block small { font-size: 14px; color: var(--text-dim); }
+  .mh-line { display: flex; align-items: center; gap: 10px; padding: 6px 0; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mh-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; background: var(--text-dim); }
+  .mh-dot.p5 { background: #d52b24; } .mh-dot.p3 { background: #faa80c; } .mh-dot.p1 { background: #4772fa; }
+  .mh-list { display: flex; align-items: center; gap: 8px; height: 48px; border: 0; background: none; color: var(--text); font-size: 15px; text-align: left; }
+  .mh-list span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mh-list small { font-size: 14px; color: var(--text-dim); }
+  .mh-list svg { color: var(--text-dim); }
+  .mh-foot { margin: 8px 24px 0; font-size: 13px; color: var(--text-dim); text-transform: capitalize; }
+
+  /* folha "Mais" que sobe de baixo */
+  .msheet-back { display: block; position: fixed; inset: 0 0 var(--mnav) 0; z-index: 38; background: rgba(0,0,0,.45); animation: msheet-fade .15s ease; }
+  .msheet { display: block; position: fixed; left: 0; right: 0; bottom: var(--mnav); z-index: 39; padding: 8px 16px 24px; border-radius: 24px 24px 0 0; background: var(--bg-elev, var(--bg)); box-shadow: 0 -8px 28px rgba(0,0,0,.35); animation: msheet-up .2s ease; }
+  .msheet-grip { display: block; width: 36px; height: 4px; margin: 0 auto 16px; border-radius: 2px; background: var(--border); }
+  .msheet-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px 8px; justify-items: center; }
+  @keyframes msheet-up { from { transform: translateY(100%); } }
+  @keyframes msheet-fade { from { opacity: 0; } }
+
+  /* calendário no celular: título numa linha, sem barras de rolagem à mostra, gaveta com fundo escurecido */
+  .calendar.gcal .cal-today { width: auto; height: 34px; padding: 0 12px; margin: 0 2px; }
+  .calendar.gcal .cal-head h2 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; font-size: 16px; margin-left: 4px; }
+  .gcal .cal-modes { scrollbar-width: none; }
+  .gcal .cal-modes::-webkit-scrollbar { display: none; }
+  .cal-aside-back { display: block; position: fixed; inset: 0 0 var(--mnav) 0; z-index: 35; background: rgba(0,0,0,.45); }
+  .gcal .cal-aside .cal-create { margin-top: env(safe-area-inset-top); }
 }
