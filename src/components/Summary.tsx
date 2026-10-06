@@ -53,7 +53,9 @@ export function Summary({ weekStart = 0, onToggleSidebar }: { weekStart?: number
   const inRange = (iso: string | null, a = from, b = to) => !!iso && new Date(iso) >= a && new Date(iso) < addDays(b, 1)
 
   const generated = useMemo(() => {
-    const base = data.tasks.filter((x) => !x.deleted_at && !x.parent_id && x.kind !== 'note' && (!listId || x.list_id === listId) && (!priorityOnly || x.priority > 0))
+    // eventos do Google só da(s) agenda(s) própria(s); agendas de outras pessoas ficam de fora do resumo
+    const own = new Set(data.googleCalendars.filter((g) => g.access_role === 'owner').map((g) => g.google_calendar_id))
+    const base = data.tasks.filter((x) => !x.deleted_at && !x.parent_id && x.kind !== 'note' && (!x.google_calendar_id || own.has(x.google_calendar_id)) && (!listId || x.list_id === listId) && (!priorityOnly || x.priority > 0))
     const done = base.filter((x) => x.status === 1 && inRange(x.completed_at))
     const open = base.filter((x) => x.status === 0 && inRange(x.due_at))
     const sel: Task[] = status === 'done' ? done : status === 'open' ? open : [...done, ...open]
@@ -91,7 +93,7 @@ export function Summary({ weekStart = 0, onToggleSidebar }: { weekStart?: number
     }
     return out
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data.tasks, data.lists, data.tags, data.taskTags, range, listId, status, priorityOnly, grouping, fields, next, preset, lang])
+  }, [data.tasks, data.googleCalendars, data.lists, data.tags, data.taskTags, range, listId, status, priorityOnly, grouping, fields, next, preset, lang])
 
   useEffect(() => setHtml(generated), [generated])
 
