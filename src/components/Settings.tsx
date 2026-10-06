@@ -196,7 +196,7 @@ export function Settings({ session, theme, setTheme, initialTab = 'account', onC
                   ))}
                 </>
               ) : (
-                row(t('google.notConnected'), <button className="btn-primary" onClick={() => void signInWithGoogle()}>{t('google.connect')}</button>, t('google.connectHint'))
+                row(t('google.notConnected'), <button className="btn-primary" onClick={() => void signInWithGoogle(true)}>{t('google.connect')}</button>, t('google.connectHint'))
               )}
               <h4>{t('google.others')}</h4>
               <small>Outlook · Exchange · iCloud · CalDAV · {t('google.holidays')} — {t('common.soon')}</small>

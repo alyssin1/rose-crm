@@ -72,7 +72,7 @@ export default function App() {
         <img src="/icon.png" alt="Rose" />
         <h1>Rose</h1>
         <p>{t('app.tagline')}</p>
-        <button className="btn-primary" onClick={signInWithGoogle}>{t('auth.google')}</button>
+        <button className="btn-primary" onClick={() => void signInWithGoogle()}>{t('auth.google')}</button>
       </div>
     )
   }
