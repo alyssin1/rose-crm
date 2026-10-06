@@ -262,7 +262,8 @@
       "this": "Questo evento",
       "following": "Questo e gli eventi successivi",
       "all": "Tutti gli eventi"
-    }
+    },
+    "threeDays": "3 giorni"
   },
   "editor": {
     "heading": "Titolo",

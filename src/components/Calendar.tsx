@@ -25,6 +25,9 @@ interface Props {
   onToggleSidebar?: () => void
   weekStart?: number
   showWeekNumbers?: boolean
+  onSearch?: () => void
+  onSettings?: () => void
+  userName?: string
 }
 
 interface Ev {
@@ -84,18 +87,18 @@ const rsvpOf = (task: Task) => {
   return me.status === 'needsAction' ? ' needs' : me.status === 'declined' ? ' declined' : me.status === 'tentative' ? ' maybe' : ''
 }
 
-export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0, showWeekNumbers = false }: Props) {
+export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0, showWeekNumbers = false, onSearch, onSettings, userName = '' }: Props) {
   void onToggleSidebar
   const { t, i18n } = useTranslation()
   const lang = i18n.language.slice(0, 2)
   const data = useData()
   const phone = window.matchMedia('(max-width: 820px)').matches
-  const modeKey = phone ? 'rose.cal.mode.m' : 'rose.cal.mode' // o celular guarda a própria visão (padrão 3 dias)
+  const modeKey = phone ? 'rose.cal.mode.m' : 'rose.cal.mode' // o celular guarda a própria visão (padrão Mês, como no app do Google)
   const [mode, setMode] = useState<CalMode>(() => {
     try {
-      return (localStorage.getItem(modeKey) as CalMode) || (phone ? 'multiday' : 'month')
+      return (localStorage.getItem(modeKey) as CalMode) || 'month'
     } catch {
-      return phone ? 'multiday' : 'month'
+      return 'month'
     }
   })
   const [cursor, setCursor] = useState(startOfDay(new Date()))
@@ -104,6 +107,7 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
   const [quick, setQuick] = useState<{ date: Date; end?: Date; x: number; y: number } | null>(null)
   const [draft, setDraft] = useState('')
   const [showDone, setShowDone] = useState(true)
+  const [chips, setChips] = useState(true)
   const [now, setNow] = useState(new Date())
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 60000)
@@ -169,6 +173,7 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
     for (const ch of key) h = (h * 31 + ch.charCodeAt(0)) >>> 0
     return PALETTE[h % PALETTE.length]
   }
+  const owner = data.googleCalendars.find((g) => g.access_role === 'owner')?.google_calendar_id ?? ''
   const calOf = (task: Task) => (task.google_calendar_id ? data.googleCalendars.find((c) => c.google_calendar_id === task.google_calendar_id) : undefined)
   /** cor base (paleta da API ou da lista) */
   const baseColor = (task: Task) => {
@@ -221,7 +226,9 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
   const openQuick = (date: Date, e: { clientX: number; clientY: number }, end?: Date) => {
     setDraft('')
     setPopup(null)
-    setQuick({ date, end, x: Math.max(8, Math.min(e.clientX + 12, window.innerWidth - 420)), y: Math.max(8, Math.min(e.clientY - 40, window.innerHeight - 220)) })
+    setQuick(phone
+      ? { date, end, x: 8, y: Math.max(8, window.innerHeight - 330) }
+      : { date, end, x: Math.max(8, Math.min(e.clientX + 12, window.innerWidth - 420)), y: Math.max(8, Math.min(e.clientY - 40, window.innerHeight - 220)) })
   }
 
   const createQuick = async (more = false) => {
@@ -383,7 +390,7 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
   /** faixa (dia inteiro / vários dias) ou item com hora na vista mensal */
   const bar = (ev: Ev, key: string, style: React.CSSProperties, contStart = false, contEnd = false) => {
     const task = ev.task
-    const solid = isBar(ev)
+    const solid = isBar(ev) || phone
     return (
       <div
         key={key}
@@ -395,7 +402,7 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
         title={label(task)}
       >
         {!solid && <i className="cal-dot" />}
-        {!ev.allDay && (!solid || !contStart) && <small className="cal-time">{hhmm(ev.start)}</small>}
+        {!phone && !ev.allDay && (!solid || !contStart) && <small className="cal-time">{hhmm(ev.start)}</small>}
         <span>{label(task)}</span>
       </div>
     )
@@ -434,12 +441,13 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
 
   const monthGrid = (first: Date, weeks: number) => {
     const rowH = (monthH - 32) / weeks
-    const fit = Math.max(1, Math.floor((rowH - 30) / LANE_H)) // faixas que cabem abaixo do número do dia
+    const laneH = phone ? 15 : LANE_H
+    const fit = Math.max(1, Math.floor((rowH - (phone ? 26 : 30)) / laneH)) // faixas que cabem abaixo do número do dia
     return (
       <div className="cal-month gm" ref={monthRef} style={{ gridTemplateRows: `32px repeat(${weeks}, 1fr)` }}>
         <div className="gm-head">
           {Array.from({ length: 7 }, (_, i) => addDays(first, i)).map((d) => (
-            <div key={'h' + d.getDay()} className="cal-wd">{fmt({ weekday: 'short' }, d)}</div>
+            <div key={'h' + d.getDay()} className={'cal-wd' + (phone && d.getDay() === today.getDay() ? ' today' : '')}>{fmt({ weekday: phone ? 'narrow' : 'short' }, d)}</div>
           ))}
         </div>
         {Array.from({ length: weeks }, (_, w) => {
@@ -450,7 +458,7 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
           const over = perCol.map((l) => l.length > fit)
           const limit = (c: number) => (over[c] ? fit - 1 : fit)
           return (
-            <div key={w} className="gm-week" style={{ gridTemplateRows: `30px repeat(${Math.max(fit, 1)}, ${LANE_H}px) 1fr` }}>
+            <div key={w} className="gm-week" style={{ gridTemplateRows: `${phone ? 26 : 30}px repeat(${Math.max(fit, 1)}, ${laneH}px) 1fr` }}>
               {days.map((d, c) => (
                 <div
                   key={'bg' + c}
@@ -464,7 +472,7 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
                   }}
                 >
                   <b className="cal-daynum" onClick={(e) => { e.stopPropagation(); setCursor(d); changeMode('day') }}>
-                    {d.getDate() === 1 ? fmt({ day: 'numeric', month: 'short' }, d) : d.getDate()}
+                    {d.getDate() === 1 && !phone ? fmt({ day: 'numeric', month: 'short' }, d) : d.getDate()}
                     {showWeekNumbers && c === 0 && <em className="cal-wk" title="ISO">W{isoWeek(addDays(d, 3))}</em>}
                   </b>
                 </div>
@@ -475,7 +483,7 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
               {perCol.map((l, c) =>
                 over[c] ? (
                   <button key={'m' + c} className="cal-more" style={{ gridColumn: c + 1, gridRow: fit + 1 }} onClick={(e) => { e.stopPropagation(); setCursor(days[c]); changeMode('day') }}>
-                    {t('calendar.more', { n: l.filter((it) => it.lane >= limit(c)).length + l.filter((it) => it.lane < limit(c) && Array.from({ length: it.b - it.a + 1 }, (_, i) => it.lane >= limit(it.a + i)).some(Boolean)).length })}
+                    {phone ? '•••' : t('calendar.more', { n: l.filter((it) => it.lane >= limit(c)).length + l.filter((it) => it.lane < limit(c) && Array.from({ length: it.b - it.a + 1 }, (_, i) => it.lane >= limit(it.a + i)).some(Boolean)).length })}
                   </button>
                 ) : null,
               )}
@@ -655,7 +663,7 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
       const first = weekFirst(new Date(cursor.getFullYear(), cursor.getMonth(), 1))
       const last = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0)
       const weeks = Math.ceil((last.getTime() - first.getTime()) / 86400000 / 7 + 0.01)
-      return monthGrid(first, Math.max(5, Math.min(6, weeks)))
+      return monthGrid(first, phone ? 6 : Math.max(5, Math.min(6, weeks)))
     }
     if (mode === 'multiweek') return monthGrid(weekFirst(cursor), multiWeeks)
     if (mode === 'week') return timeGrid(Array.from({ length: 7 }, (_, i) => addDays(weekFirst(cursor), i)))
@@ -669,6 +677,26 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
     <section className="calendar gcal">
       {asideOpen && (
         <aside className="cal-aside">
+          {phone && (
+            <>
+              <div className="mcal-brand">Rose <span>{t('nav.calendar')}</span></div>
+              <nav className="mcal-views">
+                {([['agenda', 'vSchedule'], ['day', 'vDay'], ['multiday', 'v3day'], ['week', 'vWeek'], ['month', 'vMonth']] as const).map(([m, ic]) => (
+                  <button key={m} className={mode === m ? 'on' : ''} onClick={() => { changeMode(m); if (m === 'multiday') setMultiDays(3); setAsideOpen(false) }}>
+                    <Icon name={ic} size={24} />
+                    <span>{m === 'multiday' ? t('calendar.threeDays') : t(`calendar.mode.${m}`)}</span>
+                  </button>
+                ))}
+              </nav>
+              {owner && (
+                <div className="mcal-acct">
+                  <b>{(userName || owner)[0]?.toUpperCase()}</b>
+                  <span>{owner}</span>
+                </div>
+              )}
+            </>
+          )}
+          {!phone && (<>
           <button className="cal-create" onClick={(e) => openQuick(new Date(today.getFullYear(), today.getMonth(), today.getDate()), e)}>
             <Icon name="plus" size={20} /> {t('calendar.create')}
           </button>
@@ -692,6 +720,7 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
               ))}
             </div>
           </div>
+          </>)}
 
           <div className="cal-cals">
             <h4>{t('calendar.myCals')}</h4>
@@ -743,7 +772,36 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
 
       {asideOpen && <div className="cal-aside-back" onClick={() => setAsideOpen(false)} />}
       <div className="cal-main">
-        <header className="cal-head">
+        {phone && (
+          <>
+            <header className="mcal-head">
+              <button className="mcal-pill ham" onClick={() => setAsideOpen((o) => !o)} aria-label={t('common.toggleSidebar')}><Icon name="menu" size={24} /></button>
+              <button className="mcal-title" onClick={() => setChips((c) => !c)}>
+                {cap(fmt(cursor.getFullYear() === today.getFullYear() ? { month: 'long' } : { month: 'long', year: 'numeric' }))}
+                <Icon name={chips ? 'up' : 'down'} size={18} />
+              </button>
+              <div className="grow" />
+              <div className="mcal-pill">
+                {onSearch && <button onClick={onSearch} aria-label={t('nav.search')}><Icon name="search" size={24} /></button>}
+                <button onClick={() => setCursor(today)} aria-label={t('calendar.today')}><i className="mcal-todayic">{today.getDate()}</i></button>
+              </div>
+              {onSettings && <button className="mcal-avatar" onClick={onSettings} aria-label={t('settings.title')}>{(userName || owner || '?')[0]?.toUpperCase()}</button>}
+            </header>
+            {chips && (
+              <div className="mcal-chips" ref={(el) => { const on = el?.querySelector<HTMLElement>('.on'); if (el && on) el.scrollLeft = on.offsetLeft - 12 }}>
+                {Array.from({ length: 25 }, (_, i) => new Date(cursor.getFullYear(), cursor.getMonth() - 6 + i, 1)).map((m, i) => (
+                  <span key={m.toISOString()} className="mcal-chipwrap">
+                    {m.getMonth() === 0 && i > 0 && <b className="mcal-year">{m.getFullYear()}</b>}
+                    <button className={m.getMonth() === cursor.getMonth() && m.getFullYear() === cursor.getFullYear() ? 'on' : ''} onClick={() => setCursor(m)}>
+                      {cap(fmt({ month: 'short' }, m).replace('.', ''))}
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+        {!phone && <header className="cal-head">
           <button className="icon-btn" onClick={() => setAsideOpen((o) => !o)} title={t('common.toggleSidebar')}><Icon name="sidebar" size={20} /></button>
           <button className="cal-today" onClick={() => setCursor(today)}>{t('calendar.today')}</button>
           <button className="icon-btn round" onClick={() => step(-1)} aria-label="‹"><Icon name="left" size={18} /></button>
@@ -774,15 +832,19 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
               </div>
             )}
           </Popover>
-        </header>
+        </header>}
 
         <div className="cal-body">{body}</div>
 
-        <div className="cal-modes">
-          {MODES.map((m) => (
-            <button key={m} className={mode === m ? 'on' : ''} onClick={() => changeMode(m)}>{t(`calendar.mode.${m}`)}</button>
-          ))}
-        </div>
+        {phone ? (
+          <button className="mcal-fab" aria-label={t('calendar.create')} onClick={(e) => openQuick(new Date(today.getFullYear(), today.getMonth(), today.getDate()), e)}><Icon name="plus" size={28} /></button>
+        ) : (
+          <div className="cal-modes">
+            {MODES.map((m) => (
+              <button key={m} className={mode === m ? 'on' : ''} onClick={() => changeMode(m)}>{t(`calendar.mode.${m}`)}</button>
+            ))}
+          </div>
+        )}
       </div>
 
       {quick && (

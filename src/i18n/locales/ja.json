@@ -262,7 +262,8 @@
       "this": "この予定",
       "following": "これ以降のすべての予定",
       "all": "すべての予定"
-    }
+    },
+    "threeDays": "3日"
   },
   "editor": {
     "heading": "見出し",

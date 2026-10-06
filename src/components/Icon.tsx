@@ -1,5 +1,12 @@
 const P: Record<string, string> = {
   check: 'M20 6 9 17l-5-5',
+  menu: 'M4 6h16 M4 12h16 M4 18h16',
+  up: 'm18 15-6-6-6 6',
+  vSchedule: 'M4 4h16v6H4z M4 14h16v6H4z',
+  vDay: 'M4 7h16v10H4z M4 3h16 M4 21h16',
+  v3day: 'M3 5h18v14H3z M9 5v14 M15 5v14',
+  vWeek: 'M3 5h18v14H3z M7.5 5v14 M12 5v14 M16.5 5v14',
+  vMonth: 'M3 4h18v16H3z M3 9.3h18 M3 14.6h18 M9 4v16 M15 4v16',
   home: 'M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z',
   checkSquare: 'M9 11l3 3L22 4 M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11',
   calendar: 'M8 2v4 M16 2v4 M3 10h18 M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z',

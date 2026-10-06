@@ -286,7 +286,7 @@ function Shell({ session, theme, setTheme }: { session: Session; theme: Theme; s
         {section === 'home' ? (
           <MobileHome name={name} theme={theme} onView={change} onGo={go} onSelect={(id) => { setSection('tasks'); setSelected(id) }} onSearch={() => setSearching(true)} onSettings={() => setSettings(true)} onTheme={toggleTheme} />
         ) : section === 'calendar' ? (
-          <Calendar selectedId={selected} onSelect={setSelected} onToggleSidebar={toggleSide} weekStart={weekStart} showWeekNumbers={!!data.profile?.show_week_numbers} />
+          <Calendar selectedId={selected} onSelect={setSelected} onToggleSidebar={toggleSide} weekStart={weekStart} showWeekNumbers={!!data.profile?.show_week_numbers} onSearch={() => setSearching(true)} onSettings={() => setSettings(true)} userName={name} />
         ) : section === 'pomodoro' ? (
           <Pomodoro onToggleSidebar={toggleSide} />
         ) : section === 'habits' ? (
