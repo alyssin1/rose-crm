@@ -10,3 +10,4 @@ dev.log
 supabase/.env.functions
 *.local.sql
 supabase/.temp/
+dev-dist/

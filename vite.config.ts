@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+﻿import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
@@ -6,18 +6,18 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      strategies: 'injectManifest', // service worker próprio (src/sw.ts) para Web Push
+      strategies: 'injectManifest', // service worker prÃ³prio (src/sw.ts) para Web Push
       srcDir: 'src',
       filename: 'sw.ts',
       registerType: 'autoUpdate',
       injectRegister: 'auto',
       includeAssets: ['icon.png', 'apple-touch-icon.png'],
       injectManifest: { globPatterns: ['**/*.{js,css,html,png,svg,woff2}'] },
-      devOptions: { enabled: false },
+      devOptions: { enabled: true, type: 'module' },
       manifest: {
         name: 'Rose',
         short_name: 'Rose',
-        description: 'Tarefas, calendário e lembretes.',
+        description: 'Tarefas, calendÃ¡rio e lembretes.',
         lang: 'pt-BR',
         start_url: '/',
         scope: '/',
@@ -32,7 +32,7 @@ export default defineConfig({
       },
     }),
   ],
-  // o Replit serve o preview por um domínio *.replit.dev: libera o host
+  // o Replit serve o preview por um domÃ­nio *.replit.dev: libera o host
   server: { port: 5173, host: true, allowedHosts: true },
   preview: { port: 5173, host: true, allowedHosts: true },
 })
