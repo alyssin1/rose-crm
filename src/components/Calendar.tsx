@@ -5,7 +5,7 @@ import { addDays, hhmm, sameDay, startOfDay } from '../lib/dates'
 import { isoWeek } from '../lib/format'
 import { shade } from '../lib/gcolors'
 import type { Task } from '../lib/types'
-import { Icon } from './Icon'
+import { Avatar, Icon } from './Icon'
 import { Popover } from './Popover'
 import { openTaskMenu } from './TaskContextMenu'
 import { NSelect } from './Select'
@@ -690,7 +690,7 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
               </nav>
               {owner && (
                 <div className="mcal-acct">
-                  <b>{(userName || owner)[0]?.toUpperCase()}</b>
+                  <b><Avatar url={data.profile?.avatar_url} name={userName || owner} /></b>
                   <span>{owner}</span>
                 </div>
               )}
@@ -785,7 +785,7 @@ export function Calendar({ selectedId, onSelect, onToggleSidebar, weekStart = 0,
                 {onSearch && <button onClick={onSearch} aria-label={t('nav.search')}><Icon name="search" size={24} /></button>}
                 <button onClick={() => setCursor(today)} aria-label={t('calendar.today')}><i className="mcal-todayic">{today.getDate()}</i></button>
               </div>
-              {onSettings && <button className="mcal-avatar" onClick={onSettings} aria-label={t('settings.title')}>{(userName || owner || '?')[0]?.toUpperCase()}</button>}
+              {onSettings && <button className="mcal-avatar" onClick={onSettings} aria-label={t('settings.title')}><Avatar url={data.profile?.avatar_url} name={userName || owner || '?'} /></button>}
             </header>
             {chips && (
               <div className="mcal-chips" ref={(el) => { const on = el?.querySelector<HTMLElement>('.on'); if (el && on) el.scrollLeft = on.offsetLeft - 12 }}>

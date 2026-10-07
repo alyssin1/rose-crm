@@ -64,7 +64,11 @@
       "pomodoro": "Use o temporizador ou cronômetro Pomo para manter o foco.",
       "countdown": "Lembre-se de cada dia especial.",
       "sticky": "Registre ideias a qualquer momento em notas flutuantes."
-    }
+    },
+    "photo": "Foto de perfil",
+    "photoChange": "Alterar foto",
+    "photoRemove": "Remover",
+    "photoHint": "JPG ou PNG; recortada em quadrado."
   },
   "common": {
     "cancel": "Cancelar",

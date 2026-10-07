@@ -46,7 +46,7 @@ interface DataApi {
   inbox: List | undefined
   addTask: (t: NewTask, tagIds?: string[]) => Promise<Task>
   updateTask: (id: string, patch: Partial<Task>) => Promise<void>
-  reorderTasks: (movedId: string, beforeId: string | null) => Promise<void>
+  reorderTasks: (movedId: string, beforeId: string | null, parentId?: string | null) => Promise<void>
   toggleDone: (task: Task) => Promise<void>
   setWontDo: (task: Task) => Promise<void>
   trashTask: (id: string) => Promise<void>
@@ -459,9 +459,9 @@ export function DataProvider({ userId, children }: { userId: string; children: R
 
     updateTask: patchTask,
 
-    async reorderTasks(movedId, beforeId) {
-      // coloca "movedId" antes de "beforeId" (ou no fim) usando o ponto médio dos sort_order vizinhos
-      const all = [...tasksRef.current].filter((t) => !t.deleted_at && !t.parent_id).sort((a, b) => a.sort_order - b.sort_order)
+    async reorderTasks(movedId, beforeId, parentId = null) {
+      // coloca "movedId" antes de "beforeId" (ou no fim) entre os irmãos do mesmo pai, pelo ponto médio dos sort_order vizinhos
+      const all = [...tasksRef.current].filter((t) => !t.deleted_at && (t.parent_id ?? null) === parentId).sort((a, b) => a.sort_order - b.sort_order)
       const without = all.filter((t) => t.id !== movedId)
       const idx = beforeId ? without.findIndex((t) => t.id === beforeId) : without.length
       const prev = without[idx - 1]?.sort_order ?? (without[idx]?.sort_order ?? 0) - 2048

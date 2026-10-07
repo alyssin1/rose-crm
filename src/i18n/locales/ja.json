@@ -64,7 +64,11 @@
       "pomodoro": "ポモのタイマーやストップウォッチで集中力を保ちます。",
       "countdown": "大切な日を忘れずに。",
       "sticky": "フローティングメモでいつでもアイデアを記録します。"
-    }
+    },
+    "photo": "プロフィール写真",
+    "photoChange": "写真を変更",
+    "photoRemove": "削除",
+    "photoHint": "JPG または PNG。正方形に切り抜かれます。"
   },
   "common": {
     "cancel": "キャンセル",

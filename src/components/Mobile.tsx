@@ -6,7 +6,7 @@ import { useData } from '../store/data'
 import { countFor, selectTasks } from '../lib/views'
 import { DEFAULT_VIEW_OPTIONS, type View } from '../lib/types'
 import { hhmm, sameDay, startOfDay } from '../lib/dates'
-import { Icon, type IconName } from './Icon'
+import { Avatar, Icon, type IconName } from './Icon'
 
 export type Section = 'home' | 'tasks' | 'calendar' | 'matrix' | 'pomodoro' | 'habits' | 'countdown' | 'stats'
 
@@ -48,7 +48,7 @@ export function MobileHome({ name, onView, onGo, onSelect, onSearch, onSettings,
   return (
     <section className="mh">
       <header className="mh-top">
-        <button className="mh-avatar" onClick={onSettings} aria-label={t('settings.title')}>{first[0]?.toUpperCase()}</button>
+        <button className="mh-avatar" onClick={onSettings} aria-label={t('settings.title')}><Avatar url={data.profile?.avatar_url} name={first} /></button>
         <div className="grow" />
         <button className="mh-ic" onClick={onTheme} aria-label={t('settings.theme')}><Icon name={theme === 'dark' ? 'sun' : 'moon'} size={22} /></button>
         <button className="mh-ic" onClick={onSearch} aria-label={t('nav.search')}><Icon name="search" size={22} /></button>

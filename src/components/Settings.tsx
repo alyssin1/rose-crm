@@ -5,7 +5,7 @@ import { useData } from '../store/data'
 import { LANGS } from '../i18n'
 import { signInWithGoogle } from '../lib/supabase'
 import { askPermission, disablePush, enablePush, notificationsSupported, pushActive } from '../lib/notify'
-import { Icon, type IconName } from './Icon'
+import { Avatar, Icon, type IconName } from './Icon'
 import { FeatureCards } from './FeatureCards'
 import { NSelect } from './Select'
 
@@ -121,6 +121,16 @@ export function Settings({ session, theme, setTheme, initialTab = 'account', onC
 
           {tab === 'account' && (
             <div className="settings-sec">
+              {row(t('settings.photo'), (
+                <div className="photo-field">
+                  <span className="photo-prev"><Avatar url={data.profile?.avatar_url} name={name} /></span>
+                  <label className="btn-ghost">
+                    {t('settings.photoChange')}
+                    <input type="file" accept="image/*" hidden onChange={async (e) => { const f = e.target.files?.[0]; e.target.value = ''; if (f) void data.updateProfile({ avatar_url: await squareJpeg(f) }) }} />
+                  </label>
+                  {data.profile?.avatar_url && <button className="btn-ghost" onClick={() => void data.updateProfile({ avatar_url: null })}>{t('settings.photoRemove')}</button>}
+                </div>
+              ), t('settings.photoHint'))}
               {row(t('settings.name'), <b>{name}</b>)}
               {row('E-mail', <span>{session.user.email}</span>)}
               {row(t('settings.language'), (
@@ -220,4 +230,14 @@ export function Settings({ session, theme, setTheme, initialTab = 'account', onC
       </div>
     </div>
   )
+}
+
+/** recorta a imagem no centro e reduz para 160×160 (JPEG, ~10 KB), guardada direto no perfil */
+async function squareJpeg(file: File, size = 160): Promise<string> {
+  const img = await createImageBitmap(file)
+  const side = Math.min(img.width, img.height)
+  const c = document.createElement('canvas')
+  c.width = c.height = size
+  c.getContext('2d')!.drawImage(img, (img.width - side) / 2, (img.height - side) / 2, side, side, 0, 0, size, size)
+  return c.toDataURL('image/jpeg', 0.85)
 }

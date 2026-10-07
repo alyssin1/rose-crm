@@ -19,7 +19,7 @@ import { Popover } from './components/Popover'
 import { StickyLayer, StickyMenu, StickyWindow } from './components/Sticky'
 import { Search } from './components/Search'
 import { Settings } from './components/Settings'
-import { Icon } from './components/Icon'
+import { Avatar, Icon } from './components/Icon'
 import type { View } from './lib/types'
 import { useMobile } from './lib/useMobile'
 import { setFormat } from './lib/format'
@@ -254,7 +254,7 @@ function Shell({ session, theme, setTheme }: { session: Session; theme: Theme; s
         <div className="offline-bar">{!data.online ? t('offline.offline') : t('offline.syncing', { n: data.pending })}{!data.online && data.pending > 0 ? ` · ${t('offline.pending', { n: data.pending })}` : ''}</div>
       )}
       <nav className="rail">
-        <button className="avatar" title={name} onClick={() => setSettings(true)}>{name[0]?.toUpperCase()}</button>
+        <button className="avatar" title={name} onClick={() => setSettings(true)}><Avatar url={data.profile?.avatar_url} name={name} /></button>
         <button className={'rail-btn' + (section === 'tasks' ? ' on' : '')} title={t('nav.tasks')} onClick={() => go('tasks')}><Icon name="checkSquare" size={20} /></button>
         {calendarOn && <button className={'rail-btn' + (section === 'calendar' ? ' on' : '')} title={t('nav.calendar')} onClick={() => go('calendar')}><Icon name="calendar" size={20} /></button>}
         {matrixOn && <button className={'rail-btn' + (section === 'matrix' ? ' on' : '')} title={t('matrix.title')} onClick={() => go('matrix')}><Icon name="matrix" size={20} /></button>}

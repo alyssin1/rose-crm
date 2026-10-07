@@ -85,16 +85,26 @@ export function TaskList({ view, selectedId, onSelect, onToggleSidebar }: Props)
   }, [view, data.tasks, data.lists, data.tags, data.taskTags, data.filters, opts, lang])
 
   const dragId = useRef<string | null>(null)
-  const [overId, setOverId] = useState<string | null>(null)
-  const drop = async (targetId: string, group: Group) => {
+  const [over, setOver] = useState<Over | null>(null)
+  const expanded = useExpanded()
+  const drop = async (targetId: string, group: Group, how: DropMode) => {
     const id = dragId.current
     dragId.current = null
-    setOverId(null)
+    setOver(null)
     if (!id || id === targetId) return
     const moved = data.tasks.find((x) => x.id === id)
-    if (!moved) return
+    const target = data.tasks.find((x) => x.id === targetId)
+    if (!moved || !target) return
+    // não deixa uma tarefa virar filha de uma das suas próprias subtarefas
+    for (let p: Task | undefined = target; p; p = data.tasks.find((x) => x.id === p!.parent_id)) if (p.id === id) return
+    const parentId = how === 'child' ? target.id : target.parent_id
     const patch: Partial<Task> = {}
-    if (opts.groupBy === 'date' && group.date) {
+    if (parentId !== moved.parent_id) patch.parent_id = parentId
+    if (how === 'child') expanded.open(target.id)
+    // a regra do grupo (data/lista/prioridade) só vale quando a tarefa fica no nível de cima
+    if (parentId) {
+      /* subtarefa: herda só a posição */
+    } else if (opts.groupBy === 'date' && group.date) {
       const d = new Date(group.date)
       if (moved.due_at && !moved.all_day) {
         const old = new Date(moved.due_at)
@@ -110,7 +120,10 @@ export function TaskList({ view, selectedId, onSelect, onToggleSidebar }: Props)
       if (p !== moved.priority) patch.priority = p
     }
     if (Object.keys(patch).length) await data.updateTask(id, patch)
-    await data.reorderTasks(id, targetId)
+    if (how === 'child') return data.reorderTasks(id, null, target.id) // vai para o fim das subtarefas
+    const sibs = data.tasks.filter((x) => !x.deleted_at && x.parent_id === parentId && x.id !== id).sort((a, b) => a.sort_order - b.sort_order)
+    const before = how === 'before' ? targetId : sibs[sibs.findIndex((x) => x.id === targetId) + 1]?.id ?? null
+    await data.reorderTasks(id, before, parentId)
   }
 
   const total = groups.reduce((n, g) => n + g.tasks.length, 0)
@@ -228,7 +241,7 @@ export function TaskList({ view, selectedId, onSelect, onToggleSidebar }: Props)
       <div className="task-scroll">
         {total === 0 && <p className="empty">{view.type === 'trash' ? t('trash.empty0') : view.type === 'completed' ? t('task.emptyCompleted') : t('task.empty')}</p>}
         {groups.map((g) => (
-          <GroupBlock key={g.id} g={g} view={view} opts={opts} selectedId={selectedId} onSelect={onSelect} dnd={{ dragId, overId, setOverId, drop }} />
+          <GroupBlock key={g.id} g={g} view={view} opts={opts} selectedId={selectedId} onSelect={onSelect} dnd={{ dragId, over, setOver, drop, expanded }} />
         ))}
       </div>
         </>
@@ -248,12 +261,59 @@ function Select({ label, value, onChange, options }: { label: string; value: str
   )
 }
 
+type DropMode = 'before' | 'after' | 'child'
+interface Over {
+  id: string
+  how: DropMode
+}
 interface Dnd {
   dragId: React.MutableRefObject<string | null>
-  overId: string | null
-  setOverId: (id: string | null) => void
-  drop: (targetId: string, group: Group) => Promise<void>
+  over: Over | null
+  setOver: (o: Over | null) => void
+  drop: (targetId: string, group: Group, how: DropMode) => Promise<void>
+  expanded: Expanded
 }
+
+interface Expanded {
+  has: (id: string) => boolean
+  toggle: (id: string) => void
+  open: (id: string) => void
+}
+/** quais tarefas estão com as subtarefas abertas (recolhidas por padrão; lembrado neste aparelho) */
+function useExpanded(): Expanded {
+  const [set, setSet] = useState<Set<string>>(() => {
+    try {
+      return new Set(JSON.parse(localStorage.getItem('rose.expanded') ?? '[]') as string[])
+    } catch {
+      return new Set()
+    }
+  })
+  const save = (n: Set<string>) => {
+    setSet(n)
+    try {
+      localStorage.setItem('rose.expanded', JSON.stringify([...n]))
+    } catch {
+      /* sem storage */
+    }
+  }
+  return {
+    has: (id) => set.has(id),
+    toggle: (id) => {
+      const n = new Set(set)
+      if (n.has(id)) n.delete(id)
+      else n.add(id)
+      save(n)
+    },
+    open: (id) => {
+      if (!set.has(id)) save(new Set(set).add(id))
+    },
+  }
+}
+
+const INDENT = 24 // recuo de cada nível de subtarefa
+const CHILD_DX = 30 // arrastar este tanto para a direita = virar subtarefa
+let dragX0 = 0
+let armed = false // o arraste só começa pela alça
 
 function GroupBlock({ g, view, opts, selectedId, onSelect, dnd }: { g: Group; view: View; opts: ViewOptions; selectedId: string | null; onSelect: (id: string | null) => void; dnd: Dnd }) {
   const [collapsed, setCollapsed] = useState(false)
@@ -264,42 +324,64 @@ function GroupBlock({ g, view, opts, selectedId, onSelect, dnd }: { g: Group; vi
           <Icon name={collapsed ? 'right' : 'down'} size={13} /> <b>{g.label}</b> <span>{g.tasks.length}</span>
         </button>
       )}
-      {!collapsed && g.tasks.map((task) => <Row key={task.id} task={task} view={view} opts={opts} selected={task.id === selectedId} onSelect={onSelect} dnd={dnd} group={g} />)}
+      {!collapsed && g.tasks.map((task) => <Row key={task.id} task={task} view={view} opts={opts} selected={task.id === selectedId} selectedId={selectedId} onSelect={onSelect} dnd={dnd} group={g} />)}
     </div>
   )
 }
 
-function Row({ task, view, opts, selected, onSelect, dnd, group }: { task: Task; view: View; opts: ViewOptions; selected: boolean; onSelect: (id: string | null) => void; dnd: Dnd; group: Group }) {
+function Row({ task, view, opts, selected, onSelect, dnd, group, depth = 0, selectedId }: { task: Task; view: View; opts: ViewOptions; selected: boolean; onSelect: (id: string | null) => void; dnd: Dnd; group: Group; depth?: number; selectedId?: string | null }) {
   const { t, i18n } = useTranslation()
   const data = useData()
+  const canDrag = view.type !== 'trash' && view.type !== 'completed'
+  const kids = data.tasks.filter((x) => x.parent_id === task.id && !x.deleted_at && (opts.showCompleted || x.status === 0)).sort((a, b) => a.sort_order - b.sort_order)
+  const open = kids.length > 0 && dnd.expanded.has(task.id)
+  const how = dnd.over?.id === task.id ? dnd.over.how : null
   const tone = dueTone(task)
   const list = data.lists.find((l) => l.id === task.list_id)
-  const subs = data.tasks.filter((x) => x.parent_id === task.id && !x.deleted_at)
   const tagNames = tagIdsOf(data, task.id).map((id) => data.tags.find((x) => x.id === id)?.name).filter(Boolean) as string[]
   const showList = view.type !== 'list' && view.type !== 'inbox'
 
   return (
+    <>
     <div
-      className={'task-row' + (selected ? ' selected' : '') + (task.status !== 0 ? ' done' : '') + (dnd.overId === task.id ? ' drop-before' : '')}
+      className={'task-row' + (selected ? ' selected' : '') + (task.status !== 0 ? ' done' : '') + (how ? ' drop-' + how : '')}
+      style={depth ? { ['--depth' as string]: depth } : undefined}
       onClick={() => onSelect(task.id)}
       onContextMenu={(e) => openTaskMenu(e, task.id)}
-      draggable={view.type !== 'trash' && view.type !== 'completed'}
+      draggable={canDrag}
       onDragStart={(e) => {
+        if (!armed) return e.preventDefault() // só a alça arrasta; o resto da linha abre o detalhe
         dnd.dragId.current = task.id
+        dragX0 = e.clientX
         e.dataTransfer.setData('text/rose-task', task.id)
         e.dataTransfer.effectAllowed = 'move'
       }}
       onDragOver={(e) => {
-        if (!dnd.dragId.current) return
+        if (!dnd.dragId.current || dnd.dragId.current === task.id) return
         e.preventDefault()
-        if (dnd.overId !== task.id) dnd.setOverId(task.id)
+        const r = (e.currentTarget as HTMLElement).getBoundingClientRect()
+        const h: DropMode = e.clientX - dragX0 > CHILD_DX ? 'child' : e.clientY < r.top + r.height / 2 ? 'before' : 'after'
+        if (dnd.over?.id !== task.id || dnd.over.how !== h) dnd.setOver({ id: task.id, how: h })
       }}
-      onDragEnd={() => dnd.setOverId(null)}
+      onDragEnd={() => {
+        armed = false
+        dnd.setOver(null)
+      }}
       onDrop={(e) => {
         e.preventDefault()
-        void dnd.drop(task.id, group)
+        void dnd.drop(task.id, group, how ?? 'before')
       }}
     >
+      {canDrag && (
+        <span className="grip" onPointerDown={() => (armed = true)} onPointerUp={() => (armed = false)} onClick={(e) => e.stopPropagation()} aria-hidden>
+          <Icon name="grip" size={12} />
+        </span>
+      )}
+      {kids.length > 0 ? (
+        <button className={'sub-toggle' + (open ? ' open' : '')} onClick={(e) => { e.stopPropagation(); dnd.expanded.toggle(task.id) }} aria-label={t('detail.subtasks')} aria-expanded={open}>
+          <Icon name="right" size={12} />
+        </button>
+      ) : null}
       <button
         className={`check p${task.priority}` + (task.status === 1 ? ' on' : task.status === 2 ? ' wont' : '')}
         onClick={(e) => {
@@ -313,10 +395,14 @@ function Row({ task, view, opts, selected, onSelect, dnd, group }: { task: Task;
       </button>
       {task.pinned && <Icon name="pin" size={12} className="pin" />}
       <span className="title">{task.title || t('task.untitled')}</span>
+      {kids.length > 0 && (
+        <button className="sub-count" onClick={(e) => { e.stopPropagation(); dnd.expanded.toggle(task.id) }} title={t('detail.subtasks')}>
+          <Icon name="subtask" size={12} /> {data.tasks.filter((x) => x.parent_id === task.id && !x.deleted_at && x.status !== 0).length}/{data.tasks.filter((x) => x.parent_id === task.id && !x.deleted_at).length}
+        </button>
+      )}
       {opts.showDetails && (
         <span className="meta">
           {task.priority > 0 && <span className={`prio p${task.priority}`}><Icon name="flag" size={12} className={`pf p${task.priority}`} /> {t(`priority.${task.priority}`)}</span>}
-          {subs.length > 0 && <span className="subs">{subs.filter((x) => x.status !== 0).length}/{subs.length}</span>}
           {tagNames.map((n) => <span key={n} className="tag">#{n}</span>)}
           {showList && list && <span className="list-name">{list.emoji} {list.is_inbox ? t('nav.inbox') : list.name}</span>}
           {task.due_at && <span className={'due ' + tone}>{formatDue(task, i18n.language.slice(0, 2), t)}</span>}
@@ -329,7 +415,10 @@ function Row({ task, view, opts, selected, onSelect, dnd, group }: { task: Task;
           <button className="danger" onClick={() => data.purgeTask(task.id)}>{t('trash.purge')}</button>
         </span>
       )}
+      <button className="row-more" onClick={(e) => { e.stopPropagation(); openTaskMenu(e, task.id) }} aria-label={t('common.more')}><Icon name="more" size={12} /></button>
     </div>
+    {open && kids.map((k) => <Row key={k.id} task={k} view={view} opts={opts} selected={k.id === selectedId} selectedId={selectedId} onSelect={onSelect} dnd={dnd} group={group} depth={depth + 1} />)}
+    </>
   )
 }
 
@@ -339,7 +428,8 @@ export function TaskGroups({ tasks, selectedId, onSelect }: { tasks: Task[]; sel
   const lang = i18n.language.slice(0, 2)
   const data = useData()
   const dragId = useRef<string | null>(null)
-  const [overId, setOverId] = useState<string | null>(null)
+  const [over, setOver] = useState<Over | null>(null)
+  const expanded = useExpanded()
   const label = (k: string, d?: Date) => {
     if (k === 'day' && d) {
       const diff = dayDiff(d, new Date())
@@ -351,7 +441,7 @@ export function TaskGroups({ tasks, selectedId, onSelect }: { tasks: Task[]; sel
   const opts: ViewOptions = { ...DEFAULT_VIEW_OPTIONS }
   const groups = groupTasks(sortTasks(tasks, opts, data), opts, data, label)
   const view: View = { type: 'all' }
-  const dnd: Dnd = { dragId, overId, setOverId, drop: async () => {} }
+  const dnd: Dnd = { dragId, over, setOver, drop: async () => {}, expanded }
   return (
     <>
       {groups.map((g) => (

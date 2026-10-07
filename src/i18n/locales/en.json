@@ -64,7 +64,11 @@
       "pomodoro": "Use the Pomo timer or stopwatch to stay focused.",
       "countdown": "Remember every special day.",
       "sticky": "Capture ideas anytime with floating notes."
-    }
+    },
+    "photo": "Profile photo",
+    "photoChange": "Change photo",
+    "photoRemove": "Remove",
+    "photoHint": "JPG or PNG; cropped to a square."
   },
   "common": {
     "cancel": "Cancel",

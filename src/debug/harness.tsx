@@ -17,6 +17,7 @@ import { Calendar } from '../components/Calendar'
 import { Summary } from '../components/Summary'
 import { TaskDetail } from '../components/TaskDetail'
 import { Search } from '../components/Search'
+import { TaskList } from '../components/TaskList'
 import type { List, Task } from '../lib/types'
 
 const now = new Date()
@@ -40,6 +41,11 @@ const initial: Task[] = [
   { ...base, id: 't5', title: 'Viagem (3 dias)', list_id: 'work', start_at: at(2, 0), due_at: at(4, 0), all_day: true },
   { ...base, id: 't6', title: 'Concluída', list_id: 'inbox', due_at: at(-1, 0), all_day: true, status: 1, completed_at: at(-1, 12) },
   { ...base, id: 't7', title: 'Com descrição', content: '<p>Olá <b>mundo</b></p>', list_id: 'work', due_at: at(0, 15), all_day: false, priority: 5 },
+  { ...base, id: 's1', title: 'Subtarefa 1', list_id: 'work', parent_id: 't7', sort_order: 1, due_at: null, all_day: true },
+  { ...base, id: 's2', title: 'Subtarefa 2', list_id: 'work', parent_id: 't7', sort_order: 2, due_at: null, all_day: true, status: 1 },
+  { ...base, id: 's3', title: 'Neta (nível 2)', list_id: 'work', parent_id: 's1', sort_order: 1, due_at: null, all_day: true },
+  { ...base, id: 'n1', title: 'Sem data A', list_id: 'inbox', sort_order: 10, due_at: null, all_day: true },
+  { ...base, id: 'n2', title: 'Sem data B', list_id: 'inbox', sort_order: 20, due_at: null, all_day: true },
 ] as unknown as Task[]
 
 function Harness() {
@@ -52,7 +58,14 @@ function Harness() {
     addTask: async (t: Partial<Task>) => { const nt = { ...base, id: 'n' + Math.random(), title: '', list_id: 'inbox', due_at: null, all_day: true, ...t } as Task; setTasks((p) => [nt, ...p]); return nt },
     updateTask: async (id: string, patch: Partial<Task>) => setTasks((p) => p.map((x) => (x.id === id ? { ...x, ...patch } : x))),
     toggleDone: async () => {}, setWontDo: async () => {}, trashTask: async () => {}, restoreTask: async () => {}, purgeTask: async () => {}, emptyTrash: async () => {}, duplicateTask: async (t: Task) => t,
-    reorderTasks: async () => {}, addList: async () => lists[0], updateList: async () => {}, deleteList: async () => {}, ensureTag: async () => ({ id: 'x', name: 'x' }), setTaskTags: async () => {}, deleteTag: async () => {},
+    reorderTasks: async (moved: string, before: string | null, parent: string | null = null) =>
+      setTasks((p) => {
+        const sib = p.filter((x) => (x.parent_id ?? null) === parent && x.id !== moved).sort((a, b) => a.sort_order - b.sort_order)
+        const i = before ? sib.findIndex((x) => x.id === before) : sib.length
+        const prev = sib[i - 1]?.sort_order ?? (sib[i]?.sort_order ?? 0) - 2048
+        const next = sib[i]?.sort_order ?? prev + 2048
+        return p.map((x) => (x.id === moved ? { ...x, sort_order: (prev + next) / 2 } : x))
+      }), addList: async () => lists[0], updateList: async () => {}, deleteList: async () => {}, ensureTag: async () => ({ id: 'x', name: 'x' }), setTaskTags: async () => {}, deleteTag: async () => {},
     addFilter: async () => {}, deleteFilter: async () => {}, updateProfile: async () => {}, saveTemplate: async () => {}, deleteTemplate: async () => {}, createFromTemplate: async (): Promise<Task> => initial[0],
     listActivity: async () => [], listAttachments: async () => [], uploadAttachment: async () => null, deleteAttachment: async () => {}, attachmentUrl: async () => null,
     storeGoogleToken: async () => {}, disconnectGoogle: async () => {}, toggleGoogleCalendar: async () => {}, syncGoogle: async () => null,
@@ -64,6 +77,7 @@ function Harness() {
         <main className={'main' + (sel ? ' with-detail' : '')}>
           {c === 'calendar' && <Calendar selectedId={sel} onSelect={setSel} onToggleSidebar={() => {}} />}
           {c === 'summary' && <Summary onToggleSidebar={() => {}} />}
+          {c === 'tasks' && <TaskList view={{ type: 'all' }} selectedId={sel} onSelect={setSel} />}
           {c === 'search' && <Search onClose={() => {}} onOpenTask={() => {}} onOpenView={() => {}} />}
           {sel && c === 'calendar' && <TaskDetail taskId={sel} onClose={() => setSel(null)} />}
           {c === 'detail' && <TaskDetail taskId="t7" onClose={() => {}} />}

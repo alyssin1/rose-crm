@@ -1,6 +1,8 @@
 const P: Record<string, string> = {
   check: 'M20 6 9 17l-5-5',
   menu: 'M4 6h16 M4 12h16 M4 18h16',
+  grip: 'M9 5h.01 M15 5h.01 M9 12h.01 M15 12h.01 M9 19h.01 M15 19h.01',
+  subtask: 'M6 3v7a4 4 0 0 0 4 4h9 M16 10l4 4-4 4',
   up: 'm18 15-6-6-6 6',
   vSchedule: 'M4 4h16v6H4z M4 14h16v6H4z',
   vDay: 'M4 7h16v10H4z M4 3h16 M4 21h16',
@@ -83,4 +85,9 @@ export function Icon({ name, size = 16, className }: { name: IconName; size?: nu
       ))}
     </svg>
   )
+}
+
+/** Foto de perfil (quando houver) ou a inicial do nome. */
+export function Avatar({ url, name }: { url?: string | null; name: string }) {
+  return url ? <img className="av-img" src={url} alt="" /> : <>{name[0]?.toUpperCase() ?? '?'}</>
 }
