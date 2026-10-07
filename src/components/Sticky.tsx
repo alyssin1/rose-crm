@@ -66,6 +66,7 @@ function Note({ note, floating }: { note: StickyNote; floating: boolean }) {
   const { t } = useTranslation()
   const data = useData()
   const friends = useFriendPeers()
+  const [pick, setPick] = useState(false)
   const [pos, setPos] = useState({ x: note.x, y: note.y })
   const drag = useRef<{ dx: number; dy: number } | null>(null)
   const box = useRef<HTMLDivElement>(null)
@@ -121,22 +122,7 @@ function Note({ note, floating }: { note: StickyNote; floating: boolean }) {
         </Popover>
         <div className="grow" />
         {friends.length > 0 && (
-          <Popover trigger={(_o, toggle) => <button title={t('friends.mention')} onPointerDown={(e) => e.stopPropagation()} onClick={toggle}><b className="at">@</b></button>}>
-            {(close) => (
-              <div className="menu">
-                {friends.map((p) => (
-                  <button key={p.user_id} onClick={() => {
-                    const html = (note.content || '') + `<p>@${handleOf(p)}&nbsp;</p>`
-                    void data.updateNote(note.id, { content: html })
-                    void data.mentionInNote(note.id, [p.user_id])
-                    close()
-                  }}>
-                    <span className="peer-av"><Avatar url={p.avatar_url} name={peerName(p)} /></span> {peerName(p)}
-                  </button>
-                ))}
-              </div>
-            )}
-          </Popover>
+          <button title={t('friends.mention')} className={pick ? 'on' : ''} onPointerDown={(e) => e.stopPropagation()} onClick={() => setPick((v) => !v)}><b className="at">@</b></button>
         )}
         {floating && <button title={t('sticky.popOut')} onPointerDown={(e) => e.stopPropagation()} onClick={() => void popOut()}><Icon name="link" size={13} /></button>}
         {floating && <button title={t('sticky.hide')} onPointerDown={(e) => e.stopPropagation()} onClick={() => void data.updateNote(note.id, { is_open: false })}><Icon name="x" size={13} /></button>}
@@ -153,6 +139,19 @@ function Note({ note, floating }: { note: StickyNote; floating: boolean }) {
           <Icon name="trash" size={13} />
         </button>
       </div>
+      {pick && (
+        <div className="mention-pick">
+          {friends.map((p) => (
+            <button key={p.user_id} onClick={() => {
+              void data.updateNote(note.id, { content: (note.content || '') + `<p>@${handleOf(p)}&nbsp;</p>` })
+              void data.mentionInNote(note.id, [p.user_id])
+              setPick(false)
+            }}>
+              <span className="peer-av"><Avatar url={p.avatar_url} name={peerName(p)} /></span> {peerName(p)}
+            </button>
+          ))}
+        </div>
+      )}
       <div className="sticky-body">
         <RichEditor key={note.id} value={note.content} placeholder={t('sticky.placeholder')} onCommit={(html) => { void data.updateNote(note.id, { content: html }); const ids = mentionedIn(html, friends); if (ids.length) void data.mentionInNote(note.id, ids) }} toolbar={false} minHeight={60} />
       </div>

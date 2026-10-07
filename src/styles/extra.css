@@ -121,3 +121,9 @@
 .close-req { flex-wrap: wrap; }
 .close-req .grow { flex: 1 1 calc(100% - 30px); }
 .close-req .btn-primary { margin-left: 26px; }
+
+/* escolher quem marcar com @: faixa dentro da nota (um menu suspenso seria cortado pela borda) */
+.sticky-bar button.on { background: rgba(0,0,0,.14); opacity: 1; }
+.mention-pick { display: flex; flex-wrap: wrap; gap: 6px; padding: 6px 8px; background: rgba(0,0,0,.07); border-bottom: 1px solid rgba(0,0,0,.08); }
+.mention-pick button { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 8px 0 3px; border: 1px solid rgba(0,0,0,.16); border-radius: 8px; background: rgba(255,255,255,.55); color: #1d1d22; font-size: 12px; font-weight: 500; }
+.mention-pick button:hover { background: rgba(255,255,255,.9); }

@@ -18,6 +18,7 @@ import { Summary } from '../components/Summary'
 import { TaskDetail } from '../components/TaskDetail'
 import { Search } from '../components/Search'
 import { TaskList } from '../components/TaskList'
+import { StickyLayer } from '../components/Sticky'
 import type { List, Task } from '../lib/types'
 
 const now = new Date()
@@ -56,7 +57,7 @@ function Harness() {
     friends: [{ id: 'f1', requester: 'u', addressee: 'g', status: 'accepted', created_at: '' }],
     peers: [{ user_id: 'g', display_name: 'Gabriel Teste', avatar_url: null, email: 'gabriel@exemplo.com' }],
     members: [{ task_id: 't7', user_id: 'g', added_by: 'u' }],
-    mentions: [], notes: [], addMember: async () => {}, removeMember: async () => {}, resolveClose: async () => {}, mentionInNote: async () => {}, dismissMention: async () => {},
+    mentions: [], notes: [{ id: 'n1', user_id: 'u', content: '<p>Nota de teste</p>', color: 'yellow', x: 40, y: 60, w: 260, h: 200, z: 1, is_open: true }], updateNote: async () => {}, addMember: async () => {}, removeMember: async () => {}, resolveClose: async () => {}, mentionInNote: async () => {}, dismissMention: async () => {},
     ready: true, denied: false, online: true, pending: 0, error: null, clearError: () => {}, userId: 'u', lists, tags: [], tasks, taskTags: [], filters: [], templates: [], profile: null,
     google: { connected: false }, googleCalendars: [], inbox: lists[0],
     addTask: async (t: Partial<Task>) => { const nt = { ...base, id: 'n' + Math.random(), title: '', list_id: 'inbox', due_at: null, all_day: true, ...t } as Task; setTasks((p) => [nt, ...p]); return nt },
@@ -81,6 +82,7 @@ function Harness() {
         <main className={'main' + (sel ? ' with-detail' : '')}>
           {c === 'calendar' && <Calendar selectedId={sel} onSelect={setSel} onToggleSidebar={() => {}} />}
           {c === 'summary' && <Summary onToggleSidebar={() => {}} />}
+          {c === 'sticky' && <StickyLayer />}
           {c === 'tasks' && <TaskList view={{ type: 'all' }} selectedId={sel} onSelect={setSel} />}
           {c === 'search' && <Search onClose={() => {}} onOpenTask={() => {}} onOpenView={() => {}} />}
           {sel && c === 'calendar' && <TaskDetail taskId={sel} onClose={() => setSel(null)} />}
