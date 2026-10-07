@@ -12,6 +12,7 @@ import { Timeline } from './Timeline'
 import { confirmAsk } from './Dialogs'
 import { openTaskMenu } from './TaskContextMenu'
 import { NSelect } from './Select'
+import { RowPeople } from './Social'
 
 const loadOpts = (key: string): ViewOptions => {
   try {
@@ -403,6 +404,7 @@ function Row({ task, view, opts, selected, onSelect, dnd, group, depth = 0, sele
       {opts.showDetails && (
         <span className="meta">
           {task.priority > 0 && <span className={`prio p${task.priority}`}><Icon name="flag" size={12} className={`pf p${task.priority}`} /> {t(`priority.${task.priority}`)}</span>}
+          <RowPeople task={task} />
           {tagNames.map((n) => <span key={n} className="tag">#{n}</span>)}
           {showList && list && <span className="list-name">{list.emoji} {list.is_inbox ? t('nav.inbox') : list.name}</span>}
           {task.due_at && <span className={'due ' + tone}>{formatDue(task, i18n.language.slice(0, 2), t)}</span>}

@@ -46,7 +46,8 @@
       "notifications": "Notificações",
       "integrations": "Integrações",
       "backup": "Backup",
-      "about": "Sobre"
+      "about": "Sobre",
+      "friends": "Amigos"
     },
     "f": {
       "calendar": "Calendário",
@@ -77,7 +78,8 @@
     "more": "Mais",
     "soon": "em breve",
     "confirm": "Confirmar",
-    "ok": "OK"
+    "ok": "OK",
+    "close": "Fechar"
   },
   "list": {
     "name": "Nome da lista",
@@ -652,5 +654,31 @@
     "moreToday_other": "mais {{count}} hoje",
     "noEvents": "Sem mais eventos hoje.",
     "tasksCount_zero": "Nenhuma tarefa"
+  },
+  "friends": {
+    "title": "Amigos",
+    "hint": "Convide quem já tem acesso ao Rose. Quando aceitar, vocês podem dividir tarefas e se mencionar com @ nas notas. Cada um continua vendo só as próprias tarefas e as que foram compartilhadas.",
+    "emailPh": "E-mail do amigo",
+    "invite": "Convidar",
+    "sent": "Convite enviado.",
+    "notFound": "Esse e-mail não tem acesso ao Rose (ou ainda não entrou nenhuma vez).",
+    "exists": "Vocês já são amigos ou já há um convite.",
+    "received": "Convites recebidos",
+    "pending": "Convites enviados",
+    "none": "Nenhum amigo ainda.",
+    "accept": "Aceitar",
+    "decline": "Recusar",
+    "cancel": "Cancelar",
+    "remove": "Remover",
+    "people": "Participantes",
+    "owner": "dono",
+    "add": "Incluir",
+    "closeAsk": "{{name}} quer concluir esta tarefa.",
+    "closeWaiting": "Você pediu para concluir. Aguardando o dono concordar.",
+    "agree": "Concordar",
+    "disagree": "Não concordar",
+    "closeFlag": "Pedido de conclusão",
+    "mention": "Mencionar amigo",
+    "mentionedYou": "{{name}} mencionou você"
   }
 }

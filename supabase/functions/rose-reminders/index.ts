@@ -140,5 +140,34 @@ Deno.serve(async (req) => {
       }
     }
   }
-  return json({ ok: true, checked: tasks?.length ?? 0, sent, habits: habits?.length ?? 0, habitSent })
+  // ---------- avisos sociais (convite de amizade, inclusão em tarefa, pedido de conclusão, menção em nota) ----------
+  const { data: queue } = await db.from('rose_notifications').select('*').is('sent_at', null).order('created_at').limit(50)
+  let socialSent = 0
+  for (const n of queue ?? []) {
+    await db.from('rose_notifications').update({ sent_at: new Date().toISOString() }).eq('id', n.id) // marca antes: nunca duplica
+    if (pub && prv) {
+      const { data: subs } = await db.from('rose_push_subscriptions').select('id,endpoint,keys').eq('user_id', n.user_id)
+      for (const s of subs ?? []) {
+        try {
+          await webpush.sendNotification({ endpoint: s.endpoint, keys: s.keys }, JSON.stringify({ title: n.title, body: n.body ?? '', taskId: n.task_id ?? undefined }))
+          socialSent++
+        } catch (e) {
+          const status = (e as { statusCode?: number }).statusCode
+          if (status === 404 || status === 410) await db.from('rose_push_subscriptions').delete().eq('id', s.id)
+        }
+      }
+    }
+    if (resend) {
+      const to = (await db.auth.admin.getUserById(n.user_id)).data.user?.email
+      if (to) {
+        const res = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${resend}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ from: env('MAIL_FROM') ?? 'Rose <onboarding@resend.dev>', to, subject: n.title, text: `${n.title}\n\n${n.body ?? ''}` }),
+        })
+        if (res.ok) socialSent++
+      }
+    }
+  }
+  return json({ ok: true, checked: tasks?.length ?? 0, sent, habits: habits?.length ?? 0, habitSent, social: queue?.length ?? 0, socialSent })
 })

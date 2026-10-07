@@ -8,10 +8,12 @@ import { askPermission, disablePush, enablePush, notificationsSupported, pushAct
 import { Avatar, Icon, type IconName } from './Icon'
 import { FeatureCards } from './FeatureCards'
 import { NSelect } from './Select'
+import { FriendsPanel } from './Social'
 
-type Tab = 'account' | 'features' | 'datetime' | 'appearance' | 'notifications' | 'integrations' | 'backup' | 'about'
+type Tab = 'account' | 'friends' | 'features' | 'datetime' | 'appearance' | 'notifications' | 'integrations' | 'backup' | 'about'
 const TABS: { id: Tab; icon: IconName }[] = [
   { id: 'account', icon: 'checkSquare' },
+  { id: 'friends', icon: 'users' },
   { id: 'features', icon: 'layers' },
   { id: 'datetime', icon: 'clock' },
   { id: 'appearance', icon: 'sun' },
@@ -140,6 +142,8 @@ export function Settings({ session, theme, setTheme, initialTab = 'account', onC
               ))}
             </div>
           )}
+
+          {tab === 'friends' && <FriendsPanel />}
 
           {tab === 'features' && (
             <FeatureCards

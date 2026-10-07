@@ -46,7 +46,8 @@
       "notifications": "Notifiche",
       "integrations": "Integrazioni",
       "backup": "Backup",
-      "about": "Informazioni"
+      "about": "Informazioni",
+      "friends": "Amici"
     },
     "f": {
       "calendar": "Calendario",
@@ -77,7 +78,8 @@
     "more": "Altro",
     "soon": "in arrivo",
     "confirm": "Conferma",
-    "ok": "OK"
+    "ok": "OK",
+    "close": "Chiudi"
   },
   "list": {
     "name": "Nome lista",
@@ -652,5 +654,31 @@
     "moreToday_other": "altri {{count}} oggi",
     "noEvents": "Nessun altro evento oggi.",
     "tasksCount_zero": "Nessuna attività"
+  },
+  "friends": {
+    "title": "Amici",
+    "hint": "Invita chi ha già accesso a Rose. Dopo che accetta, potete condividere attività e menzionarvi con @ nelle note. Ognuno vede solo le proprie attività e quelle condivise.",
+    "emailPh": "Email dell'amico",
+    "invite": "Invita",
+    "sent": "Invito inviato.",
+    "notFound": "Questa email non ha accesso a Rose (o non ha ancora effettuato l’accesso).",
+    "exists": "Siete già amici o c’è già un invito.",
+    "received": "Inviti ricevuti",
+    "pending": "Inviti inviati",
+    "none": "Ancora nessun amico.",
+    "accept": "Accetta",
+    "decline": "Rifiuta",
+    "cancel": "Annulla",
+    "remove": "Rimuovi",
+    "people": "Partecipanti",
+    "owner": "proprietario",
+    "add": "Aggiungi",
+    "closeAsk": "{{name}} vuole completare questa attività.",
+    "closeWaiting": "Hai chiesto di completarla. In attesa del proprietario.",
+    "agree": "Accetto",
+    "disagree": "Non accetto",
+    "closeFlag": "Richiesta di completamento",
+    "mention": "Menziona un amico",
+    "mentionedYou": "{{name}} ti ha menzionato"
   }
 }

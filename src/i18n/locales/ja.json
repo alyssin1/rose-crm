@@ -46,7 +46,8 @@
       "notifications": "通知",
       "integrations": "連携",
       "backup": "バックアップ",
-      "about": "概要"
+      "about": "概要",
+      "friends": "友達"
     },
     "f": {
       "calendar": "カレンダー",
@@ -77,7 +78,8 @@
     "more": "その他",
     "soon": "近日対応",
     "confirm": "確認",
-    "ok": "OK"
+    "ok": "OK",
+    "close": "閉じる"
   },
   "list": {
     "name": "リスト名",
@@ -646,5 +648,31 @@
     "moreToday_other": "今日はあと {{count}} 件",
     "noEvents": "今日の予定はもうありません。",
     "tasksCount_zero": "タスクなし"
+  },
+  "friends": {
+    "title": "友達",
+    "hint": "Rose を利用できる人を招待します。承認されると、タスクを共有したりメモで @ メンションできます。各自が見られるのは自分のタスクと共有されたタスクだけです。",
+    "emailPh": "友達のメール",
+    "invite": "招待",
+    "sent": "招待を送信しました。",
+    "notFound": "このメールは Rose を利用できません（または未ログイン）。",
+    "exists": "すでに友達か、招待済みです。",
+    "received": "受け取った招待",
+    "pending": "送った招待",
+    "none": "まだ友達はいません。",
+    "accept": "承認",
+    "decline": "拒否",
+    "cancel": "キャンセル",
+    "remove": "削除",
+    "people": "参加者",
+    "owner": "オーナー",
+    "add": "追加",
+    "closeAsk": "{{name}} さんがこのタスクの完了を求めています。",
+    "closeWaiting": "完了を依頼しました。オーナーの同意を待っています。",
+    "agree": "同意する",
+    "disagree": "同意しない",
+    "closeFlag": "完了リクエスト",
+    "mention": "友達をメンション",
+    "mentionedYou": "{{name}} さんがあなたをメンションしました"
   }
 }

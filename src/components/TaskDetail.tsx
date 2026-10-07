@@ -9,6 +9,7 @@ import { Icon } from './Icon'
 import { Popover } from './Popover'
 import { RichEditor, toPlain } from './RichEditor'
 import { NSelect } from './Select'
+import { TaskPeople } from './Social'
 
 const PRIORITIES: Priority[] = [5, 3, 1, 0]
 const kb = (n: number | null) => (n == null ? '' : n > 1048576 ? `${(n / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(n / 1024))} KB`)
@@ -167,6 +168,7 @@ export function TaskDetail({ taskId, onClose }: Props) {
       <div className="detail-body">
         <input className="detail-title" value={title} placeholder={t('detail.titlePh')} onChange={(e) => setTitle(e.target.value)} onBlur={() => title !== task.title && save({ title })} onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()} />
         <RichEditor key={task.id} value={task.content} placeholder={t('detail.contentPh')} onCommit={(html) => save({ content: html })} minHeight={110} />
+        <TaskPeople task={task} />
 
         {(subs.length > 0 || subDraft !== '') && <div className="detail-label">{t('detail.subtasks')}</div>}
         {subs.map((s) => (

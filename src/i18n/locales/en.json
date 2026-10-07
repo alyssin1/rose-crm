@@ -46,7 +46,8 @@
       "notifications": "Notifications",
       "integrations": "Integrations",
       "backup": "Backup",
-      "about": "About"
+      "about": "About",
+      "friends": "Friends"
     },
     "f": {
       "calendar": "Calendar",
@@ -77,7 +78,8 @@
     "more": "More",
     "soon": "coming soon",
     "confirm": "Confirm",
-    "ok": "OK"
+    "ok": "OK",
+    "close": "Close"
   },
   "list": {
     "name": "List name",
@@ -652,5 +654,31 @@
     "moreToday_other": "{{count}} more today",
     "noEvents": "No more events today.",
     "tasksCount_zero": "No tasks"
+  },
+  "friends": {
+    "title": "Friends",
+    "hint": "Invite people who already have access to Rose. Once they accept, you can share tasks and @mention each other in notes. Everyone still sees only their own tasks and the shared ones.",
+    "emailPh": "Friend's email",
+    "invite": "Invite",
+    "sent": "Invite sent.",
+    "notFound": "This email doesn't have access to Rose (or hasn't signed in yet).",
+    "exists": "You are already friends or an invite exists.",
+    "received": "Invites received",
+    "pending": "Invites sent",
+    "none": "No friends yet.",
+    "accept": "Accept",
+    "decline": "Decline",
+    "cancel": "Cancel",
+    "remove": "Remove",
+    "people": "People",
+    "owner": "owner",
+    "add": "Add",
+    "closeAsk": "{{name}} wants to complete this task.",
+    "closeWaiting": "You asked to complete it. Waiting for the owner to agree.",
+    "agree": "Agree",
+    "disagree": "Don't agree",
+    "closeFlag": "Completion request",
+    "mention": "Mention a friend",
+    "mentionedYou": "{{name}} mentioned you"
   }
 }

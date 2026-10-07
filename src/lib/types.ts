@@ -29,6 +29,8 @@ export interface Task {
   google_synced_at: string | null
   source: 'rose' | 'google'
   google_meta?: GoogleMeta | null
+  /** pedido de conclusão feito por um participante (o dono aceita ou recusa) */
+  close_request?: { by: string; at: string; status?: number } | null
   created_at: string
   updated_at: string
 }
@@ -90,6 +92,7 @@ export interface Profile {
   user_id: string
   display_name: string | null
   avatar_url: string | null
+  email?: string | null
   lang: 'pt' | 'en' | 'ja' | 'it'
   theme: 'dark' | 'light' | 'system'
   time_format: '24h' | '12h'
@@ -143,6 +146,32 @@ export interface Column {
   list_id: string
   name: string
   sort_order: number
+}
+
+/** amizade: convite (pending) → aceito (accepted) */
+export interface Friend {
+  id: string
+  requester: string
+  addressee: string
+  status: 'pending' | 'accepted'
+  created_at: string
+}
+/** pessoa visível para mim (eu, amigos, convites, quem divide tarefa comigo) */
+export interface Peer {
+  user_id: string
+  display_name: string | null
+  avatar_url: string | null
+  email: string | null
+}
+export interface TaskMember {
+  task_id: string
+  user_id: string
+  added_by: string | null
+}
+export interface NoteMention {
+  note_id: string
+  user_id: string
+  dismissed: boolean
 }
 
 export interface StickyNote {

@@ -40,7 +40,7 @@ const initial: Task[] = [
   { ...base, id: 't4', title: 'Intervalo', list_id: 'work', start_at: at(1, 14), due_at: at(1, 16), all_day: false },
   { ...base, id: 't5', title: 'Viagem (3 dias)', list_id: 'work', start_at: at(2, 0), due_at: at(4, 0), all_day: true },
   { ...base, id: 't6', title: 'Concluída', list_id: 'inbox', due_at: at(-1, 0), all_day: true, status: 1, completed_at: at(-1, 12) },
-  { ...base, id: 't7', title: 'Com descrição', content: '<p>Olá <b>mundo</b></p>', list_id: 'work', due_at: at(0, 15), all_day: false, priority: 5 },
+  { ...base, id: 't7', title: 'Com descrição', content: '<p>Olá <b>mundo</b></p>', list_id: 'work', due_at: at(0, 15), all_day: false, priority: 5, close_request: { by: 'g', at: at(0, 10) } },
   { ...base, id: 's1', title: 'Subtarefa 1', list_id: 'work', parent_id: 't7', sort_order: 1, due_at: null, all_day: true },
   { ...base, id: 's2', title: 'Subtarefa 2', list_id: 'work', parent_id: 't7', sort_order: 2, due_at: null, all_day: true, status: 1 },
   { ...base, id: 's3', title: 'Neta (nível 2)', list_id: 'work', parent_id: 's1', sort_order: 1, due_at: null, all_day: true },
@@ -53,6 +53,10 @@ function Harness() {
   const [sel, setSel] = useState<string | null>(null)
   const c = new URLSearchParams(location.search).get('c') ?? 'calendar'
   const api = {
+    friends: [{ id: 'f1', requester: 'u', addressee: 'g', status: 'accepted', created_at: '' }],
+    peers: [{ user_id: 'g', display_name: 'Gabriel Teste', avatar_url: null, email: 'gabriel@exemplo.com' }],
+    members: [{ task_id: 't7', user_id: 'g', added_by: 'u' }],
+    mentions: [], notes: [], addMember: async () => {}, removeMember: async () => {}, resolveClose: async () => {}, mentionInNote: async () => {}, dismissMention: async () => {},
     ready: true, denied: false, online: true, pending: 0, error: null, clearError: () => {}, userId: 'u', lists, tags: [], tasks, taskTags: [], filters: [], templates: [], profile: null,
     google: { connected: false }, googleCalendars: [], inbox: lists[0],
     addTask: async (t: Partial<Task>) => { const nt = { ...base, id: 'n' + Math.random(), title: '', list_id: 'inbox', due_at: null, all_day: true, ...t } as Task; setTasks((p) => [nt, ...p]); return nt },

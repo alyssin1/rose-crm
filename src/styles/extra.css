@@ -90,3 +90,34 @@
 .photo-prev { width: 40px; height: 40px; border-radius: 8px; overflow: hidden; display: grid; place-items: center; background: var(--accent); color: var(--accent-text, #fff); font-weight: 600; flex: none; }
 .btn-ghost { height: 32px; padding: 0 12px; display: inline-flex; align-items: center; border: 1px solid var(--border); border-radius: 8px; background: none; color: var(--text); font-size: 13px; cursor: pointer; }
 .btn-ghost:hover { background: var(--bg-hover); }
+
+/* amigos, participantes, pedido de conclusão, menções */
+.peer-av { width: 20px; height: 20px; flex: none; border-radius: 6px; overflow: hidden; display: inline-grid; place-items: center; background: var(--accent); color: var(--accent-text, #fff); font-size: 11px; font-weight: 600; vertical-align: middle; }
+.peer-av.lg { width: 36px; height: 36px; border-radius: 8px; font-size: 15px; }
+.peer-av.sm { width: 16px; height: 16px; border-radius: 4px; font-size: 9px; box-shadow: 0 0 0 1.5px var(--bg); }
+.friends-hint { margin: 0 0 12px; font-size: 13px; color: var(--text-dim); line-height: 1.5; }
+.friend-invite { display: flex; gap: 8px; }
+.friend-invite input { flex: 1; min-width: 0; height: 34px; padding: 0 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); }
+.friends-msg { display: block; margin-top: 8px; color: var(--text-dim); }
+.friends h4 { margin: 18px 0 6px; font-size: 13px; color: var(--text-dim); font-weight: 600; }
+.friend-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.friend-row .grow { display: flex; flex-direction: column; min-width: 0; }
+.friend-row small { color: var(--text-dim); font-size: 12px; overflow: hidden; text-overflow: ellipsis; }
+.task-people { margin-top: 12px; }
+.people-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.person { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 8px 0 4px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; background: none; color: var(--text); }
+.person button { border: 0; background: none; color: var(--text-dim); padding: 2px; display: grid; place-items: center; }
+.person.add { padding: 0 10px; color: var(--text-dim); cursor: pointer; }
+.person.add:hover { color: var(--text); background: var(--bg-hover); }
+.close-req { display: flex; align-items: center; gap: 10px; margin: 10px 0; padding: 10px 12px; border-radius: 10px; background: color-mix(in srgb, var(--accent) 12%, transparent); font-size: 13px; }
+.close-req .btn-primary, .close-req .btn-ghost { height: 30px; padding: 0 12px; }
+.close-flag { font-size: 11px; color: var(--accent); }
+.row-people { display: inline-flex; gap: 2px; }
+.sticky-bar .at { font-size: 13px; line-height: 1; }
+.sticky.mention { position: fixed; box-shadow: 0 12px 36px rgba(0,0,0,.45); animation: mention-in .25s ease; }
+.sticky.mention .sticky-bar { gap: 8px; cursor: default; }
+.mention-from { font-size: 12px; color: #1d1d22; }
+@keyframes mention-in { from { transform: translateY(-12px) scale(.97); opacity: 0; } }
+.close-req { flex-wrap: wrap; }
+.close-req .grow { flex: 1 1 calc(100% - 30px); }
+.close-req .btn-primary { margin-left: 26px; }

@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { supabase } from '../lib/supabase'
 import { idbGet, idbSet } from '../lib/idb'
 import { nextDue } from '../lib/dates'
-import type { Activity, Attachment, Column, Countdown, FilterDef, Folder, FocusSession, Habit, HabitLog, FilterRules, GoogleCalendar, GoogleStatus, List, Profile, StickyNote, Tag, Task, TaskTag, Template } from '../lib/types'
+import type { Activity, Attachment, Column, Countdown, FilterDef, Folder, FocusSession, Friend, Habit, HabitLog, FilterRules, GoogleCalendar, GoogleStatus, List, NoteMention, Peer, Profile, StickyNote, Tag, Task, TaskMember, TaskTag, Template } from '../lib/types'
 
 type NewTask = Partial<Task> & { title: string }
 
@@ -39,6 +39,18 @@ interface DataApi {
   columns: Column[]
   folders: Folder[]
   notes: StickyNote[]
+  friends: Friend[]
+  peers: Peer[]
+  members: TaskMember[]
+  mentions: NoteMention[]
+  inviteFriend: (email: string) => Promise<'ok' | 'notfound' | 'exists' | string>
+  acceptFriend: (id: string) => Promise<void>
+  removeFriend: (id: string) => Promise<void>
+  addMember: (taskId: string, userId: string) => Promise<void>
+  removeMember: (taskId: string, userId: string) => Promise<void>
+  resolveClose: (task: Task, agree: boolean) => Promise<void>
+  mentionInNote: (noteId: string, userIds: string[]) => Promise<void>
+  dismissMention: (noteId: string) => Promise<void>
   sessions: FocusSession[]
   habits: Habit[]
   habitLogs: HabitLog[]
@@ -176,6 +188,22 @@ export function DataProvider({ userId, children }: { userId: string; children: R
   const [habits, setHabits] = useState<Habit[]>([])
   const [habitLogs, setHabitLogs] = useState<HabitLog[]>([])
   const [countdowns, setCountdowns] = useState<Countdown[]>([])
+  const [friends, setFriends] = useState<Friend[]>([])
+  const [peers, setPeers] = useState<Peer[]>([])
+  const [members, setMembers] = useState<TaskMember[]>([])
+  const [mentions, setMentions] = useState<NoteMention[]>([])
+  const loadSocial = useCallback(async () => {
+    const [fr, pe, me, mn] = await Promise.all([
+      supabase.from('rose_friends').select('*'),
+      supabase.from('rose_profiles').select('user_id,display_name,avatar_url,email'),
+      supabase.from('rose_task_members').select('task_id,user_id,added_by'),
+      supabase.from('rose_note_mentions').select('note_id,user_id,dismissed'),
+    ])
+    if (!fr.error) setFriends(fr.data as Friend[])
+    if (!pe.error) setPeers(pe.data as Peer[])
+    if (!me.error) setMembers(me.data as TaskMember[])
+    if (!mn.error) setMentions(mn.data as NoteMention[])
+  }, [])
   const queue = useRef<Op[]>([])
   const flushing = useRef(false)
 
@@ -190,7 +218,7 @@ export function DataProvider({ userId, children }: { userId: string; children: R
       supabase.from('rose_task_tags').select('*'),
       supabase.from('rose_filters').select('*').order('sort_order'),
       supabase.from('rose_templates').select('*').order('created_at', { ascending: false }),
-      supabase.from('rose_profiles').select('*').maybeSingle(),
+      supabase.from('rose_profiles').select('*').eq('user_id', userId).maybeSingle(), // a RLS também devolve perfis de amigos
       supabase.from('rose_google_calendars').select('*').order('name'),
       supabase.rpc('rose_google_status'),
       supabase.from('rose_columns').select('*').order('sort_order'),
@@ -219,7 +247,8 @@ export function DataProvider({ userId, children }: { userId: string; children: R
     if (!hl.error) setHabitLogs(hl.data as HabitLog[])
     if (!cd.error) setCountdowns(cd.data as Countdown[])
     if (!fo.error) setFolders(fo.data as Folder[])
-  }, [fail])
+    void loadSocial()
+  }, [fail, userId, loadSocial])
 
   // ---------- fila offline ----------
   const persistQueue = useCallback(() => {
@@ -350,6 +379,19 @@ export function DataProvider({ userId, children }: { userId: string; children: R
       .on('postgres_changes', { event: '*', schema: 'public', table: 'rose_habits' }, apply<Habit>(setHabits))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'rose_habit_logs' }, apply<HabitLog>(setHabitLogs))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'rose_countdowns' }, apply<Countdown>(setCountdowns))
+      // amigos / participantes / menções: recarrega (e as tarefas, quando alguém me inclui numa)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'rose_friends' }, () => void loadSocial())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'rose_profiles' }, () => void loadSocial())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'rose_task_members' }, async () => {
+        await loadSocial()
+        const { data } = await loadTasks()
+        if (data) setTasks(data)
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'rose_note_mentions' }, async () => {
+        await loadSocial()
+        const { data } = await supabase.from('rose_sticky_notes').select('*').order('z')
+        if (data) setNotes(data as StickyNote[])
+      })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'rose_task_tags' }, async () => {
         const { data } = await supabase.from('rose_task_tags').select('*')
         if (data) setTaskTags_(data as TaskTag[])
@@ -358,7 +400,7 @@ export function DataProvider({ userId, children }: { userId: string; children: R
     return () => {
       void supabase.removeChannel(ch)
     }
-  }, [ready, denied])
+  }, [ready, denied, loadSocial])
 
   const inbox = useMemo(() => lists.find((l) => l.is_inbox), [lists])
 
@@ -391,6 +433,60 @@ export function DataProvider({ userId, children }: { userId: string; children: R
   )
 
   const api: DataApi = {
+    friends,
+    peers,
+    members,
+    mentions,
+
+    async inviteFriend(email) {
+      const { data: found, error: e } = await supabase.rpc('rose_find_member', { p_email: email.trim().toLowerCase() })
+      if (e) return e.message
+      const u = (found as { user_id: string }[] | null)?.[0]
+      if (!u) return 'notfound'
+      if (friends.some((f) => f.requester === u.user_id || f.addressee === u.user_id)) return 'exists'
+      const { error: e2 } = await supabase.from('rose_friends').insert({ requester: userId, addressee: u.user_id })
+      if (e2) return e2.message
+      await loadSocial()
+      return 'ok'
+    },
+    async acceptFriend(id) {
+      const { error: e } = await supabase.from('rose_friends').update({ status: 'accepted' }).eq('id', id)
+      if (e) fail(e.message)
+      await loadSocial()
+    },
+    async removeFriend(id) {
+      const { error: e } = await supabase.from('rose_friends').delete().eq('id', id)
+      if (e) fail(e.message)
+      await loadSocial()
+    },
+    async addMember(taskId, uid) {
+      setMembers((p) => [...p, { task_id: taskId, user_id: uid, added_by: userId }])
+      const { error: e } = await supabase.from('rose_task_members').insert({ task_id: taskId, user_id: uid, added_by: userId })
+      if (e) fail(e.message)
+      await loadSocial()
+    },
+    async removeMember(taskId, uid) {
+      setMembers((p) => p.filter((m) => !(m.task_id === taskId && m.user_id === uid)))
+      const { error: e } = await supabase.from('rose_task_members').delete().eq('task_id', taskId).eq('user_id', uid)
+      if (e) fail(e.message)
+      if (uid === userId) setTasks((p) => p.filter((x) => x.id !== taskId && x.parent_id !== taskId)) // saí da tarefa
+    },
+    async resolveClose(task, agree) {
+      const status = (task.close_request?.status ?? 1) as Task['status']
+      await patchTask(task.id, agree ? { status, completed_at: new Date().toISOString(), close_request: null } : { close_request: null })
+    },
+    async mentionInNote(noteId, ids) {
+      const novos = ids.filter((id) => !mentions.some((m) => m.note_id === noteId && m.user_id === id))
+      if (!novos.length) return
+      const { error: e } = await supabase.from('rose_note_mentions').insert(novos.map((id) => ({ note_id: noteId, user_id: id })))
+      if (e) fail(e.message)
+      await loadSocial()
+    },
+    async dismissMention(noteId) {
+      setMentions((p) => p.map((m) => (m.note_id === noteId && m.user_id === userId ? { ...m, dismissed: true } : m)))
+      await supabase.from('rose_note_mentions').update({ dismissed: true }).eq('note_id', noteId).eq('user_id', userId)
+    },
+
     ready,
     denied,
     online,
@@ -470,6 +566,10 @@ export function DataProvider({ userId, children }: { userId: string; children: R
     },
 
     async toggleDone(task) {
+      if (task.user_id !== userId) {
+        if (task.status !== 0) return
+        return patchTask(task.id, { close_request: task.close_request?.by === userId ? null : { by: userId, at: new Date().toISOString(), status: 1 } })
+      }
       if (task.status === 0) {
         const next = task.repeat_rule ? nextDue(task) : null
         if (next) return patchTask(task.id, { due_at: next.toISOString() }) // tarefa recorrente: avança a data

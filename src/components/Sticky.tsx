@@ -3,9 +3,10 @@ import { createRoot, type Root } from 'react-dom/client'
 import { useTranslation } from 'react-i18next'
 import { DataCtx, useData } from '../store/data'
 import type { StickyNote } from '../lib/types'
-import { Icon } from './Icon'
+import { Avatar, Icon } from './Icon'
 import { Popover } from './Popover'
-import { RichEditor, toPlain } from './RichEditor'
+import { RichEditor, normalize, toPlain } from './RichEditor'
+import type { Peer } from '../lib/types'
 import { confirmAsk } from './Dialogs'
 
 // Janela flutuante do navegador (Document Picture-in-Picture): sem barra de endereço e sempre por cima.
@@ -46,10 +47,25 @@ export const NOTE_COLORS: Record<string, { bg: string; bar: string }> = {
   gray: { bg: '#e8e8ee', bar: '#c9c9d3' },
 }
 
+/** amigos aceitos (para o @) */
+export function useFriendPeers(): Peer[] {
+  const data = useData()
+  const ids = data.friends.filter((f) => f.status === 'accepted').map((f) => (f.requester === data.userId ? f.addressee : f.requester))
+  return data.peers.filter((p) => ids.includes(p.user_id))
+}
+export const peerName = (p: Peer) => p.display_name || p.email?.split('@')[0] || '?'
+const handleOf = (p: Peer) => peerName(p).split(' ')[0]
+/** quem foi marcado no texto: "@Nome", "@Nome Sobrenome" ou "@usuario-do-email" */
+const mentionedIn = (html: string, friends: Peer[]) => {
+  const txt = toPlain(html).toLowerCase()
+  return friends.filter((p) => [peerName(p), handleOf(p), p.email?.split('@')[0] ?? ''].some((n) => n && txt.includes('@' + n.toLowerCase()))).map((p) => p.user_id)
+}
+
 /** Nota individual: arrastável pelo cabeçalho, redimensionável, com cores e conteúdo rico. */
 function Note({ note, floating }: { note: StickyNote; floating: boolean }) {
   const { t } = useTranslation()
   const data = useData()
+  const friends = useFriendPeers()
   const [pos, setPos] = useState({ x: note.x, y: note.y })
   const drag = useRef<{ dx: number; dy: number } | null>(null)
   const box = useRef<HTMLDivElement>(null)
@@ -104,6 +120,24 @@ function Note({ note, floating }: { note: StickyNote; floating: boolean }) {
           )}
         </Popover>
         <div className="grow" />
+        {friends.length > 0 && (
+          <Popover trigger={(_o, toggle) => <button title={t('friends.mention')} onPointerDown={(e) => e.stopPropagation()} onClick={toggle}><b className="at">@</b></button>}>
+            {(close) => (
+              <div className="menu">
+                {friends.map((p) => (
+                  <button key={p.user_id} onClick={() => {
+                    const html = (note.content || '') + `<p>@${handleOf(p)}&nbsp;</p>`
+                    void data.updateNote(note.id, { content: html })
+                    void data.mentionInNote(note.id, [p.user_id])
+                    close()
+                  }}>
+                    <span className="peer-av"><Avatar url={p.avatar_url} name={peerName(p)} /></span> {peerName(p)}
+                  </button>
+                ))}
+              </div>
+            )}
+          </Popover>
+        )}
         {floating && <button title={t('sticky.popOut')} onPointerDown={(e) => e.stopPropagation()} onClick={() => void popOut()}><Icon name="link" size={13} /></button>}
         {floating && <button title={t('sticky.hide')} onPointerDown={(e) => e.stopPropagation()} onClick={() => void data.updateNote(note.id, { is_open: false })}><Icon name="x" size={13} /></button>}
         <button
@@ -120,7 +154,7 @@ function Note({ note, floating }: { note: StickyNote; floating: boolean }) {
         </button>
       </div>
       <div className="sticky-body">
-        <RichEditor key={note.id} value={note.content} placeholder={t('sticky.placeholder')} onCommit={(html) => void data.updateNote(note.id, { content: html })} toolbar={false} minHeight={60} />
+        <RichEditor key={note.id} value={note.content} placeholder={t('sticky.placeholder')} onCommit={(html) => { void data.updateNote(note.id, { content: html }); const ids = mentionedIn(html, friends); if (ids.length) void data.mentionInNote(note.id, ids) }} toolbar={false} minHeight={60} />
       </div>
     </div>
   )
@@ -137,9 +171,15 @@ export function StickyLayer() {
   useEffect(draw)
   return (
     <>
-      {data.notes.filter((n) => n.is_open).map((n) => (
+      {data.notes.filter((n) => n.is_open && n.user_id === data.userId).map((n) => (
         <Note key={n.id} note={n} floating />
       ))}
+      {data.mentions
+        .filter((m) => m.user_id === data.userId && !m.dismissed)
+        .map((m, i) => {
+          const n = data.notes.find((x) => x.id === m.note_id && x.user_id !== data.userId)
+          return n ? <MentionNote key={n.id} note={n} index={i} /> : null
+        })}
     </>
   )
 }
@@ -173,4 +213,23 @@ export function StickyWindow({ id }: { id: string }) {
   const note = data.notes.find((n) => n.id === id)
   if (!note) return <div className="login"><p>…</p></div>
   return <Note note={note} floating={false} />
+}
+
+/** Nota de outra pessoa em que fui mencionado: aparece na hora, só leitura, até eu fechar. */
+function MentionNote({ note, index }: { note: StickyNote; index: number }) {
+  const { t } = useTranslation()
+  const data = useData()
+  const c = NOTE_COLORS[note.color] ?? NOTE_COLORS.yellow
+  const from = data.peers.find((p) => p.user_id === note.user_id)
+  return (
+    <div className="sticky floating mention" role="dialog" style={{ background: c.bg, right: 24 + index * 16, top: 72 + index * 16, width: Math.max(260, note.w), height: Math.max(200, note.h), zIndex: 90 }}>
+      <div className="sticky-bar" style={{ background: c.bar }}>
+        <span className="peer-av"><Avatar url={from?.avatar_url} name={from ? peerName(from) : '?'} /></span>
+        <b className="mention-from">{t('friends.mentionedYou', { name: from ? peerName(from) : '' })}</b>
+        <div className="grow" />
+        <button title={t('common.close')} onClick={() => void data.dismissMention(note.id)}><Icon name="x" size={13} /></button>
+      </div>
+      <div className="sticky-body"><div className="rich-body" dangerouslySetInnerHTML={{ __html: normalize(note.content || '') }} /></div>
+    </div>
+  )
 }
