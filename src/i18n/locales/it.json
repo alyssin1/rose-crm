@@ -680,5 +680,10 @@
     "closeFlag": "Richiesta di completamento",
     "mention": "Menziona un amico",
     "mentionedYou": "{{name}} ti ha menzionato"
+  },
+  "login": {
+    "badge": "Accesso privato",
+    "foot": "Accesso riservato ai membri invitati.",
+    "oauthError": "Impossibile accedere con Google. Riprova."
   }
 }

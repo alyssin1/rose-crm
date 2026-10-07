@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { Session } from '@supabase/supabase-js'
-import { supabase, signInWithGoogle } from './lib/supabase'
+import { supabase } from './lib/supabase'
 import { fireTimes, showLocal } from './lib/notify'
 import { DataProvider, useData } from './store/data'
 import { Sidebar } from './components/Sidebar'
@@ -25,6 +25,7 @@ import { useMobile } from './lib/useMobile'
 import { setFormat } from './lib/format'
 import { DialogHost } from './components/Dialogs'
 import { TaskContextHost } from './components/TaskContextMenu'
+import { Login } from './components/Login'
 import { MobileHome, MobileNav, MoreSheet, type MoreItem, type Section } from './components/Mobile'
 
 type Theme = 'dark' | 'light'
@@ -68,14 +69,7 @@ export default function App() {
   if (!ready) return null
 
   if (!session) {
-    return (
-      <div className="login">
-        <img src="/icon.png" alt="Rose" />
-        <h1>Rose</h1>
-        <p>{t('app.tagline')}</p>
-        <button className="btn-primary" onClick={() => void signInWithGoogle()}>{t('auth.google')}</button>
-      </div>
-    )
+    return <Login />
   }
 
   return (
@@ -202,14 +196,7 @@ function Shell({ session, theme, setTheme }: { session: Session; theme: Theme; s
   if (stickyId) return <StickyWindow id={stickyId} />
 
   if (data.denied) {
-    return (
-      <div className="login">
-        <img src="/icon.png" alt="Rose" />
-        <h1>Rose</h1>
-        <p>{t('auth.denied', { email: session.user.email })}</p>
-        <button className="btn-primary" onClick={() => supabase.auth.signOut()}>{t('auth.signOut')}</button>
-      </div>
-    )
+    return <Login denied={{ email: session.user.email ?? '', onSignOut: () => void supabase.auth.signOut() }} />
   }
 
   const name = session.user.user_metadata?.full_name ?? session.user.email ?? '?'

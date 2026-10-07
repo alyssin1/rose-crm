@@ -11,6 +11,7 @@ import './styles/mobile.css'
 import './styles/fixes.css'
 import './styles/gcal.css'
 import './styles/gcal2.css'
+import './styles/login.css'
 import App from './App'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
