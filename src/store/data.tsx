@@ -13,7 +13,7 @@ interface Match {
 }
 interface Op {
   table: string
-  kind: 'insert' | 'update' | 'delete'
+  kind: 'insert' | 'upsert' | 'update' | 'delete'
   row?: unknown
   patch?: Record<string, unknown>
   match?: Match[]
@@ -132,6 +132,7 @@ async function exec(op: Op): Promise<{ error: { message: string } | null }> {
     const t = supabase.from(op.table)
     let q: any // eslint-disable-line @typescript-eslint/no-explicit-any
     if (op.kind === 'insert') q = t.insert(op.row as never)
+    else if (op.kind === 'upsert') q = t.upsert(op.row as never, { onConflict: 'id', ignoreDuplicates: true }) // idempotente: repetir não duplica
     else {
       q = op.kind === 'update' ? t.update((op.patch ?? {}) as never) : t.delete()
       for (const m of op.match ?? []) q = m.notNull ? q.not(m.col, 'is', null) : q.eq(m.col, m.val)
@@ -164,6 +165,15 @@ async function loadTasks(): Promise<{ data: Task[] | null; error: { message: str
 }
 
 const EMPTY_GOOGLE: GoogleStatus = { connected: false }
+
+/** UUID estável a partir de um texto (SHA-256), para ids que precisam ser iguais em qualquer instância do app */
+async function stableId(text: string): Promise<string> {
+  const h = new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text)))
+  h[6] = (h[6] & 0x0f) | 0x50
+  h[8] = (h[8] & 0x3f) | 0x80
+  const x = [...h.slice(0, 16)].map((b) => b.toString(16).padStart(2, '0')).join('')
+  return `${x.slice(0, 8)}-${x.slice(8, 12)}-${x.slice(12, 16)}-${x.slice(16, 20)}-${x.slice(20, 32)}`
+}
 
 export function DataProvider({ userId, children }: { userId: string; children: ReactNode }) {
   const [ready, setReady] = useState(false)
@@ -898,9 +908,10 @@ export function DataProvider({ userId, children }: { userId: string; children: R
     },
 
     async addSession(sess) {
-      const row: FocusSession = { id: crypto.randomUUID(), user_id: userId, ...sess }
-      setSessions((p) => [row, ...p])
-      await mutate({ table: 'rose_focus_sessions', kind: 'insert', row })
+      // id determinístico (usuário + tipo + início): duas instâncias do app gravando a mesma sessão geram o mesmo id e não duplicam
+      const row: FocusSession = { id: await stableId(`${userId}|${sess.kind}|${sess.started_at}`), user_id: userId, ...sess }
+      setSessions((p) => (p.some((x) => x.id === row.id) ? p : [row, ...p]))
+      await mutate({ table: 'rose_focus_sessions', kind: 'upsert', row })
     },
 
     async deleteSession(id) {

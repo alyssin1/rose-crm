@@ -152,9 +152,20 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
     if (state.mode !== 'pomodoro' || state.status !== 'running' || !state.endAt || now < state.endAt || finishing.current) return
     finishing.current = true
     const wasFocus = state.phase === 'focus'
-    if (wasFocus) record(minutes(settings, 'focus') * 60, minutes(settings, 'focus') * 60, true, state.startedAt, state.taskId, 'pomodoro')
-    beep(settings.sound)
-    showLocal(wasFocus ? '🍅 ' + i18n.t('pomo.title') : '☕ ' + i18n.t('pomo.break'), wasFocus ? i18n.t('pomo.notifFocus') : i18n.t('pomo.notifBreak'), state.taskId ?? 'pomo')
+    // com várias abas/janelas abertas só a primeira a chegar registra, apita e avisa (as outras só avançam o ciclo)
+    const mark = `${state.phase}:${state.startedAt}:${state.endAt}`
+    let first = true
+    try {
+      first = localStorage.getItem('rose.pomo.done') !== mark
+      if (first) localStorage.setItem('rose.pomo.done', mark)
+    } catch {
+      /* sem storage */
+    }
+    if (first) {
+      if (wasFocus) record(minutes(settings, 'focus') * 60, minutes(settings, 'focus') * 60, true, state.startedAt, state.taskId, 'pomodoro')
+      beep(settings.sound)
+      showLocal(wasFocus ? '🍅 ' + i18n.t('pomo.title') : '☕ ' + i18n.t('pomo.break'), wasFocus ? i18n.t('pomo.notifFocus') : i18n.t('pomo.notifBreak'), state.taskId ?? 'pomo')
+    }
     setState((s) => {
       const cycles = wasFocus ? s.cycles + 1 : s.cycles
       const next: Phase = wasFocus ? (cycles % settings.longEvery === 0 ? 'long' : 'short') : 'focus'
