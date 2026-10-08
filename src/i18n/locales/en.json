@@ -90,7 +90,10 @@
     "edit": "Edit",
     "new": "New list",
     "color": "Color",
-    "noColor": "No color"
+    "noColor": "No color",
+    "icon": "Icon",
+    "iconColor": "Icon color",
+    "orEmoji": "Or use an emoji"
   },
   "filter": {
     "new": "New filter",
@@ -115,7 +118,9 @@
   "tag": {
     "hint": "Categorize your tasks with tags. Type \"#\" when adding a task.",
     "rename": "Tag name",
-    "new": "New tag"
+    "new": "New tag",
+    "edit": "Edit tag",
+    "color": "Tag color"
   },
   "task": {
     "addPlaceholder": "Add task to \"{{list}}\"",

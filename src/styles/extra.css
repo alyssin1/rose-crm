@@ -127,3 +127,15 @@
 .mention-pick { display: flex; flex-wrap: wrap; gap: 6px; padding: 6px 8px; background: rgba(0,0,0,.07); border-bottom: 1px solid rgba(0,0,0,.08); }
 .mention-pick button { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 8px 0 3px; border: 1px solid rgba(0,0,0,.16); border-radius: 8px; background: rgba(255,255,255,.55); color: #1d1d22; font-size: 12px; font-weight: 500; }
 .mention-pick button:hover { background: rgba(255,255,255,.9); }
+
+/* ícone e cor da lista / cor da etiqueta */
+.list-ic { display: inline-grid; place-items: center; flex: none; }
+.ic-tint { display: inline-grid; place-items: center; flex: none; }
+.list-preview { width: 44px; height: 44px; border-radius: 10px; flex: none; display: grid; place-items: center; background: var(--bg-hover); }
+.icon-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; }
+.icon-grid button { height: 36px; border: 1px solid transparent; border-radius: 8px; background: none; color: var(--text-dim); display: grid; place-items: center; }
+.icon-grid button:hover { background: var(--bg-hover); }
+.icon-grid button.on { border-color: var(--accent); background: var(--bg-hover); }
+.tag-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; flex: none; margin-right: 5px; vertical-align: middle; }
+.cell .tag { display: inline-flex; align-items: center; }
+.tag-chip { display: inline-flex; align-items: center; }

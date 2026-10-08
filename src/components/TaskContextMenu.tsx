@@ -1,3 +1,4 @@
+import { ListIcon } from './ListIcon'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useData } from '../store/data'
@@ -139,7 +140,7 @@ export function TaskContextHost({ onSelect, weekStart = 0 }: { onSelect: (id: st
             <div className="ctx-sub">
               {data.lists.filter((l) => !l.archived).map((l) => (
                 <button key={l.id} className={'ctx-item' + (task.list_id === l.id ? ' on' : '')} onClick={run(() => void data.updateTask(task.id, { list_id: l.id }))}>
-                  <span className="emoji">{l.emoji ?? ''}</span> {l.is_inbox ? t('nav.inbox') : l.name} {task.list_id === l.id && <Icon name="check" size={13} />}
+                  <ListIcon emoji={l.emoji} color={l.color} size={15} /> {l.is_inbox ? t('nav.inbox') : l.name} {task.list_id === l.id && <Icon name="check" size={13} />}
                 </button>
               ))}
             </div>

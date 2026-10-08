@@ -7,6 +7,7 @@ import type { Activity, Attachment, Priority, Task } from '../lib/types'
 import { DatePicker } from './DatePicker'
 import { Icon } from './Icon'
 import { Popover } from './Popover'
+import { emojiText } from './ListIcon'
 import { RichEditor, toPlain } from './RichEditor'
 import { NSelect } from './Select'
 import { TaskPeople } from './Social'
@@ -200,7 +201,7 @@ export function TaskDetail({ taskId, onClose }: Props) {
         <div className="detail-tags">
           {tagList.map((tg) => (
             <span key={tg!.id} className="tag-chip">
-              #{tg!.name}
+              {tg!.color && <i className="tag-dot" style={{ background: tg!.color }} />}#{tg!.name}
               <button onClick={() => data.setTaskTags(task.id, tagIds.filter((x) => x !== tg!.id))} aria-label="×"><Icon name="x" size={11} /></button>
             </span>
           ))}
@@ -211,7 +212,7 @@ export function TaskDetail({ taskId, onClose }: Props) {
       <div className="detail-foot">
         <Icon name="list" size={14} />
         <NSelect value={task.list_id ?? ''} onChange={(e) => save({ list_id: e.target.value || null })}>
-          {data.lists.map((l) => <option key={l.id} value={l.id}>{l.emoji ?? ''} {l.is_inbox ? t('nav.inbox') : l.name}</option>)}
+          {data.lists.map((l) => <option key={l.id} value={l.id}>{emojiText(l.emoji)} {l.is_inbox ? t('nav.inbox') : l.name}</option>)}
         </NSelect>
         {gcals.length > 0 && (
           <>

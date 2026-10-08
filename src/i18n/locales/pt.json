@@ -90,7 +90,10 @@
     "edit": "Editar",
     "new": "Nova lista",
     "color": "Cor",
-    "noColor": "Sem cor"
+    "noColor": "Sem cor",
+    "icon": "Ícone",
+    "iconColor": "Cor do ícone",
+    "orEmoji": "Ou use um emoji"
   },
   "filter": {
     "new": "Novo filtro",
@@ -115,7 +118,9 @@
   "tag": {
     "hint": "Categorize suas tarefas com etiquetas. Digite \"#\" ao adicionar uma tarefa.",
     "rename": "Nome da etiqueta",
-    "new": "Nova etiqueta"
+    "new": "Nova etiqueta",
+    "edit": "Editar etiqueta",
+    "color": "Cor da etiqueta"
   },
   "task": {
     "addPlaceholder": "Adicionar tarefa a \"{{list}}\"",

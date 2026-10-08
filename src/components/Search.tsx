@@ -1,3 +1,4 @@
+import { ListIcon } from './ListIcon'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useData } from '../store/data'
@@ -49,7 +50,7 @@ export function Search({ onClose, onOpenTask, onOpenView }: Props) {
           {needle && !tasks.length && !lists.length && <p className="empty">{t('search.none')}</p>}
           {lists.map((l) => (
             <button key={l.id} className="search-item" onClick={() => { onOpenView({ type: 'list', id: l.id }); onClose() }}>
-              <span>{l.emoji ?? '📁'}</span> <b>{l.name}</b>
+              {l.emoji ? <ListIcon emoji={l.emoji} color={l.color} size={16} /> : <span>📁</span>} <b>{l.name}</b>
             </button>
           ))}
           {tasks.map((x) => {

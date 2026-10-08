@@ -2,11 +2,12 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useData } from '../store/data'
 import { countFor } from '../lib/views'
-import { viewKey, type FilterDef, type FilterRules, type List, type View } from '../lib/types'
+import { viewKey, type FilterDef, type FilterRules, type List, type Tag, type View } from '../lib/types'
 import { Icon, type IconName } from './Icon'
 import { Popover } from './Popover'
 import { confirmAsk, promptText } from './Dialogs'
 import { NSelect } from './Select'
+import { ListIcon, LIST_ICONS, iconValue, isIcon } from './ListIcon'
 
 const SMART: { type: 'all' | 'today' | 'next7' | 'inbox' | 'summary'; icon: IconName }[] = [
   { type: 'all', icon: 'layers' },
@@ -27,6 +28,7 @@ export function Sidebar({ view, onView }: Props) {
   const { t } = useTranslation()
   const data = useData()
   const [listDlg, setListDlg] = useState<List | 'new' | null>(null)
+  const [tagDlg, setTagDlg] = useState<'new' | Tag | null>(null)
   const [filterDlg, setFilterDlg] = useState<FilterDef | 'new' | null>(null)
   const active = viewKey(view)
   const ctx = data
@@ -37,7 +39,7 @@ export function Sidebar({ view, onView }: Props) {
   const row = (v: View, icon: IconName | null, label: string, count?: number, emoji?: string | null, color?: string | null, menu?: React.ReactNode, indent = false) => (
     <div key={viewKey(v)} className={'side-item' + (active === viewKey(v) ? ' active' : '') + (indent ? ' indent' : '')}>
       <button className="side-btn" onClick={() => onView(v)}>
-        {emoji ? <span className="emoji">{emoji}</span> : icon ? <Icon name={icon} size={20} /> : <span className="dot" style={{ background: color ?? 'var(--silver-500)' }} />}
+        {emoji ? <ListIcon emoji={emoji} color={color} size={20} /> : icon ? <span className="ic-tint" style={{ color: color ?? undefined }}><Icon name={icon} size={20} /></span> : <span className="dot" style={{ background: color ?? 'var(--silver-500)' }} />}
         <span className="grow">{label}</span>
         {count ? <span className="count">{count}</span> : null}
       </button>
@@ -161,16 +163,7 @@ export function Sidebar({ view, onView }: Props) {
 
       <div className="side-group">
         <span>{t('nav.tags')}</span>
-        <button
-          title={t('tag.new')}
-          onClick={async () => {
-            const n = await promptText(t('tag.new'))
-            const v = n?.trim().replace(/^#/, '')
-            if (!v) return
-            const tg = await data.ensureTag(v) // se já existir, só abre a existente
-            onView({ type: 'tag', id: tg.id })
-          }}
-        >
+        <button title={t('tag.new')} onClick={() => setTagDlg('new')}>
           <Icon name="plus" size={14} />
         </button>
       </div>
@@ -182,11 +175,11 @@ export function Sidebar({ view, onView }: Props) {
           tg.name,
           countFor({ type: 'tag', id: tg.id }, ctx),
           null,
-          null,
+          tg.color,
           <Popover align="right" trigger={(_o, toggle) => <button className="side-more" onClick={toggle} aria-label={t('common.more')}><Icon name="more" size={14} /></button>}>
             {(close) => (
               <div className="menu">
-                <button onClick={async () => { close(); const n = await promptText(t('tag.rename'), tg.name); const v = n?.trim().replace(/^#/, ''); if (v && v !== tg.name) void data.updateTag(tg.id, { name: v }) }}>{t('list.rename')}</button>
+                <button onClick={() => { close(); setTagDlg(tg) }}>{t('list.edit')}</button>
                 <button className="danger" onClick={async () => { close(); if (await confirmAsk(t('list.confirmDelete', { name: tg.name }))) { void data.deleteTag(tg.id); if (active === viewKey({ type: 'tag', id: tg.id })) onView({ type: 'all' }) } }}>{t('list.delete')}</button>
               </div>
             )}
@@ -198,6 +191,7 @@ export function Sidebar({ view, onView }: Props) {
       {row({ type: 'completed' }, 'checkSquare', t('nav.completed'))}
       {row({ type: 'trash' }, 'trash', t('nav.trash'))}
 
+      {tagDlg && <TagDialog tag={tagDlg === 'new' ? null : tagDlg} onClose={() => setTagDlg(null)} onSaved={(tg) => onView({ type: 'tag', id: tg.id })} />}
       {listDlg && <ListDialog list={listDlg === 'new' ? null : listDlg} onClose={() => setListDlg(null)} onCreated={(l) => onView({ type: 'list', id: l.id })} />}
       {filterDlg && <FilterDialog filter={filterDlg === 'new' ? null : filterDlg} onClose={() => setFilterDlg(null)} />}
     </aside>
@@ -208,7 +202,7 @@ function ListDialog({ list, onClose, onCreated }: { list: List | null; onClose: 
   const { t } = useTranslation()
   const data = useData()
   const [name, setName] = useState(list?.name ?? '')
-  const [emoji, setEmoji] = useState(list?.emoji ?? '')
+  const [emoji, setEmoji] = useState(list?.emoji ?? '') // "icon:nome" (ícone vetorial) ou um emoji
   const [color, setColor] = useState<string | null>(list?.color ?? null)
   const [folder, setFolder] = useState(list?.folder_id ?? '')
 
@@ -229,15 +223,31 @@ function ListDialog({ list, onClose, onCreated }: { list: List | null; onClose: 
       <div className="modal" onMouseDown={(e) => e.stopPropagation()}>
         <h3>{list ? t('list.edit') : t('list.new')}</h3>
         <div className="row2">
-          <input style={{ width: 64, textAlign: 'center' }} value={emoji} maxLength={4} placeholder="📁" onChange={(e) => setEmoji(e.target.value)} aria-label="emoji" />
+          <span className="list-preview">{emoji ? <ListIcon emoji={emoji} color={color} size={22} /> : <Icon name="list" size={22} />}</span>
           <input autoFocus style={{ flex: 1 }} value={name} placeholder={t('list.name')} onChange={(e) => setName(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && void save()} />
         </div>
-        <div className="chips">{EMOJIS.map((e) => <button key={e} onClick={() => setEmoji(e)}>{e}</button>)}</div>
-        <label className="field">{t('list.color')}</label>
+
+        <label className="field">{t('list.icon')}</label>
+        <div className="icon-grid">
+          {LIST_ICONS.map((n) => (
+            <button key={n} className={emoji === iconValue(n) ? 'on' : ''} style={{ color: color ?? undefined }} onClick={() => setEmoji(iconValue(n))} aria-label={n}>
+              <Icon name={n} size={20} />
+            </button>
+          ))}
+        </div>
+
+        <label className="field">{t('list.iconColor')}</label>
         <div className="swatches">
           <button className={'swatch none' + (color === null ? ' on' : '')} onClick={() => setColor(null)} aria-label={t('list.noColor')}>∅</button>
           {COLORS.map((c) => <button key={c} className={'swatch' + (c === color ? ' on' : '')} style={{ background: c }} onClick={() => setColor(c)} aria-label={c} />)}
         </div>
+
+        <label className="field">{t('list.orEmoji')}</label>
+        <div className="row2">
+          <input style={{ width: 64, height: 40, textAlign: 'center', alignSelf: 'flex-start' }} value={isIcon(emoji) ? '' : emoji} maxLength={4} placeholder="📁" onChange={(e) => setEmoji(e.target.value)} aria-label="emoji" />
+          <div className="chips" style={{ flex: 1 }}>{EMOJIS.map((e) => <button key={e} onClick={() => setEmoji(e)}>{e}</button>)}</div>
+        </div>
+
         {data.folders.length > 0 && (
           <>
             <label className="field">{t('folder.title')}</label>
@@ -247,6 +257,44 @@ function ListDialog({ list, onClose, onCreated }: { list: List | null; onClose: 
             </NSelect>
           </>
         )}
+        <div className="modal-actions">
+          <button onClick={onClose}>{t('common.cancel')}</button>
+          <button className="btn-primary" disabled={!name.trim()} onClick={() => void save()}>{t('common.save')}</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/** criar / editar etiqueta: nome + cor */
+function TagDialog({ tag, onClose, onSaved }: { tag: Tag | null; onClose: () => void; onSaved: (tg: Tag) => void }) {
+  const { t } = useTranslation()
+  const data = useData()
+  const [name, setName] = useState(tag?.name ?? '')
+  const [color, setColor] = useState<string | null>(tag?.color ?? null)
+
+  const save = async () => {
+    const v = name.trim().replace(/^#/, '')
+    if (!v) return
+    if (tag) await data.updateTag(tag.id, { name: v, color })
+    else {
+      const tg = await data.ensureTag(v) // se o nome já existir, usa a existente
+      if (color) await data.updateTag(tg.id, { color })
+      onSaved({ ...tg, color: color ?? tg.color })
+    }
+    onClose()
+  }
+
+  return (
+    <div className="modal-back" onMouseDown={onClose}>
+      <div className="modal small" onMouseDown={(e) => e.stopPropagation()}>
+        <h3>{tag ? t('tag.edit') : t('tag.new')}</h3>
+        <input autoFocus value={name} placeholder={t('tag.rename')} onChange={(e) => setName(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && void save()} />
+        <label className="field">{t('tag.color')}</label>
+        <div className="swatches">
+          <button className={'swatch none' + (color === null ? ' on' : '')} onClick={() => setColor(null)} aria-label={t('list.noColor')}>∅</button>
+          {COLORS.map((c) => <button key={c} className={'swatch' + (c === color ? ' on' : '')} style={{ background: c }} onClick={() => setColor(c)} aria-label={c} />)}
+        </div>
         <div className="modal-actions">
           <button onClick={onClose}>{t('common.cancel')}</button>
           <button className="btn-primary" disabled={!name.trim()} onClick={() => void save()}>{t('common.save')}</button>
@@ -277,7 +325,7 @@ function FilterDialog({ filter, onClose }: { filter: FilterDef | null; onClose: 
         <div className="chips">
           {data.lists.map((l) => (
             <button key={l.id} className={rules.listIds?.includes(l.id) ? 'on' : ''} onClick={() => toggle('listIds', l.id)}>
-              {l.emoji ?? ''} {l.is_inbox ? t('nav.inbox') : l.name}
+              <ListIcon emoji={l.emoji} color={l.color} size={13} /> {l.is_inbox ? t('nav.inbox') : l.name}
             </button>
           ))}
         </div>

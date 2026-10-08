@@ -4,7 +4,7 @@ import { useData } from '../store/data'
 import { dayDiff, dueTone, formatDue, startOfDay, weekdayName } from '../lib/dates'
 import { parseQuickAdd } from '../lib/parse'
 import { groupTasks, selectTasks, sortTasks, tagIdsOf, type Group } from '../lib/views'
-import { ALL_COLS, DEFAULT_VIEW_OPTIONS, viewKey, type ColKey, type Task, type View, type ViewOptions } from '../lib/types'
+import { ALL_COLS, DEFAULT_VIEW_OPTIONS, viewKey, type ColKey, type Tag, type Task, type View, type ViewOptions } from '../lib/types'
 import { formatNumericDate } from '../lib/format'
 import { Icon } from './Icon'
 import { Popover } from './Popover'
@@ -14,6 +14,7 @@ import { confirmAsk } from './Dialogs'
 import { openTaskMenu } from './TaskContextMenu'
 import { NSelect } from './Select'
 import { RowPeople } from './Social'
+import { ListIcon } from './ListIcon'
 
 const loadOpts = (key: string): ViewOptions => {
   try {
@@ -152,7 +153,7 @@ export function TaskList({ view, selectedId, onSelect, onToggleSidebar }: Props)
     <section className="tasks">
       <header className="tasks-head">
         {onToggleSidebar && <button className="icon-btn" onClick={onToggleSidebar} title={t('common.toggleSidebar')}><Icon name="sidebar" size={18} /></button>}
-        <h2>{list?.emoji ? `${list.emoji} ` : ''}{title}</h2>
+        <h2>{list?.emoji ? <><ListIcon emoji={list.emoji} color={list.color} size={20} />{' '}</> : null}{title}</h2>
         <div className="grow" />
 
         {!['completed', 'trash', 'summary'].includes(view.type) && mode === 'list' && (
@@ -374,7 +375,8 @@ function Row({ task, view, opts, selected, onSelect, dnd, group, depth = 0, sele
   const how = dnd.over?.id === task.id ? dnd.over.how : null
   const tone = dueTone(task)
   const list = data.lists.find((l) => l.id === task.list_id)
-  const tagNames = tagIdsOf(data, task.id).map((id) => data.tags.find((x) => x.id === id)?.name).filter(Boolean) as string[]
+  const tagObjs = tagIdsOf(data, task.id).map((id) => data.tags.find((x) => x.id === id)).filter(Boolean) as Tag[]
+  const tagNames = tagObjs.map((x) => x.name)
 
   return (
     <>
@@ -450,12 +452,12 @@ function Row({ task, view, opts, selected, onSelect, dnd, group, depth = 0, sele
           )}
           {opts.cols.includes('tags') && (
             <span className="cell tags" title={tagNames.map((n) => '#' + n).join(' ')}>
-              {tagNames.length ? <>{tagNames.slice(0, 2).map((n) => <span key={n} className="tag">#{n}</span>)}{tagNames.length > 2 && <span className="tag more">+{tagNames.length - 2}</span>}</> : <span className="empty-cell">–</span>}
+              {tagNames.length ? <>{tagObjs.slice(0, 2).map((tg) => <span key={tg.id} className="tag">{tg.color && <i className="tag-dot" style={{ background: tg.color }} />}#{tg.name}</span>)}{tagNames.length > 2 && <span className="tag more">+{tagNames.length - 2}</span>}</> : <span className="empty-cell">–</span>}
             </span>
           )}
           {opts.cols.includes('list') && (
             <span className="cell list" title={list ? (list.is_inbox ? t('nav.inbox') : list.name) : undefined}>
-              {list ? <><i className="list-dot" style={{ background: list.color ?? 'var(--text-dim)' }} />{list.emoji} {list.is_inbox ? t('nav.inbox') : list.name}</> : <span className="empty-cell">–</span>}
+              {list ? <>{list.emoji ? <ListIcon emoji={list.emoji} color={list.color} size={14} /> : <i className="list-dot" style={{ background: list.color ?? 'var(--text-dim)' }} />} {list.is_inbox ? t('nav.inbox') : list.name}</> : <span className="empty-cell">–</span>}
             </span>
           )}
         </span>

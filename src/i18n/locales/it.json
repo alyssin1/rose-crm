@@ -90,7 +90,10 @@
     "edit": "Modifica",
     "new": "Nuova lista",
     "color": "Colore",
-    "noColor": "Nessun colore"
+    "noColor": "Nessun colore",
+    "icon": "Icona",
+    "iconColor": "Colore dell'icona",
+    "orEmoji": "Oppure usa una emoji"
   },
   "filter": {
     "new": "Nuovo filtro",
@@ -115,7 +118,9 @@
   "tag": {
     "hint": "Classifica le attività con i tag. Digita \"#\" quando aggiungi un'attività.",
     "rename": "Nome del tag",
-    "new": "Nuova etichetta"
+    "new": "Nuova etichetta",
+    "edit": "Modifica etichetta",
+    "color": "Colore dell'etichetta"
   },
   "task": {
     "addPlaceholder": "Aggiungi attività a \"{{list}}\"",
