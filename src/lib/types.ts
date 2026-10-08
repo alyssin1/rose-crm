@@ -255,7 +255,12 @@ export type View =
   | { type: 'all' | 'today' | 'next7' | 'inbox' | 'summary' | 'completed' | 'trash' }
   | { type: 'list' | 'tag' | 'filter'; id: string }
 
+/** colunas da lista de tarefas (menu "Campos") */
+export type ColKey = 'priority' | 'start' | 'due' | 'tags' | 'list'
+export const ALL_COLS: ColKey[] = ['priority', 'start', 'due', 'tags', 'list']
+
 export interface ViewOptions {
+  cols: ColKey[]
   groupBy: 'date' | 'list' | 'priority' | 'tag' | 'none'
   orderBy: 'date' | 'modified' | 'created' | 'title' | 'tag' | 'priority'
   desc: boolean
@@ -264,6 +269,7 @@ export interface ViewOptions {
 }
 
 export const DEFAULT_VIEW_OPTIONS: ViewOptions = {
+  cols: ALL_COLS,
   groupBy: 'date',
   orderBy: 'date',
   desc: false,

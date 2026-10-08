@@ -173,7 +173,16 @@
     "timeline": "Linea temporale",
     "showCompleted": "Mostra completate",
     "showDetails": "Mostra dettagli",
-    "onlyLists": "solo liste"
+    "onlyLists": "solo liste",
+    "fields": "Campi",
+    "col": {
+      "task": "Attività",
+      "priority": "Priorità",
+      "start": "Data inizio",
+      "due": "Scadenza",
+      "tags": "Etichetta",
+      "list": "Lista collegata"
+    }
   },
   "trash": {
     "empty": "Svuota cestino",

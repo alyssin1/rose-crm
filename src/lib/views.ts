@@ -1,4 +1,5 @@
 import { addDays, dayDiff, startOfDay } from './dates'
+import { DEFAULT_VIEW_OPTIONS } from './types'
 import type { FilterDef, List, Tag, Task, TaskTag, View, ViewOptions } from './types'
 
 export interface Ctx {
@@ -75,7 +76,7 @@ export function selectTasks(view: View, c: Ctx, opts: ViewOptions): Task[] {
 }
 
 export function countFor(view: View, c: Ctx): number {
-  return selectTasks(view, c, { groupBy: 'none', orderBy: 'date', desc: false, showCompleted: false, showDetails: true }).length
+  return selectTasks(view, c, { ...DEFAULT_VIEW_OPTIONS, groupBy: 'none', showCompleted: false }).length
 }
 
 export function sortTasks(list: Task[], opts: ViewOptions, c: Ctx): Task[] {

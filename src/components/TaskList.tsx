@@ -4,7 +4,8 @@ import { useData } from '../store/data'
 import { dayDiff, dueTone, formatDue, startOfDay, weekdayName } from '../lib/dates'
 import { parseQuickAdd } from '../lib/parse'
 import { groupTasks, selectTasks, sortTasks, tagIdsOf, type Group } from '../lib/views'
-import { DEFAULT_VIEW_OPTIONS, viewKey, type Task, type View, type ViewOptions } from '../lib/types'
+import { ALL_COLS, DEFAULT_VIEW_OPTIONS, viewKey, type ColKey, type Task, type View, type ViewOptions } from '../lib/types'
+import { formatNumericDate } from '../lib/format'
 import { Icon } from './Icon'
 import { Popover } from './Popover'
 import { Kanban } from './Kanban'
@@ -197,6 +198,16 @@ export function TaskList({ view, selectedId, onSelect, onToggleSidebar }: Props)
                   <button onClick={() => { setOpts({ showDetails: !opts.showDetails }); close() }}>
                     <Icon name="list" size={15} /> {t('view.showDetails')} {opts.showDetails && <Icon name="check" size={14} />}
                   </button>
+                  {opts.showDetails && (
+                    <>
+                      <div className="menu-label">{t('view.fields')}</div>
+                      {ALL_COLS.map((c) => (
+                        <button key={c} onClick={() => setOpts({ cols: opts.cols.includes(c) ? opts.cols.filter((x) => x !== c) : ALL_COLS.filter((x) => x === c || opts.cols.includes(x)) })}>
+                          <Icon name={COL_ICON[c]} size={15} /> {t(`view.col.${c}`)} {opts.cols.includes(c) && <Icon name="check" size={14} />}
+                        </button>
+                      ))}
+                    </>
+                  )}
                 </>
               )}
               {view.type === 'trash' && total > 0 && (
@@ -240,6 +251,7 @@ export function TaskList({ view, selectedId, onSelect, onToggleSidebar }: Props)
       )}
 
       <div className="task-scroll">
+        {total > 0 && opts.showDetails && view.type !== 'trash' && <ColsHeader cols={opts.cols} />}
         {total === 0 && <p className="empty">{view.type === 'trash' ? t('trash.empty0') : view.type === 'completed' ? t('task.emptyCompleted') : t('task.empty')}</p>}
         {groups.map((g) => (
           <GroupBlock key={g.id} g={g} view={view} opts={opts} selectedId={selectedId} onSelect={onSelect} dnd={{ dragId, over, setOver, drop, expanded }} />
@@ -330,8 +342,31 @@ function GroupBlock({ g, view, opts, selectedId, onSelect, dnd }: { g: Group; vi
   )
 }
 
+const COL_ICON: Record<ColKey, 'flag' | 'calendar' | 'tag' | 'list'> = { priority: 'flag', start: 'calendar', due: 'calendar', tags: 'tag', list: 'list' }
+
+/** data numérica no formato escolhido nas configurações (ou o padrão do idioma) */
+const dayStr = (iso: string, lang: string) => {
+  const d = new Date(iso)
+  return formatNumericDate(d) ?? new Intl.DateTimeFormat(lang, { day: '2-digit', month: '2-digit', year: 'numeric' }).format(d)
+}
+const fullDate = (iso: string, lang: string) => new Intl.DateTimeFormat(lang, { dateStyle: 'full', timeStyle: 'short' }).format(new Date(iso))
+
+/** linha de títulos das colunas (acima dos grupos) */
+function ColsHeader({ cols }: { cols: ColKey[] }) {
+  const { t } = useTranslation()
+  return (
+    <div className="task-cols">
+      <span className="name">{t('view.col.task')}</span>
+      <span className="cells">
+        {ALL_COLS.filter((c) => cols.includes(c)).map((c) => <span key={c} className={'cell ' + c}>{t(`view.col.${c}`)}</span>)}
+      </span>
+    </div>
+  )
+}
+
 function Row({ task, view, opts, selected, onSelect, dnd, group, depth = 0, selectedId }: { task: Task; view: View; opts: ViewOptions; selected: boolean; onSelect: (id: string | null) => void; dnd: Dnd; group: Group; depth?: number; selectedId?: string | null }) {
   const { t, i18n } = useTranslation()
+  const lang = i18n.language.slice(0, 2)
   const data = useData()
   const canDrag = view.type !== 'trash' && view.type !== 'completed'
   const kids = data.tasks.filter((x) => x.parent_id === task.id && !x.deleted_at && (opts.showCompleted || x.status === 0)).sort((a, b) => a.sort_order - b.sort_order)
@@ -340,7 +375,6 @@ function Row({ task, view, opts, selected, onSelect, dnd, group, depth = 0, sele
   const tone = dueTone(task)
   const list = data.lists.find((l) => l.id === task.list_id)
   const tagNames = tagIdsOf(data, task.id).map((id) => data.tags.find((x) => x.id === id)?.name).filter(Boolean) as string[]
-  const showList = view.type !== 'list' && view.type !== 'inbox'
 
   return (
     <>
@@ -401,14 +435,29 @@ function Row({ task, view, opts, selected, onSelect, dnd, group, depth = 0, sele
           <Icon name="subtask" size={12} /> {data.tasks.filter((x) => x.parent_id === task.id && !x.deleted_at && x.status !== 0).length}/{data.tasks.filter((x) => x.parent_id === task.id && !x.deleted_at).length}
         </button>
       )}
+      <RowPeople task={task} />
+      {task.repeat_rule && <Icon name="repeat" size={12} className="repeat" />}
       {opts.showDetails && (
-        <span className="meta">
-          {task.priority > 0 && <span className={`prio p${task.priority}`}><Icon name="flag" size={12} className={`pf p${task.priority}`} /> {t(`priority.${task.priority}`)}</span>}
-          <RowPeople task={task} />
-          {tagNames.map((n) => <span key={n} className="tag">#{n}</span>)}
-          {showList && list && <span className="list-name">{list.emoji} {list.is_inbox ? t('nav.inbox') : list.name}</span>}
-          {task.due_at && <span className={'due ' + tone}>{formatDue(task, i18n.language.slice(0, 2), t)}</span>}
-          {task.repeat_rule && <Icon name="repeat" size={12} />}
+        <span className="cells">
+          {opts.cols.includes('priority') && (
+            <span className={`cell priority p${task.priority}`}>
+              {task.priority > 0 ? <><Icon name="flag" size={13} /> {t(`priority.${task.priority}`)}</> : <span className="empty-cell">–</span>}
+            </span>
+          )}
+          {opts.cols.includes('start') && <span className="cell start" title={task.start_at ? fullDate(task.start_at, lang) : undefined}>{task.start_at ? dayStr(task.start_at, lang) : <span className="empty-cell">–</span>}</span>}
+          {opts.cols.includes('due') && (
+            <span className={'cell due ' + tone} title={task.due_at ? formatDue(task, lang, t) : undefined}>{task.due_at ? dayStr(task.due_at, lang) : <span className="empty-cell">–</span>}</span>
+          )}
+          {opts.cols.includes('tags') && (
+            <span className="cell tags" title={tagNames.map((n) => '#' + n).join(' ')}>
+              {tagNames.length ? <>{tagNames.slice(0, 2).map((n) => <span key={n} className="tag">#{n}</span>)}{tagNames.length > 2 && <span className="tag more">+{tagNames.length - 2}</span>}</> : <span className="empty-cell">–</span>}
+            </span>
+          )}
+          {opts.cols.includes('list') && (
+            <span className="cell list" title={list ? (list.is_inbox ? t('nav.inbox') : list.name) : undefined}>
+              {list ? <><i className="list-dot" style={{ background: list.color ?? 'var(--text-dim)' }} />{list.emoji} {list.is_inbox ? t('nav.inbox') : list.name}</> : <span className="empty-cell">–</span>}
+            </span>
+          )}
         </span>
       )}
       {view.type === 'trash' && (
@@ -440,7 +489,7 @@ export function TaskGroups({ tasks, selectedId, onSelect }: { tasks: Task[]; sel
     }
     return t(`group.${k}`)
   }
-  const opts: ViewOptions = { ...DEFAULT_VIEW_OPTIONS }
+  const opts: ViewOptions = { ...DEFAULT_VIEW_OPTIONS, cols: ['priority', 'due'] } // quadrantes são estreitos: poucas colunas
   const groups = groupTasks(sortTasks(tasks, opts, data), opts, data, label)
   const view: View = { type: 'all' }
   const dnd: Dnd = { dragId, over, setOver, drop: async () => {}, expanded }

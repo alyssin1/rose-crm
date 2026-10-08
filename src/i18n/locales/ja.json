@@ -173,7 +173,16 @@
     "timeline": "タイムライン",
     "showCompleted": "完了を表示",
     "showDetails": "詳細を表示",
-    "onlyLists": "リストのみ"
+    "onlyLists": "リストのみ",
+    "fields": "フィールド",
+    "col": {
+      "task": "タスク",
+      "priority": "優先度",
+      "start": "開始日",
+      "due": "期限",
+      "tags": "タグ",
+      "list": "リスト"
+    }
   },
   "trash": {
     "empty": "ゴミ箱を空にする",

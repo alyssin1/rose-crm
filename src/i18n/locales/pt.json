@@ -173,7 +173,16 @@
     "timeline": "Linha do tempo",
     "showCompleted": "Mostrar Concluído",
     "showDetails": "Mostrar detalhes",
-    "onlyLists": "só em listas"
+    "onlyLists": "só em listas",
+    "fields": "Campos",
+    "col": {
+      "task": "Tarefa",
+      "priority": "Prioridade",
+      "start": "Data inicial",
+      "due": "Data final",
+      "tags": "Etiqueta",
+      "list": "Lista vinculada"
+    }
   },
   "trash": {
     "empty": "Esvaziar lixeira",

@@ -173,7 +173,16 @@
     "timeline": "Timeline",
     "showCompleted": "Show Completed",
     "showDetails": "Show details",
-    "onlyLists": "lists only"
+    "onlyLists": "lists only",
+    "fields": "Fields",
+    "col": {
+      "task": "Task",
+      "priority": "Priority",
+      "start": "Start date",
+      "due": "Due date",
+      "tags": "Tag",
+      "list": "Linked list"
+    }
   },
   "trash": {
     "empty": "Empty trash",
