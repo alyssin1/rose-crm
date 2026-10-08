@@ -114,7 +114,8 @@
   },
   "tag": {
     "hint": "Categorize suas tarefas com etiquetas. Digite \"#\" ao adicionar uma tarefa.",
-    "rename": "Nome da etiqueta"
+    "rename": "Nome da etiqueta",
+    "new": "Nova etiqueta"
   },
   "task": {
     "addPlaceholder": "Adicionar tarefa a \"{{list}}\"",

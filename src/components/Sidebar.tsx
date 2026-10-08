@@ -161,6 +161,18 @@ export function Sidebar({ view, onView }: Props) {
 
       <div className="side-group">
         <span>{t('nav.tags')}</span>
+        <button
+          title={t('tag.new')}
+          onClick={async () => {
+            const n = await promptText(t('tag.new'))
+            const v = n?.trim().replace(/^#/, '')
+            if (!v) return
+            const tg = await data.ensureTag(v) // se já existir, só abre a existente
+            onView({ type: 'tag', id: tg.id })
+          }}
+        >
+          <Icon name="plus" size={14} />
+        </button>
       </div>
       {data.tags.length === 0 && <p className="side-hint">{t('tag.hint')}</p>}
       {data.tags.map((tg) =>

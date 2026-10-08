@@ -114,7 +114,8 @@
   },
   "tag": {
     "hint": "Categorize your tasks with tags. Type \"#\" when adding a task.",
-    "rename": "Tag name"
+    "rename": "Tag name",
+    "new": "New tag"
   },
   "task": {
     "addPlaceholder": "Add task to \"{{list}}\"",

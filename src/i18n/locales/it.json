@@ -114,7 +114,8 @@
   },
   "tag": {
     "hint": "Classifica le attività con i tag. Digita \"#\" quando aggiungi un'attività.",
-    "rename": "Nome del tag"
+    "rename": "Nome del tag",
+    "new": "Nuova etichetta"
   },
   "task": {
     "addPlaceholder": "Aggiungi attività a \"{{list}}\"",
