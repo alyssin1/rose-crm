@@ -27,7 +27,8 @@ import { setFormat } from './lib/format'
 import { DialogHost } from './components/Dialogs'
 import { TaskContextHost } from './components/TaskContextMenu'
 import { Login } from './components/Login'
-import { MobileHome, MobileNav, MoreSheet, type MoreItem, type Section } from './components/Mobile'
+import { MobileHome, MobileNav, MoreSheet, type MoreItem } from './components/Mobile'
+import { fromPath, toPath, type Section } from './lib/routes'
 
 type Theme = 'dark' | 'light'
 const GOOGLE_SCOPES = 'https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.calendarlist.readonly'
@@ -87,7 +88,21 @@ function Shell({ session, theme, setTheme }: { session: Session; theme: Theme; s
   const data = useData()
   const pomo = usePomodoro() // hooks sempre antes de qualquer return antecipado
   setFormat(data.profile) // formato de hora/data (idempotente; re-renderiza junto com o perfil)
-  const [section, setSection] = useState<Section>(() => (window.matchMedia('(max-width: 820px)').matches ? 'home' : 'tasks'))
+  // endereço de entrada: /mesa, /tarefas/hoje… (depois do login o Google volta para "/", então lembramos de onde a pessoa estava)
+  const [entry] = useState(() => {
+    let p = location.pathname
+    try {
+      const r = sessionStorage.getItem('rose.return')
+      if (r) sessionStorage.removeItem('rose.return')
+      if (r && fromPath(p) === null) p = r.split('#')[0]
+    } catch {
+      /* sem storage */
+    }
+    const phone = window.matchMedia('(max-width: 820px)').matches
+    const r = fromPath(p)
+    return { section: r ? (r.section === 'home' && !phone ? 'tasks' : r.section) : phone ? 'home' : 'tasks', view: r?.view ?? ({ type: 'all' } as View) }
+  })
+  const [section, setSection] = useState<Section>(entry.section)
   const [more, setMore] = useState(false)
   const [railOpen, setRailOpen] = useState(() => {
     try {
@@ -105,7 +120,7 @@ function Shell({ session, theme, setTheme }: { session: Session; theme: Theme; s
       }
       return !o
     })
-  const [view, setView] = useState<View>({ type: 'all' })
+  const [view, setView] = useState<View>(entry.view)
   const [selected, setSelected] = useState<string | null>(null)
   const mobile = useMobile()
   const [sideOpen, setSideOpen] = useState(() => !window.matchMedia('(max-width: 820px)').matches)
@@ -179,6 +194,28 @@ function Shell({ session, theme, setTheme }: { session: Session; theme: Theme; s
     const id = setInterval(check, 20000)
     return () => clearInterval(id)
   }, [data.tasks, t])
+
+  // endereço da aba na barra do navegador (voltar/avançar funcionam; F5 e links abrem a mesma aba)
+  const firstUrl = useRef(true)
+  useEffect(() => {
+    const path = toPath(section, view)
+    if (location.pathname !== path) {
+      if (firstUrl.current) history.replaceState(null, '', path + location.hash)
+      else history.pushState(null, '', path)
+    }
+    firstUrl.current = false
+  }, [section, view])
+  useEffect(() => {
+    const onPop = () => {
+      const r = fromPath(location.pathname)
+      if (!r) return
+      setSection(r.section === 'home' && !mobile ? 'tasks' : r.section)
+      setView(r.view)
+      setSelected(null)
+    }
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
+  }, [mobile])
 
   // link de tarefa: /#task=<id>
   useEffect(() => {

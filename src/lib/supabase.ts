@@ -6,8 +6,13 @@ export const supabase = createClient(
 )
 
 /** consent=true força a tela de permissões (só para reconectar a agenda); no login comum o Google lembra a autorização */
-export const signInWithGoogle = (consent = false) =>
-  supabase.auth.signInWithOAuth({
+export const signInWithGoogle = (consent = false) => {
+  try {
+    if (location.pathname.length > 1) sessionStorage.setItem('rose.return', location.pathname + location.hash)
+  } catch {
+    /* sem storage */
+  }
+  return supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
       redirectTo: window.location.origin,
@@ -16,3 +21,4 @@ export const signInWithGoogle = (consent = false) =>
       queryParams: consent ? { access_type: 'offline', prompt: 'consent' } : { access_type: 'offline' },
     },
   })
+}
