@@ -42,10 +42,11 @@ export function Mesa({ selectedId, onSelect, onToggleSidebar }: { selectedId: st
     () => data.tasks.filter((x) => x.source !== 'google' && !x.deleted_at && !x.parent_id && x.status === 0 && x.kind !== 'note'),
     [data.tasks],
   )
-  const events = useMemo(
-    () => data.tasks.filter((x) => x.source === 'google' && !x.deleted_at && x.status === 0 && (x.start_at ?? x.due_at)),
-    [data.tasks],
-  )
+  // eventos só da(s) agenda(s) do meu e-mail; agendas de outras pessoas (Allan, Bruno…) ficam de fora
+  const events = useMemo(() => {
+    const own = new Set(data.googleCalendars.filter((g) => g.access_role === 'owner').map((g) => g.google_calendar_id))
+    return data.tasks.filter((x) => x.source === 'google' && !!x.google_calendar_id && own.has(x.google_calendar_id) && !x.deleted_at && x.status === 0 && (x.start_at ?? x.due_at))
+  }, [data.tasks, data.googleCalendars])
   const evStart = (x: Task) => new Date((x.start_at ?? x.due_at) as string)
 
   const drafts = mine.filter(isDraft).length
