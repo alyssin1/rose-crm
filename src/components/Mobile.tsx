@@ -8,7 +8,7 @@ import { DEFAULT_VIEW_OPTIONS, type View } from '../lib/types'
 import { hhmm, sameDay, startOfDay } from '../lib/dates'
 import { Avatar, Icon, type IconName } from './Icon'
 
-export type Section = 'home' | 'tasks' | 'calendar' | 'matrix' | 'pomodoro' | 'habits' | 'countdown' | 'stats'
+export type Section = 'home' | 'tasks' | 'calendar' | 'matrix' | 'pomodoro' | 'habits' | 'countdown' | 'stats' | 'mesa'
 
 interface HomeProps {
   name: string

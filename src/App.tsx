@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+﻿import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from './lib/supabase'
@@ -14,6 +14,7 @@ import { Pomodoro } from './components/Pomodoro'
 import { Habits } from './components/Habits'
 import { Countdowns } from './components/Countdowns'
 import { Stats } from './components/Stats'
+import { Mesa } from './components/Mesa'
 import { PomodoroProvider, usePomodoro, fmtClock } from './lib/pomodoro'
 import { Popover } from './components/Popover'
 import { StickyLayer, StickyMenu, StickyWindow } from './components/Sticky'
@@ -218,6 +219,7 @@ function Shell({ session, theme, setTheme }: { session: Session; theme: Theme; s
   const habitOn = feat.habit !== false
   const pomoOn = feat.pomodoro !== false
   const countdownOn = feat.countdown !== false
+  const mesaOn = feat.mesa !== false
   const weekStart = data.profile?.week_start ?? 0
   const showSidebar = sideOpen && section === 'tasks'
   const toggleSide = section === 'tasks' ? () => setSideOpen((o) => !o) : undefined // só existe barra lateral em Tarefas
@@ -227,6 +229,7 @@ function Shell({ session, theme, setTheme }: { session: Session; theme: Theme; s
     ...(pomoOn ? [{ icon: 'timer' as const, label: t('pomo.title'), on: () => go('pomodoro') }] : []),
     ...(habitOn ? [{ icon: 'target' as const, label: t('habit.title'), on: () => go('habits') }] : []),
     ...(countdownOn ? [{ icon: 'hourglass' as const, label: t('countdown.title'), on: () => go('countdown') }] : []),
+    ...(mesaOn ? [{ icon: 'mesa' as const, label: t('mesa.title'), on: () => go('mesa') }] : []),
     { icon: 'chart', label: t('stats.title'), on: () => go('stats') },
     { icon: 'summary', label: t('nav.summary'), on: () => change({ type: 'summary' }) },
     { icon: 'search', label: t('nav.search'), on: () => setSearching(true) },
@@ -253,6 +256,7 @@ function Shell({ session, theme, setTheme }: { session: Session; theme: Theme; s
         )}
         {habitOn && <button className={'rail-btn' + (section === 'habits' ? ' on' : '')} title={t('habit.title')} onClick={() => go('habits')}><Icon name="target" size={20} /></button>}
         {countdownOn && <button className={'rail-btn' + (section === 'countdown' ? ' on' : '')} title={t('countdown.title')} onClick={() => go('countdown')}><Icon name="hourglass" size={20} /></button>}
+        {mesaOn && <button className={'rail-btn' + (section === 'mesa' ? ' on' : '')} title={t('mesa.title')} onClick={() => go('mesa')}><Icon name="mesa" size={20} /></button>}
         <button className={'rail-btn' + (section === 'stats' ? ' on' : '')} title={t('stats.title')} onClick={() => go('stats')}><Icon name="chart" size={20} /></button>
         {stickyOn && (
           <Popover trigger={(_o, toggle) => <button className="rail-btn" title={t('sticky.title')} onClick={toggle}><Icon name="note" size={20} /></button>}>
@@ -280,6 +284,8 @@ function Shell({ session, theme, setTheme }: { session: Session; theme: Theme; s
           <Habits weekStart={weekStart} onToggleSidebar={toggleSide} />
         ) : section === 'countdown' ? (
           <Countdowns onToggleSidebar={toggleSide} />
+        ) : section === 'mesa' ? (
+          <Mesa selectedId={selected} onSelect={setSelected} onToggleSidebar={toggleSide} />
         ) : section === 'stats' ? (
           <Stats onToggleSidebar={toggleSide} />
         ) : section === 'matrix' ? (
