@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useData } from '../store/data'
-import { addDays, dayDiff, hhmm, startOfDay } from '../lib/dates'
+import { addDays, dayDiff, hhmm, isoDay, startOfDay } from '../lib/dates'
 import type { Task } from '../lib/types'
 import { Icon } from './Icon'
 
@@ -14,7 +14,7 @@ const mondayOf = (d: Date) => addDays(startOfDay(d), -((d.getDay() + 6) % 7))
 /** De segunda a quinta a Mesa mostra a semana corrente; de sexta a domingo, a próxima. */
 const targetMonday = (now: Date) => mondayOf([5, 6, 0].includes(now.getDay()) ? addDays(now, 3) : now)
 
-type Filter = 'triage' | 'week' | 'all'
+type Filter = 'triage' | 'pending' | 'week' | 'all'
 
 export function Mesa({ selectedId, onSelect, onToggleSidebar }: { selectedId: string | null; onSelect: (id: string) => void; onToggleSidebar?: () => void }) {
   const { t, i18n } = useTranslation()
@@ -22,7 +22,6 @@ export function Mesa({ selectedId, onSelect, onToggleSidebar }: { selectedId: st
   const data = useData()
   const [offset, setOffset] = useState(0)
   const [filter, setFilter] = useState<Filter>('triage')
-  const [picking, setPicking] = useState<string | null>(null)
 
   const today = startOfDay(new Date())
   const ini = useMemo(() => addDays(targetMonday(new Date()), offset * 7), [offset])
@@ -30,6 +29,8 @@ export function Mesa({ selectedId, onSelect, onToggleSidebar }: { selectedId: st
   const fim = days[6]
   const inWeek = (d: Date | null) => !!d && dayDiff(d, ini) >= 0 && dayDiff(d, fim) <= 0
   const dueDay = (x: Task) => (x.due_at ? startOfDay(new Date(x.due_at)) : null)
+  const weekKey = isoDay(ini) // identifica a semana mostrada
+  const isPending = (x: Task) => x.week_in === weekKey // puxada com "Entra", esperando o dia
 
   const fmtDay = new Intl.DateTimeFormat(lang, { day: 'numeric', month: 'short' })
   const fmtWd0 = new Intl.DateTimeFormat(lang, { weekday: 'short' })
@@ -52,19 +53,21 @@ export function Mesa({ selectedId, onSelect, onToggleSidebar }: { selectedId: st
   const drafts = mine.filter(isDraft).length
   const undated = mine.filter((x) => !x.due_at).length
   const overdue = mine.filter((x) => { const d = dueDay(x); return !!d && dayDiff(d, today) < 0 }).length
+  const pending = mine.filter(isPending).length
 
   const focus = mine.filter((x) => x.priority === 5 && inWeek(dueDay(x))).sort((a, b) => (a.due_at ?? '').localeCompare(b.due_at ?? ''))
 
   const shown = useMemo(() => {
     const keep = (x: Task) => {
       if (filter === 'all') return true
+      if (filter === 'pending') return isPending(x)
       const d = dueDay(x)
       if (filter === 'week') return inWeek(d)
       return isDraft(x) || !d || dayDiff(d, today) < 0 // precisam de triagem
     }
     return mine.filter(keep)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mine, filter, ini])
+  }, [mine, filter, ini, weekKey])
 
   const groups = useMemo(() => {
     const m = new Map<string, Task[]>()
@@ -78,15 +81,15 @@ export function Mesa({ selectedId, onSelect, onToggleSidebar }: { selectedId: st
       .sort((a, b) => a.label.localeCompare(b.label))
   }, [shown, data.lists, t])
 
-  const enter = async (x: Task, d: Date) => {
-    setPicking(null)
-    await data.updateTask(x.id, { title: clean(x), due_at: startOfDay(d).toISOString(), all_day: true })
-  }
-  const out = (x: Task) => data.updateTask(x.id, { title: clean(x), due_at: null })
+  // "Entra": puxa a tarefa para a semana; ela vai para a aba "Definir dia" até você escolher o dia
+  const pull = (x: Task) => data.updateTask(x.id, { week_in: isPending(x) ? null : weekKey })
+  const enter = (x: Task, d: Date) => data.updateTask(x.id, { title: clean(x), due_at: startOfDay(d).toISOString(), all_day: true, week_in: null })
+  const out = (x: Task) => data.updateTask(x.id, { title: clean(x), due_at: null, week_in: null })
   const approve = (x: Task) => data.updateTask(x.id, { title: clean(x) })
 
   const dueText = (x: Task) => {
     const d = dueDay(x)
+    if (isPending(x) && (!d || !inWeek(d))) return t('mesa.pending')
     if (!d) return t('mesa.undated')
     const diff = dayDiff(d, today)
     return diff < 0 ? `${t('mesa.overdue')} · ${fmtDay.format(d)}` : fmtDay.format(d)
@@ -105,17 +108,17 @@ export function Mesa({ selectedId, onSelect, onToggleSidebar }: { selectedId: st
             {dueText(x)}
           </span>
           <div className="ms-acts">
-            {!rec && <button className={picking === x.id ? 'on' : ''} title={t('mesa.inHint')} onClick={() => setPicking(picking === x.id ? null : x.id)}>{t('mesa.in')}</button>}
+            {!rec && <button className={isPending(x) ? 'on' : ''} title={t('mesa.inHint')} onClick={() => void pull(x)}>{t('mesa.in')}</button>}
             {!rec && <button title={t('mesa.outHint')} onClick={() => void out(x)}>{t('mesa.out')}</button>}
             {isDraft(x) && <button title={t('mesa.approveHint')} onClick={() => void approve(x)}>{t('mesa.approve')}</button>}
             <button title={t('mesa.doneHint')} onClick={() => void data.toggleDone(x)}>{t('mesa.done')}</button>
             <button title={t('mesa.cancelHint')} onClick={() => void data.setWontDo(x)}>{t('mesa.cancel')}</button>
           </div>
         </div>
-        {picking === x.id && (
+        {isPending(x) && (
           <div className="ms-days">
             {days.map((dd) => (
-              <button key={dd.toISOString()} className={d && dayDiff(d, dd) === 0 ? 'on' : ''} onClick={() => void enter(x, dd)}>
+              <button key={dd.toISOString()} className={d && dayDiff(d, dd) === 0 ? 'on' : ''} onClick={() => void enter(x, dd)} title={fmtWdLong.format(dd)}>
                 <small>{fmtWd.format(dd)}</small>
                 <b>{dd.getDate()}</b>
               </button>
@@ -127,7 +130,7 @@ export function Mesa({ selectedId, onSelect, onToggleSidebar }: { selectedId: st
   }
 
   const weekLabel = t('mesa.week', { a: fmtDay.format(ini), b: fmtDay.format(fim) })
-  const FILTERS: [Filter, string][] = [['triage', 'mesa.fTriage'], ['week', 'mesa.fWeek'], ['all', 'mesa.fAll']]
+  const FILTERS: [Filter, string][] = [['triage', 'mesa.fTriage'], ['pending', 'mesa.fPending'], ['week', 'mesa.fWeek'], ['all', 'mesa.fAll']]
 
   return (
     <section className="mesa">
@@ -179,11 +182,11 @@ export function Mesa({ selectedId, onSelect, onToggleSidebar }: { selectedId: st
 
       <h3 className="ms-sec">{t('mesa.mine')}</h3>
       <div className="ms-filters">
-        {FILTERS.map(([k, key]) => <button key={k} className={filter === k ? 'on' : ''} onClick={() => setFilter(k)}>{t(key)}</button>)}
+        {FILTERS.map(([k, key]) => <button key={k} className={filter === k ? 'on' : ''} onClick={() => setFilter(k)}>{t(key)}{k === 'pending' && pending > 0 && <small className="ms-n">{pending}</small>}</button>)}
         <span className="ms-total">{shown.length}</span>
       </div>
       {groups.length === 0 ? (
-        <p className="ms-empty">{t('mesa.clean')}</p>
+        <p className="ms-empty">{filter === 'pending' ? t('mesa.pendingEmpty') : t('mesa.clean')}</p>
       ) : groups.map((g) => (
         <div key={g.k} className="ms-group">
           <h4>{g.label} <small>{g.tasks.length}</small></h4>

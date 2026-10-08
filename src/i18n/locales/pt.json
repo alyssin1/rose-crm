@@ -582,7 +582,7 @@
     "approve": "Aprovar",
     "done": "Feita",
     "cancel": "Cancela",
-    "inHint": "Escolha o dia da semana",
+    "inHint": "Puxa para esta semana: a tarefa vai para a aba \"Definir dia\" para você escolher o dia",
     "outHint": "Tira a data: volta para o backlog",
     "approveHint": "Tira o rótulo de rascunho e mantém como está",
     "doneHint": "Marca como concluída",
@@ -594,7 +594,10 @@
     "clean": "Nada para triar. A mesa está limpa.",
     "days": "A semana dia a dia",
     "free": "livre",
-    "load": "{{n}} tarefas · {{e}} eventos"
+    "load": "{{n}} tarefas · {{e}} eventos",
+    "fPending": "Definir dia",
+    "pending": "definir dia",
+    "pendingEmpty": "Nenhuma tarefa esperando um dia. Use \"Entra\" nas tarefas para puxar para esta semana."
   },
   "countdown": {
     "title": "Contagem Regressiva",

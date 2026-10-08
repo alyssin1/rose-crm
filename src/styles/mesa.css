@@ -73,3 +73,5 @@
   .ms-title { flex-basis: calc(100% - 30px); }
   .ms-acts { flex-wrap: wrap; }
 }
+
+.ms-n { margin-left: 6px; color: var(--accent); font-size: 12px; font-variant-numeric: tabular-nums; }

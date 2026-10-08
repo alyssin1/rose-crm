@@ -582,7 +582,7 @@
     "approve": "Approve",
     "done": "Done",
     "cancel": "Cancel",
-    "inHint": "Pick the day of the week",
+    "inHint": "Pull into this week: the task goes to the \"Set day\" tab so you can pick the day",
     "outHint": "Clears the date: goes back to the backlog",
     "approveHint": "Removes the draft label and keeps the task as is",
     "doneHint": "Mark as completed",
@@ -594,7 +594,10 @@
     "clean": "Nothing to triage. The desk is clean.",
     "days": "The week day by day",
     "free": "free",
-    "load": "{{n}} tasks · {{e}} events"
+    "load": "{{n}} tasks · {{e}} events",
+    "fPending": "Set day",
+    "pending": "set a day",
+    "pendingEmpty": "No task waiting for a day. Use \"In\" on a task to pull it into this week."
   },
   "countdown": {
     "title": "Countdown",

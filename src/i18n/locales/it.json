@@ -582,7 +582,7 @@
     "approve": "Approva",
     "done": "Fatta",
     "cancel": "Annulla",
-    "inHint": "Scegli il giorno della settimana",
+    "inHint": "Porta in questa settimana: l'attività va nella scheda \"Scegli il giorno\"",
     "outHint": "Toglie la data: torna nel backlog",
     "approveHint": "Toglie l'etichetta di bozza e lascia l'attività com'è",
     "doneHint": "Segna come completata",
@@ -594,7 +594,10 @@
     "clean": "Niente da smistare. La scrivania è pulita.",
     "days": "La settimana giorno per giorno",
     "free": "libero",
-    "load": "{{n}} attività · {{e}} eventi"
+    "load": "{{n}} attività · {{e}} eventi",
+    "fPending": "Scegli il giorno",
+    "pending": "scegli il giorno",
+    "pendingEmpty": "Nessuna attività in attesa di un giorno. Usa \"Dentro\" su un'attività per portarla in questa settimana."
   },
   "countdown": {
     "title": "Conto alla rovescia",

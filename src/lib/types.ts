@@ -29,6 +29,8 @@ export interface Task {
   google_synced_at: string | null
   source: 'rose' | 'google'
   google_meta?: GoogleMeta | null
+  /** Mesa da Semana: segunda-feira (AAAA-MM-DD) da semana para a qual a tarefa foi puxada com "Entra"; null = não puxada */
+  week_in?: string | null
   /** pedido de conclusão feito por um participante (o dono aceita ou recusa) */
   close_request?: { by: string; at: string; status?: number } | null
   created_at: string
