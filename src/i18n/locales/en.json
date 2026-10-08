@@ -21,7 +21,9 @@
     "tasks": "Tasks",
     "calendar": "Calendar",
     "search": "Search",
-    "addList": "Add list"
+    "addList": "Add list",
+    "expand": "Expand menu",
+    "collapse": "Collapse menu"
   },
   "settings": {
     "theme": "Theme",
@@ -651,7 +653,8 @@
     "name": "Folder name",
     "none": "No folder",
     "moveTo": "Move to folder",
-    "confirmDelete": "Delete folder “{{name}}”? Lists are kept, they just leave the folder."
+    "confirmDelete": "Delete folder “{{name}}”? Lists are kept, they just leave the folder.",
+    "newList": "New list in this folder"
   },
   "ctx": {
     "pickDate": "Pick date",

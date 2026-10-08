@@ -21,7 +21,9 @@
     "tasks": "タスク",
     "calendar": "カレンダー",
     "search": "検索",
-    "addList": "リストを追加"
+    "addList": "リストを追加",
+    "expand": "メニューを開く",
+    "collapse": "メニューを閉じる"
   },
   "settings": {
     "theme": "テーマ",
@@ -649,7 +651,8 @@
     "name": "フォルダ名",
     "none": "フォルダなし",
     "moveTo": "フォルダへ移動",
-    "confirmDelete": "フォルダ「{{name}}」を削除しますか？リストは残り、フォルダから外れます。"
+    "confirmDelete": "フォルダ「{{name}}」を削除しますか？リストは残り、フォルダから外れます。",
+    "newList": "このフォルダに新しいリスト"
   },
   "ctx": {
     "pickDate": "日付を選択",

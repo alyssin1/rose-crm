@@ -21,7 +21,9 @@
     "tasks": "Tarefas",
     "calendar": "Calendário",
     "search": "Buscar",
-    "addList": "Adicionar lista"
+    "addList": "Adicionar lista",
+    "expand": "Expandir menu",
+    "collapse": "Recolher menu"
   },
   "settings": {
     "theme": "Tema",
@@ -651,7 +653,8 @@
     "name": "Nome da pasta",
     "none": "Sem pasta",
     "moveTo": "Mover para a pasta",
-    "confirmDelete": "Excluir a pasta “{{name}}”? As listas continuam, só saem da pasta."
+    "confirmDelete": "Excluir a pasta “{{name}}”? As listas continuam, só saem da pasta.",
+    "newList": "Nova lista nesta pasta"
   },
   "ctx": {
     "pickDate": "Escolher data",

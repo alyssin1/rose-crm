@@ -28,6 +28,8 @@ export function Sidebar({ view, onView }: Props) {
   const { t } = useTranslation()
   const data = useData()
   const [listDlg, setListDlg] = useState<List | 'new' | null>(null)
+  const [newListFolder, setNewListFolder] = useState('') // pasta pré-selecionada ao criar lista por dentro de uma pasta
+  const [dropFolder, setDropFolder] = useState<string | null>(null) // alvo de arrastar (id da pasta ou '__root')
   const [tagDlg, setTagDlg] = useState<'new' | Tag | null>(null)
   const [filterDlg, setFilterDlg] = useState<FilterDef | 'new' | null>(null)
   const active = viewKey(view)
@@ -36,8 +38,8 @@ export function Sidebar({ view, onView }: Props) {
   const folders = [...data.folders].sort((a, b) => a.sort_order - b.sort_order)
   const loose = userLists.filter((l) => !l.folder_id || !folders.some((f) => f.id === l.folder_id))
 
-  const row = (v: View, icon: IconName | null, label: string, count?: number, emoji?: string | null, color?: string | null, menu?: React.ReactNode, indent = false) => (
-    <div key={viewKey(v)} className={'side-item' + (active === viewKey(v) ? ' active' : '') + (indent ? ' indent' : '')}>
+  const row = (v: View, icon: IconName | null, label: string, count?: number, emoji?: string | null, color?: string | null, menu?: React.ReactNode, indent = false, dnd?: React.HTMLAttributes<HTMLDivElement>) => (
+    <div key={viewKey(v)} className={'side-item' + (active === viewKey(v) ? ' active' : '') + (indent ? ' indent' : '')} {...dnd}>
       <button className="side-btn" onClick={() => onView(v)}>
         {emoji ? <ListIcon emoji={emoji} color={color} size={20} /> : icon ? <span className="ic-tint" style={{ color: color ?? undefined }}><Icon name={icon} size={20} /></span> : <span className="dot" style={{ background: color ?? 'var(--silver-500)' }} />}
         <span className="grow">{label}</span>
@@ -84,6 +86,7 @@ export function Sidebar({ view, onView }: Props) {
         )}
       </Popover>,
       indent,
+      { draggable: true, onDragStart: (e) => { e.dataTransfer.setData('text/rose-list', l.id); e.dataTransfer.effectAllowed = 'move' }, onDragEnd: () => setDropFolder(null) },
     )
 
   return (
@@ -92,12 +95,26 @@ export function Sidebar({ view, onView }: Props) {
 
       <div className="side-sep" />
 
-      <div className="side-group">
+      <div
+        className={'side-group' + (dropFolder === '__root' ? ' drop-on' : '')}
+        onDragOver={(e) => { if (e.dataTransfer.types.includes('text/rose-list')) { e.preventDefault(); setDropFolder('__root') } }}
+        onDragLeave={() => setDropFolder(null)}
+        onDrop={(e) => { e.preventDefault(); setDropFolder(null); const id = e.dataTransfer.getData('text/rose-list'); if (id) void data.updateList(id, { folder_id: null }) }}
+      >
         <span>{t('nav.lists')}</span>
+        <button
+          title={t('folder.new')}
+          onClick={async () => {
+            const n = await promptText(t('folder.name'))
+            if (n?.trim()) void data.addFolder(n.trim())
+          }}
+        >
+          <Icon name="folder" size={14} />
+        </button>
         <Popover align="right" trigger={(_o, toggle) => <button title={t('nav.addList')} onClick={toggle}><Icon name="plus" size={14} /></button>}>
           {(close) => (
             <div className="menu">
-              <button onClick={() => { close(); setListDlg('new') }}>{t('list.new')}</button>
+              <button onClick={() => { close(); setNewListFolder(''); setListDlg('new') }}>{t('list.new')}</button>
               <button
                 onClick={async () => {
                   close()
@@ -116,15 +133,30 @@ export function Sidebar({ view, onView }: Props) {
         const inside = userLists.filter((l) => l.folder_id === f.id)
         return (
           <div key={f.id} className="folder">
-            <div className="side-item">
+            <div
+              className={'side-item' + (dropFolder === f.id ? ' drop-on' : '')}
+              onDragOver={(e) => { if (e.dataTransfer.types.includes('text/rose-list')) { e.preventDefault(); setDropFolder(f.id) } }}
+              onDragLeave={() => setDropFolder(null)}
+              onDrop={(e) => {
+                e.preventDefault()
+                setDropFolder(null)
+                const id = e.dataTransfer.getData('text/rose-list')
+                if (id) {
+                  void data.updateList(id, { folder_id: f.id })
+                  if (f.collapsed) void data.updateFolder(f.id, { collapsed: false })
+                }
+              }}
+            >
               <button className="side-btn" onClick={() => void data.updateFolder(f.id, { collapsed: !f.collapsed })}>
                 <Icon name={f.collapsed ? 'right' : 'down'} size={13} />
+                <Icon name="folder" size={18} />
                 <span className="grow">{f.name}</span>
                 <span className="count">{inside.length}</span>
               </button>
               <Popover align="right" trigger={(_o, toggle) => <button className="side-more" onClick={toggle} aria-label={t('common.more')}><Icon name="more" size={14} /></button>}>
                 {(close) => (
                   <div className="menu">
+                    <button onClick={() => { close(); setNewListFolder(f.id); setListDlg('new') }}>{t('folder.newList')}</button>
                     <button onClick={async () => { close(); const n = await promptText(t('folder.name'), f.name); if (n?.trim()) void data.updateFolder(f.id, { name: n.trim() }) }}>{t('list.rename')}</button>
                     <button className="danger" onClick={async () => { close(); if (await confirmAsk(t('folder.confirmDelete', { name: f.name }))) void data.deleteFolder(f.id) }}>{t('list.delete')}</button>
                   </div>
@@ -192,19 +224,19 @@ export function Sidebar({ view, onView }: Props) {
       {row({ type: 'trash' }, 'trash', t('nav.trash'))}
 
       {tagDlg && <TagDialog tag={tagDlg === 'new' ? null : tagDlg} onClose={() => setTagDlg(null)} onSaved={(tg) => onView({ type: 'tag', id: tg.id })} />}
-      {listDlg && <ListDialog list={listDlg === 'new' ? null : listDlg} onClose={() => setListDlg(null)} onCreated={(l) => onView({ type: 'list', id: l.id })} />}
+      {listDlg && <ListDialog presetFolder={newListFolder} list={listDlg === 'new' ? null : listDlg} onClose={() => setListDlg(null)} onCreated={(l) => onView({ type: 'list', id: l.id })} />}
       {filterDlg && <FilterDialog filter={filterDlg === 'new' ? null : filterDlg} onClose={() => setFilterDlg(null)} />}
     </aside>
   )
 }
 
-function ListDialog({ list, onClose, onCreated }: { list: List | null; onClose: () => void; onCreated: (l: List) => void }) {
+function ListDialog({ list, presetFolder = '', onClose, onCreated }: { list: List | null; presetFolder?: string; onClose: () => void; onCreated: (l: List) => void }) {
   const { t } = useTranslation()
   const data = useData()
   const [name, setName] = useState(list?.name ?? '')
   const [emoji, setEmoji] = useState(list?.emoji ?? '') // "icon:nome" (ícone vetorial) ou um emoji
   const [color, setColor] = useState<string | null>(list?.color ?? null)
-  const [folder, setFolder] = useState(list?.folder_id ?? '')
+  const [folder, setFolder] = useState(list?.folder_id ?? presetFolder)
 
   const save = async () => {
     const n = name.trim()

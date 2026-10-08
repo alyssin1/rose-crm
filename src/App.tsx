@@ -89,6 +89,22 @@ function Shell({ session, theme, setTheme }: { session: Session; theme: Theme; s
   setFormat(data.profile) // formato de hora/data (idempotente; re-renderiza junto com o perfil)
   const [section, setSection] = useState<Section>(() => (window.matchMedia('(max-width: 820px)').matches ? 'home' : 'tasks'))
   const [more, setMore] = useState(false)
+  const [railOpen, setRailOpen] = useState(() => {
+    try {
+      return localStorage.getItem('rose.rail.open') === '1'
+    } catch {
+      return false
+    }
+  })
+  const toggleRail = () =>
+    setRailOpen((o) => {
+      try {
+        localStorage.setItem('rose.rail.open', o ? '0' : '1')
+      } catch {
+        /* sem storage */
+      }
+      return !o
+    })
   const [view, setView] = useState<View>({ type: 'all' })
   const [selected, setSelected] = useState<string | null>(null)
   const mobile = useMobile()
@@ -223,6 +239,7 @@ function Shell({ session, theme, setTheme }: { session: Session; theme: Theme; s
   const weekStart = data.profile?.week_start ?? 0
   const showSidebar = sideOpen && section === 'tasks'
   const toggleSide = section === 'tasks' ? () => setSideOpen((o) => !o) : undefined // só existe barra lateral em Tarefas
+  const lbl = (txt: string) => (railOpen && !mobile ? <span className="rail-lbl">{txt}</span> : null)
   const toggleTheme = () => { const n = theme === 'dark' ? 'light' : 'dark'; setTheme(n); void data.updateProfile({ theme: n }) }
   const moreItems: MoreItem[] = [
     ...(matrixOn ? [{ icon: 'matrix' as const, label: t('matrix.title'), on: () => go('matrix') }] : []),
@@ -239,35 +256,36 @@ function Shell({ session, theme, setTheme }: { session: Session; theme: Theme; s
   ]
 
   return (
-    <div className={'shell' + (showSidebar ? '' : ' side-closed') + (mobile && showSidebar ? ' drawer-open' : '')}>
+    <div className={'shell' + (railOpen ? ' rail-open' : '') + (showSidebar ? '' : ' side-closed') + (mobile && showSidebar ? ' drawer-open' : '')}>
       {(!data.online || data.pending > 0) && (
         <div className="offline-bar">{!data.online ? t('offline.offline') : t('offline.syncing', { n: data.pending })}{!data.online && data.pending > 0 ? ` · ${t('offline.pending', { n: data.pending })}` : ''}</div>
       )}
       <nav className="rail">
         <button className="avatar" title={name} onClick={() => setSettings(true)}><Avatar url={data.profile?.avatar_url} name={name} /></button>
-        <button className={'rail-btn' + (section === 'tasks' ? ' on' : '')} title={t('nav.tasks')} onClick={() => go('tasks')}><Icon name="checkSquare" size={20} /></button>
-        {calendarOn && <button className={'rail-btn' + (section === 'calendar' ? ' on' : '')} title={t('nav.calendar')} onClick={() => go('calendar')}><Icon name="calendar" size={20} /></button>}
-        {matrixOn && <button className={'rail-btn' + (section === 'matrix' ? ' on' : '')} title={t('matrix.title')} onClick={() => go('matrix')}><Icon name="matrix" size={20} /></button>}
+        <button className={'rail-btn' + (section === 'tasks' ? ' on' : '')} title={t('nav.tasks')} onClick={() => go('tasks')}><Icon name="checkSquare" size={20} />{lbl(t('nav.tasks'))}</button>
+        {calendarOn && <button className={'rail-btn' + (section === 'calendar' ? ' on' : '')} title={t('nav.calendar')} onClick={() => go('calendar')}><Icon name="calendar" size={20} />{lbl(t('nav.calendar'))}</button>}
+        {matrixOn && <button className={'rail-btn' + (section === 'matrix' ? ' on' : '')} title={t('matrix.title')} onClick={() => go('matrix')}><Icon name="matrix" size={20} />{lbl(t('matrix.title'))}</button>}
         {pomoOn && (
           <button className={'rail-btn' + (section === 'pomodoro' ? ' on' : '')} title={t('pomo.title')} onClick={() => go('pomodoro')}>
             <Icon name="timer" size={20} />
             {pomo.state.status === 'running' && <i className="rail-badge">{fmtClock(pomo.displayMs)}</i>}
-          </button>
+          {lbl(t('pomo.title'))}</button>
         )}
-        {habitOn && <button className={'rail-btn' + (section === 'habits' ? ' on' : '')} title={t('habit.title')} onClick={() => go('habits')}><Icon name="target" size={20} /></button>}
-        {countdownOn && <button className={'rail-btn' + (section === 'countdown' ? ' on' : '')} title={t('countdown.title')} onClick={() => go('countdown')}><Icon name="hourglass" size={20} /></button>}
-        {mesaOn && <button className={'rail-btn' + (section === 'mesa' ? ' on' : '')} title={t('mesa.title')} onClick={() => go('mesa')}><Icon name="mesa" size={20} /></button>}
-        <button className={'rail-btn' + (section === 'stats' ? ' on' : '')} title={t('stats.title')} onClick={() => go('stats')}><Icon name="chart" size={20} /></button>
+        {habitOn && <button className={'rail-btn' + (section === 'habits' ? ' on' : '')} title={t('habit.title')} onClick={() => go('habits')}><Icon name="target" size={20} />{lbl(t('habit.title'))}</button>}
+        {countdownOn && <button className={'rail-btn' + (section === 'countdown' ? ' on' : '')} title={t('countdown.title')} onClick={() => go('countdown')}><Icon name="hourglass" size={20} />{lbl(t('countdown.title'))}</button>}
+        {mesaOn && <button className={'rail-btn' + (section === 'mesa' ? ' on' : '')} title={t('mesa.title')} onClick={() => go('mesa')}><Icon name="mesa" size={20} />{lbl(t('mesa.title'))}</button>}
+        <button className={'rail-btn' + (section === 'stats' ? ' on' : '')} title={t('stats.title')} onClick={() => go('stats')}><Icon name="chart" size={20} />{lbl(t('stats.title'))}</button>
         {stickyOn && (
-          <Popover trigger={(_o, toggle) => <button className="rail-btn" title={t('sticky.title')} onClick={toggle}><Icon name="note" size={20} /></button>}>
+          <Popover trigger={(_o, toggle) => <button className="rail-btn" title={t('sticky.title')} onClick={toggle}><Icon name="note" size={20} />{lbl(t('sticky.title'))}</button>}>
             {() => <StickyMenu />}
           </Popover>
         )}
-        <button className="rail-btn" title={`${t('nav.search')} (Ctrl+K)`} onClick={() => setSearching(true)}><Icon name="search" size={20} /></button>
+        <button className="rail-btn" title={`${t('nav.search')} (Ctrl+K)`} onClick={() => setSearching(true)}><Icon name="search" size={20} />{lbl(t('nav.search'))}</button>
         <div className="grow" />
-        <button className="rail-btn" title={t('settings.theme')} onClick={toggleTheme}><Icon name={theme === 'dark' ? 'sun' : 'moon'} size={18} /></button>
-        <button className="rail-btn" title={t('settings.title')} onClick={() => setSettings(true)}><Icon name="more" size={18} /></button>
-        <button className="rail-btn" title={t('auth.signOut')} onClick={() => supabase.auth.signOut()}><Icon name="logout" size={18} /></button>
+        <button className="rail-btn" title={railOpen ? t('nav.collapse') : t('nav.expand')} onClick={toggleRail}><Icon name={railOpen ? 'left' : 'right'} size={18} />{lbl(railOpen ? t('nav.collapse') : t('nav.expand'))}</button>
+        <button className="rail-btn" title={t('settings.theme')} onClick={toggleTheme}><Icon name={theme === 'dark' ? 'sun' : 'moon'} size={18} />{lbl(t('settings.theme'))}</button>
+        <button className="rail-btn" title={t('settings.title')} onClick={() => setSettings(true)}><Icon name="more" size={18} />{lbl(t('settings.title'))}</button>
+        <button className="rail-btn" title={t('auth.signOut')} onClick={() => supabase.auth.signOut()}><Icon name="logout" size={18} />{lbl(t('auth.signOut'))}</button>
       </nav>
 
       {mobile && showSidebar && <div className="drawer-back" onClick={() => setSideOpen(false)} />}

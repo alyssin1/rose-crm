@@ -21,7 +21,9 @@
     "tasks": "Attività",
     "calendar": "Calendario",
     "search": "Cerca",
-    "addList": "Aggiungi lista"
+    "addList": "Aggiungi lista",
+    "expand": "Espandi menu",
+    "collapse": "Comprimi menu"
   },
   "settings": {
     "theme": "Tema",
@@ -651,7 +653,8 @@
     "name": "Nome cartella",
     "none": "Nessuna cartella",
     "moveTo": "Sposta nella cartella",
-    "confirmDelete": "Eliminare la cartella “{{name}}”? Le liste restano, escono solo dalla cartella."
+    "confirmDelete": "Eliminare la cartella “{{name}}”? Le liste restano, escono solo dalla cartella.",
+    "newList": "Nuova lista in questa cartella"
   },
   "ctx": {
     "pickDate": "Scegli data",
