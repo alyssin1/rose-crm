@@ -87,6 +87,11 @@ export function Delegacao({ selectedId, onSelect }: { selectedId: string | null;
       </header>
 
       <div className="dg-cols">
+        <div className="dg-col" style={{ ['--q' as string]: 'var(--text-dim)' }}>
+          <h3 className="dg-head"><i />{t('deleg.none')} <small>{none.length}</small></h3>
+          <p className="dg-sub">{t('deleg.noneHint')}</p>
+          {none.length === 0 ? <p className="ms-empty">{t('deleg.empty')}</p> : none.map((x) => <Card key={x.id} x={x} />)}
+        </div>
         {COLS.map((c) => {
           const items = pool.filter((x) => level(x) === c.id)
           return (
@@ -105,11 +110,6 @@ export function Delegacao({ selectedId, onSelect }: { selectedId: string | null;
           )
         })}
       </div>
-
-      <details className="dg-none">
-        <summary>{t('deleg.none')} <small>{none.length}</small> <span className="dg-sub">{t('deleg.noneHint')}</span></summary>
-        <div className="dg-none-list">{none.map((x) => <Card key={x.id} x={x} />)}</div>
-      </details>
     </section>
   )
 }
