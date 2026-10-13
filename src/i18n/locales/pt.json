@@ -599,6 +599,26 @@
     "pending": "definir dia",
     "pendingEmpty": "Nenhuma tarefa esperando um dia. Use \"Entra\" nas tarefas para puxar para esta semana."
   },
+  "deleg": {
+    "title": "Delegação",
+    "hint": "Tracejado = sugestão do agente. Confirme, troque o agente ou arraste para outra coluna.",
+    "sim": "Delegável",
+    "simHint": "O agente faz; você aprova",
+    "parcial": "Parcial",
+    "parcialHint": "O agente prepara; a decisão ou o contato é seu",
+    "eu": "Só eu",
+    "euHint": "Só você faz",
+    "none": "Sem análise",
+    "noneHint": "Arraste para uma coluna ou espere a sugestão da rotina da manhã",
+    "empty": "Nada aqui.",
+    "confirm": "Confirmar",
+    "noAgent": "Sem agente",
+    "agent": "Agente",
+    "suggested": "sugestão",
+    "late": "{{n}}d atraso",
+    "today": "hoje",
+    "undated": "sem data"
+  },
   "countdown": {
     "title": "Contagem Regressiva",
     "new": "Nova contagem",

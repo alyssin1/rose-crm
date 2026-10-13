@@ -1,5 +1,6 @@
 const P: Record<string, string> = {
   check: 'M20 6 9 17l-5-5',
+  delegate: 'M13 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0 M2 21v-1a6 6 0 0 1 10-4.5 M15 14h7 M19 11l3 3-3 3',
   menu: 'M4 6h16 M4 12h16 M4 18h16',
   grip: 'M9 5h.01 M15 5h.01 M9 12h.01 M15 12h.01 M9 19h.01 M15 19h.01',
   subtask: 'M6 3v7a4 4 0 0 0 4 4h9 M16 10l4 4-4 4',

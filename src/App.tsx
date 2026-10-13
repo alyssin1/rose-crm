@@ -15,6 +15,7 @@ import { Habits } from './components/Habits'
 import { Countdowns } from './components/Countdowns'
 import { Stats } from './components/Stats'
 import { Mesa } from './components/Mesa'
+import { Delegacao } from './components/Delegacao'
 import { PomodoroProvider, usePomodoro, fmtClock } from './lib/pomodoro'
 import { Popover } from './components/Popover'
 import { StickyLayer, StickyMenu, StickyWindow } from './components/Sticky'
@@ -284,6 +285,7 @@ function Shell({ session, theme, setTheme }: { session: Session; theme: Theme; s
     ...(habitOn ? [{ icon: 'target' as const, label: t('habit.title'), on: () => go('habits') }] : []),
     ...(countdownOn ? [{ icon: 'hourglass' as const, label: t('countdown.title'), on: () => go('countdown') }] : []),
     ...(mesaOn ? [{ icon: 'mesa' as const, label: t('mesa.title'), on: () => go('mesa') }] : []),
+    { icon: 'delegate', label: t('deleg.title'), on: () => go('delegacao') },
     { icon: 'chart', label: t('stats.title'), on: () => go('stats') },
     { icon: 'summary', label: t('nav.summary'), on: () => change({ type: 'summary' }) },
     { icon: 'search', label: t('nav.search'), on: () => setSearching(true) },
@@ -311,6 +313,7 @@ function Shell({ session, theme, setTheme }: { session: Session; theme: Theme; s
         {habitOn && <button className={'rail-btn' + (section === 'habits' ? ' on' : '')} title={t('habit.title')} onClick={() => go('habits')}><Icon name="target" size={20} />{lbl(t('habit.title'))}</button>}
         {countdownOn && <button className={'rail-btn' + (section === 'countdown' ? ' on' : '')} title={t('countdown.title')} onClick={() => go('countdown')}><Icon name="hourglass" size={20} />{lbl(t('countdown.title'))}</button>}
         {mesaOn && <button className={'rail-btn' + (section === 'mesa' ? ' on' : '')} title={t('mesa.title')} onClick={() => go('mesa')}><Icon name="mesa" size={20} />{lbl(t('mesa.title'))}</button>}
+        <button className={'rail-btn' + (section === 'delegacao' ? ' on' : '')} title={t('deleg.title')} onClick={() => go('delegacao')}><Icon name="delegate" size={20} />{lbl(t('deleg.title'))}</button>
         <button className={'rail-btn' + (section === 'stats' ? ' on' : '')} title={t('stats.title')} onClick={() => go('stats')}><Icon name="chart" size={20} />{lbl(t('stats.title'))}</button>
         {stickyOn && (
           <Popover trigger={(_o, toggle) => <button className="rail-btn" title={t('sticky.title')} onClick={toggle}><Icon name="note" size={20} />{lbl(t('sticky.title'))}</button>}>
@@ -341,6 +344,8 @@ function Shell({ session, theme, setTheme }: { session: Session; theme: Theme; s
           <Countdowns onToggleSidebar={toggleSide} />
         ) : section === 'mesa' ? (
           <Mesa selectedId={selected} onSelect={setSelected} onToggleSidebar={toggleSide} />
+        ) : section === 'delegacao' ? (
+          <Delegacao selectedId={selected} onSelect={setSelected} />
         ) : section === 'stats' ? (
           <Stats onToggleSidebar={toggleSide} />
         ) : section === 'matrix' ? (

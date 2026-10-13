@@ -31,10 +31,18 @@ export interface Task {
   google_meta?: GoogleMeta | null
   /** Mesa da Semana: segunda-feira (AAAA-MM-DD) da semana para a qual a tarefa foi puxada com "Entra"; null = não puxada */
   week_in?: string | null
+  /** Delegação: sugestão da rotina diária (tracejada) e decisão do dono (sólida) */
+  delegation?: Delegation | null
   /** pedido de conclusão feito por um participante (o dono aceita ou recusa) */
   close_request?: { by: string; at: string; status?: number } | null
   created_at: string
   updated_at: string
+}
+
+export type DelegLevel = 'sim' | 'parcial' | 'eu'
+export interface Delegation {
+  sugestao?: { agente: string | null; nivel: DelegLevel; motivo?: string; origem?: string } | null
+  decisao?: { agente: string | null; nivel: DelegLevel } | null
 }
 
 export interface List {

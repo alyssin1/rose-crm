@@ -20,6 +20,7 @@ import { Search } from '../components/Search'
 import { TaskList } from '../components/TaskList'
 import { StickyLayer } from '../components/Sticky'
 import { Mesa } from '../components/Mesa'
+import { Delegacao } from '../components/Delegacao'
 import '../styles/mesa.css'
 import type { List, Task } from '../lib/types'
 
@@ -51,8 +52,8 @@ const initial: Task[] = [
   { ...base, id: 'n2', title: 'Sem data B', list_id: 'inbox', sort_order: 20, due_at: null, all_day: true },
   { ...base, id: 'm1', title: '[revisar] Parceiro X — Fechar a proposta de valor e levar na call', list_id: 'inbox', sort_order: 30, due_at: null, all_day: true },
   { ...base, id: 'm2', title: '[revisar] Domínios — Enviar a lista de domínios migrados', list_id: 'work', sort_order: 31, due_at: null, all_day: true, priority: 3 },
-  { ...base, id: 'm3', title: 'Resolver Padrão dos SKUs na Buygoods', list_id: 'work', sort_order: 32, due_at: at(1, 0), all_day: true, priority: 5 },
-  { ...base, id: 'm4', title: 'Atrasada de ontem', list_id: 'work', sort_order: 33, due_at: at(-4, 0), all_day: true, priority: 1 },
+  { ...base, id: 'm3', title: 'Resolver Padrão dos SKUs na Buygoods', list_id: 'work', sort_order: 32, due_at: at(1, 0), all_day: true, priority: 5, delegation: { sugestao: { agente: 'funnel-ops', nivel: 'parcial', motivo: 'O agente propõe o padrão; você escolhe', origem: 'briefing 13/10' } } },
+  { ...base, id: 'm4', title: 'Atrasada de ontem', list_id: 'work', sort_order: 33, due_at: at(-4, 0), all_day: true, priority: 1, delegation: { sugestao: { agente: 'data-viewer', nivel: 'sim', motivo: 'Dashboard', origem: 'briefing 13/10' }, decisao: { agente: 'data-viewer', nivel: 'sim' } } },
   { ...base, id: 'e1', title: 'Daily do time', list_id: null, source: 'google', start_at: at(1, 10), due_at: at(1, 10, 30), all_day: false },
 ] as unknown as Task[]
 
@@ -91,6 +92,7 @@ function Harness() {
           {c === 'summary' && <Summary onToggleSidebar={() => {}} />}
           {c === 'sticky' && <StickyLayer />}
           {c === 'mesa' && <Mesa selectedId={sel} onSelect={setSel} />}
+          {c === 'delegacao' && <Delegacao selectedId={sel} onSelect={setSel} />}
           {c === 'tasks' && <TaskList view={{ type: 'all' }} selectedId={sel} onSelect={setSel} />}
           {c === 'search' && <Search onClose={() => {}} onOpenTask={() => {}} onOpenView={() => {}} />}
           {sel && c === 'calendar' && <TaskDetail taskId={sel} onClose={() => setSel(null)} />}

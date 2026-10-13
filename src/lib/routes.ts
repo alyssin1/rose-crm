@@ -1,9 +1,10 @@
 // Endereço de cada aba do Rose: /tarefas/hoje, /calendario, /mesa… (compartilhável, funciona com voltar/avançar e F5).
 import type { View } from './types'
 
-export type Section = 'home' | 'tasks' | 'calendar' | 'matrix' | 'pomodoro' | 'habits' | 'countdown' | 'stats' | 'mesa'
+export type Section = 'home' | 'tasks' | 'calendar' | 'matrix' | 'pomodoro' | 'habits' | 'countdown' | 'stats' | 'mesa' | 'delegacao'
 
 const SECTION: Record<Section, string> = {
+  delegacao: 'delegacao',
   home: 'inicio',
   tasks: 'tarefas',
   calendar: 'calendario',
