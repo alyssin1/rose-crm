@@ -43,6 +43,31 @@ export type DelegLevel = 'sim' | 'parcial' | 'eu'
 export interface Delegation {
   sugestao?: { agente: string | null; nivel: DelegLevel; motivo?: string; origem?: string } | null
   decisao?: { agente: string | null; nivel: DelegLevel } | null
+  /** instrução no modelo piloto (ASD-STE100), escrita pela Gestora de Projetos */
+  instrucao?: DelegInstrucao | null
+  /** checagem de contexto feita pelo agente escolhido; "falta" alimenta o painel de procura de contexto */
+  contexto?: DelegContexto | null
+  /** execução disparada pela Gestora depois do "Disparar" na Mesa */
+  execucao?: { status: 'na_fila' | 'rodando' | 'entregue' | 'reprovado'; resumo?: string; em?: string } | null
+}
+export interface DelegInstrucao {
+  tarefa: string
+  objetivo: string
+  contexto: string[]
+  entradas: string[]
+  passos: string[]
+  pronto_quando: string
+  nao_faca: string[]
+  aprova: string
+  em?: string
+}
+export interface DelegPergunta { id: string; pergunta: string; resposta?: string | null; quem?: string | null; em?: string | null }
+export interface DelegContexto {
+  veredito: 'pronto' | 'falta' | 'nao_executavel'
+  agente: string | null
+  motivo?: string
+  faltando?: DelegPergunta[]
+  checado_em?: string
 }
 
 export interface List {

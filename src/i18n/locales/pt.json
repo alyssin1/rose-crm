@@ -144,11 +144,11 @@
     "yesterday": "Ontem"
   },
   "priority": {
-    "title": "Prioridade",
     "0": "Nenhuma",
     "1": "Baixa",
     "3": "Média",
-    "5": "Alta"
+    "5": "Alta",
+    "title": "Prioridade"
   },
   "sort": {
     "title": "Ordenação",
@@ -617,7 +617,21 @@
     "suggested": "sugestão",
     "late": "{{n}}d atraso",
     "today": "hoje",
-    "undated": "sem data"
+    "undated": "sem data",
+    "ctxTitle": "Falta contexto",
+    "ctxHint": "O agente disse que dá para fazer, mas faltam estas respostas. Responda aqui ou repasse a alguém. A checagem roda de novo no próximo briefing.",
+    "answerPh": "Sua resposta",
+    "handOff": "Repassar a alguém",
+    "ctxReady": "Tudo respondido · volta na próxima checagem",
+    "by": "respondido por {{name}}",
+    "me": "Você",
+    "ctx_pronto": "contexto completo",
+    "ctx_falta": "falta contexto",
+    "ctx_nao_executavel": "não executável por agente",
+    "exe_na_fila": "na fila do agente",
+    "exe_rodando": "agente trabalhando",
+    "exe_entregue": "entregue · aguarda você",
+    "exe_reprovado": "reprovado pelo revisor"
   },
   "countdown": {
     "title": "Contagem Regressiva",
