@@ -1,4 +1,4 @@
-"""Gera os ícones do app a partir da rosa do Rose (TWIRL em src/components/RoseEmblem.tsx, variação 4D-2).
+"""Gera os ícones do app: foto da rosa (icon-source.png) para o app; rosa vetorial (TWIRL em RoseEmblem.tsx) para favicon e badge.
 Uso: python scripts/gen-icons.py  (precisa de playwright: pip install playwright && playwright install chromium)
 Desenho: "flower-twirl" do Game Icons (Lorc, CC BY 3.0, game-icons.net)."""
 import os, re
@@ -29,14 +29,18 @@ def tile(size, scale, bg=True):
 
 PUB = os.path.join(ROOT, "public")
 open(os.path.join(PUB, "favicon.svg"), "w", encoding="utf-8").write(rose())
-OUT = [  # arquivo, tamanho, fração da rosa, com fundo
-    ("icon-512.png", 512, 0.74, True),
-    ("icon-192.png", 192, 0.74, True),
-    ("icon.png", 256, 0.74, True),
-    ("apple-touch-icon.png", 180, 0.68, True),  # o iOS arredonda os cantos: um pouco mais de respiro
-    ("icon-maskable-512.png", 512, 0.56, True),  # zona segura do Android = círculo de 80%
-    ("badge-96.png", 96, 0.9, False),
-]
+# ícones do app = foto da rosa na lapela (icon-source.png, 1254x1254), recortada em volta da flor
+from PIL import Image
+SRC = Image.open(os.path.join(ROOT, "icon-source.png")).convert("RGB")
+CROP = (238, 135, 1138, 1035)      # rosa ocupa ~75% do quadro
+CROP_MASK = (188, 85, 1188, 1085)  # Android corta num círculo de 80%: mais respiro
+for name, size, box in [("icon-512.png", 512, CROP), ("icon-192.png", 192, CROP), ("icon.png", 256, CROP),
+                        ("apple-touch-icon.png", 180, CROP), ("icon-maskable-512.png", 512, CROP_MASK)]:
+    SRC.crop(box).resize((size, size), Image.LANCZOS).save(os.path.join(PUB, name), optimize=True)
+    print("ok", name)
+
+# aba do navegador (favicon.svg, acima) e notificação ficam no desenho vetorial: a foto vira borrão em 16 px
+OUT = [("badge-96.png", 96, 0.9, False)]
 with sync_playwright() as p:
     b = p.chromium.launch()
     for name, size, scale, bg in OUT:
