@@ -71,7 +71,9 @@
     "photo": "プロフィール写真",
     "photoChange": "写真を変更",
     "photoRemove": "削除",
-    "photoHint": "JPG または PNG。正方形に切り抜かれます。"
+    "photoHint": "JPG または PNG。正方形に切り抜かれます。",
+    "iconCredit": "バラのアイコン",
+    "iconCreditHint": "「Flower twirl」Lorc 作、game-icons.net（CC BY 3.0）"
   },
   "common": {
     "cancel": "キャンセル",

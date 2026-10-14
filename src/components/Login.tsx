@@ -180,9 +180,6 @@ export function Login({ denied }: Props) {
                 <Emblem className="lg-big" />
               </div>
             </div>
-            <div className="lg-inner">
-              <svg viewBox="0 0 300 300" fill="none"><path d="M 150 40 C 90 40 40 90 40 150 C 40 210 90 260 150 260 C 200 260 240 220 240 170 C 240 130 210 100 170 100 C 140 100 120 120 120 150 C 120 170 135 185 155 185" stroke="#ec5468" strokeWidth="10" strokeLinecap="round" strokeDasharray="14 18" /></svg>
-            </div>
           </div>
         </section>
       </main>

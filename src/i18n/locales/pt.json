@@ -71,7 +71,9 @@
     "photo": "Foto de perfil",
     "photoChange": "Alterar foto",
     "photoRemove": "Remover",
-    "photoHint": "JPG ou PNG; recortada em quadrado."
+    "photoHint": "JPG ou PNG; recortada em quadrado.",
+    "iconCredit": "Ícone da rosa",
+    "iconCreditHint": "Desenho \"flower-twirl\" de Lorc, game-icons.net (CC BY 3.0)"
   },
   "common": {
     "cancel": "Cancelar",

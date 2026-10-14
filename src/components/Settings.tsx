@@ -228,6 +228,7 @@ export function Settings({ session, theme, setTheme, initialTab = 'account', onC
             <div className="settings-sec">
               {row('Rose', <span>v0.1</span>, t('app.tagline'))}
               {row(t('settings.shortcuts'), <span />, t('settings.shortcutsHint'))}
+              {row(t('settings.iconCredit'), <span />, t('settings.iconCreditHint'))}
             </div>
           )}
         </div>

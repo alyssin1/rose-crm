@@ -71,7 +71,9 @@
     "photo": "Profile photo",
     "photoChange": "Change photo",
     "photoRemove": "Remove",
-    "photoHint": "JPG or PNG; cropped to a square."
+    "photoHint": "JPG or PNG; cropped to a square.",
+    "iconCredit": "Rose icon",
+    "iconCreditHint": "\"Flower twirl\" by Lorc, game-icons.net (CC BY 3.0)"
   },
   "common": {
     "cancel": "Cancel",
