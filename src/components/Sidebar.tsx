@@ -275,9 +275,9 @@ function ListDialog({ list, presetFolder = '', onClose, onCreated }: { list: Lis
         </div>
 
         <label className="field">{t('list.orEmoji')}</label>
-        <div className="row2">
-          <input style={{ width: 64, height: 40, textAlign: 'center', alignSelf: 'flex-start' }} value={isIcon(emoji) ? '' : emoji} maxLength={4} placeholder="📁" onChange={(e) => setEmoji(e.target.value)} aria-label="emoji" />
-          <div className="chips" style={{ flex: 1 }}>{EMOJIS.map((e) => <button key={e} onClick={() => setEmoji(e)}>{e}</button>)}</div>
+        <div className="icon-grid emoji-grid">
+          <input value={isIcon(emoji) ? '' : emoji} maxLength={4} placeholder="📁" onChange={(e) => setEmoji(e.target.value)} aria-label="emoji" />
+          {EMOJIS.map((e) => <button key={e} className={emoji === e ? 'on' : ''} onClick={() => setEmoji(e)}>{e}</button>)}
         </div>
 
         {data.folders.length > 0 && (

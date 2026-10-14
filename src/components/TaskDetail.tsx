@@ -25,6 +25,12 @@ export function TaskDetail({ taskId, onClose }: Props) {
   const data = useData()
   const task = data.tasks.find((x) => x.id === taskId)
   const [title, setTitle] = useState(task?.title ?? '')
+  // título quebra linha em vez de cortar: a caixa cresce com o texto
+  const titleRef = useRef<HTMLTextAreaElement>(null)
+  useEffect(() => {
+    const el = titleRef.current
+    if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px' }
+  }, [title, taskId])
   const [subDraft, setSubDraft] = useState('')
   const [tagDraft, setTagDraft] = useState('')
   const [atts, setAtts] = useState<Attachment[]>([])
@@ -167,7 +173,7 @@ export function TaskDetail({ taskId, onClose }: Props) {
       </div>
 
       <div className="detail-body">
-        <input className="detail-title" value={title} placeholder={t('detail.titlePh')} onChange={(e) => setTitle(e.target.value)} onBlur={() => title !== task.title && save({ title })} onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()} />
+        <textarea ref={titleRef} rows={1} className="detail-title" value={title} placeholder={t('detail.titlePh')} onChange={(e) => setTitle(e.target.value.replace(/\n/g, ' '))} onBlur={() => title !== task.title && save({ title })} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); (e.target as HTMLTextAreaElement).blur() } }} />
         <RichEditor key={task.id} value={task.content} placeholder={t('detail.contentPh')} onCommit={(html) => save({ content: html })} minHeight={110} />
         <TaskPeople task={task} />
 

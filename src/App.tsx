@@ -28,6 +28,7 @@ import { setFormat } from './lib/format'
 import { DialogHost } from './components/Dialogs'
 import { TaskContextHost } from './components/TaskContextMenu'
 import { Login } from './components/Login'
+import { Emblem, EmblemDefs } from './components/RoseEmblem'
 import { MobileHome, MobileNav, MoreSheet, type MoreItem } from './components/Mobile'
 import { fromPath, toPath, type Section } from './lib/routes'
 
@@ -299,7 +300,9 @@ function Shell({ session, theme, setTheme }: { session: Session; theme: Theme; s
       {(!data.online || data.pending > 0) && (
         <div className="offline-bar">{!data.online ? t('offline.offline') : t('offline.syncing', { n: data.pending })}{!data.online && data.pending > 0 ? ` · ${t('offline.pending', { n: data.pending })}` : ''}</div>
       )}
+      <EmblemDefs />
       <nav className="rail">
+        <div className="rail-brand" aria-label="Rose"><i><Emblem simple /></i>{lbl('Rose')}</div>
         <button className="avatar" title={name} onClick={() => setSettings(true)}><Avatar url={data.profile?.avatar_url} name={name} /></button>
         <button className={'rail-btn' + (section === 'tasks' ? ' on' : '')} title={t('nav.tasks')} onClick={() => go('tasks')}><Icon name="checkSquare" size={20} />{lbl(t('nav.tasks'))}</button>
         {calendarOn && <button className={'rail-btn' + (section === 'calendar' ? ' on' : '')} title={t('nav.calendar')} onClick={() => go('calendar')}><Icon name="calendar" size={20} />{lbl(t('nav.calendar'))}</button>}

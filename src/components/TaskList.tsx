@@ -377,11 +377,19 @@ function Row({ task, view, opts, selected, onSelect, dnd, group, depth = 0, sele
   const list = data.lists.find((l) => l.id === task.list_id)
   const tagObjs = tagIdsOf(data, task.id).map((id) => data.tags.find((x) => x.id === id)).filter(Boolean) as Tag[]
   const tagNames = tagObjs.map((x) => x.name)
+  // concluir: o check preenche e o título é riscado; sem "mostrar concluídas" a linha recolhe antes de sair da lista
+  const [leaving, setLeaving] = useState(false)
+  const complete = () => {
+    if (task.status !== 0 || matchMedia('(prefers-reduced-motion: reduce)').matches) return void data.toggleDone(task)
+    setLeaving(true)
+    setTimeout(() => void data.toggleDone(task), 460)
+  }
+  const stays = opts.showCompleted || view.type === 'completed'
 
   return (
     <>
     <div
-      className={'task-row' + (selected ? ' selected' : '') + (task.status !== 0 ? ' done' : '') + (how ? ' drop-' + how : '')}
+      className={'task-row' + (selected ? ' selected' : '') + (task.status !== 0 ? ' done' : '') + (how ? ' drop-' + how : '') + (leaving ? ' leaving' + (stays ? '' : ' collapse') : '')}
       style={depth ? { ['--depth' as string]: depth } : undefined}
       onClick={() => onSelect(task.id)}
       onContextMenu={(e) => openTaskMenu(e, task.id)}
@@ -420,14 +428,14 @@ function Row({ task, view, opts, selected, onSelect, dnd, group, depth = 0, sele
         </button>
       ) : null}
       <button
-        className={`check p${task.priority}` + (task.status === 1 ? ' on' : task.status === 2 ? ' wont' : '')}
+        className={`check p${task.priority}` + (task.status === 1 || leaving ? ' on' : task.status === 2 ? ' wont' : '')}
         onClick={(e) => {
           e.stopPropagation()
-          if (view.type !== 'trash') void data.toggleDone(task)
+          if (view.type !== 'trash' && !leaving) complete()
         }}
         aria-label={t('task.complete')}
       >
-        {task.status === 1 && <Icon name="check" size={11} />}
+        {(task.status === 1 || leaving) && <Icon name="check" size={11} />}
         {task.status === 2 && <Icon name="x" size={11} />}
       </button>
       {task.pinned && <Icon name="pin" size={12} className="pin" />}

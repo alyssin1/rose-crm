@@ -26,7 +26,7 @@ self.addEventListener('push', (event) => {
     self.registration.showNotification(data.title || 'Rose', {
       body: data.body,
       icon: '/icon-192.png',
-      badge: '/icon-192.png',
+      badge: '/badge-96.png', // silhueta branca: o Android pinta a barra de status com ela
       tag: data.taskId,
       data: { taskId: data.taskId },
     }),

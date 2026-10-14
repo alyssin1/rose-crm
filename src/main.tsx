@@ -13,6 +13,7 @@ import './styles/fixes.css'
 import './styles/gcal.css'
 import './styles/gcal2.css'
 import './styles/login.css'
+import './styles/motion.css'
 import App from './App'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

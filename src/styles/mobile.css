@@ -32,7 +32,7 @@
 
   .tasks, .calendar, .matrix, .stats, .countdowns, .habits-main, .summary-main, .pomo-main { padding-left: 12px; padding-right: 12px; }
   .tasks-head { gap: 4px; }
-  .tasks-head h2 { font-size: 17px; }
+  .tasks-head h2 { font-size: 16px; }
   .task-row { padding: 10px 4px; }
   .meta .list-name { display: none; }
   .kcol { flex-basis: 78vw; }
@@ -68,12 +68,12 @@
   .mnav button.on span { font-weight: 600; }
 
   /* Início */
-  .mh { flex: 1; min-height: 0; overflow-y: auto; padding-bottom: 24px; background: var(--bg); }
-  .mh-top { display: flex; align-items: center; gap: 4px; padding: calc(16px + env(safe-area-inset-top)) 16px 0 24px; background: var(--accent); color: var(--accent-text, #fff); }
-  .mh-avatar { width: 44px; height: 44px; border-radius: 50%; border: 0; background: rgba(255,255,255,.18); color: inherit; font-size: 18px; font-weight: 600; }
+  .mh { flex: 1; min-height: 0; overflow-y: auto; padding-bottom: 24px; background: radial-gradient(120% 260px at 0% 0%, color-mix(in srgb, var(--accent) 30%, transparent), transparent 70%) no-repeat, var(--bg); }
+  .mh-top { display: flex; align-items: center; gap: 4px; padding: calc(16px + env(safe-area-inset-top)) 16px 0 24px; color: var(--text); }
+  .mh-avatar { width: 44px; height: 44px; border-radius: 50%; border: 0; background: rgba(255,255,255,.18); color: inherit; font-size: 20px; font-weight: 600; }
   .mh-ic { width: 44px; height: 44px; border: 0; border-radius: 50%; background: none; color: inherit; display: grid; place-items: center; }
   .mh-ic:active, .mh-avatar:active { background: rgba(255,255,255,.24); }
-  .mh-hello { margin: 0; padding: 20px 24px 28px; background: var(--accent); color: var(--accent-text, #fff); font-size: 20px; font-weight: 600; letter-spacing: -.2px; }
+  .mh-hello { margin: 0; padding: 20px 24px 28px; color: var(--text); font-size: 24px; font-weight: 600; letter-spacing: -.2px; }
 
   .mh-shortcuts { display: flex; gap: 16px; overflow-x: auto; padding: 24px 24px 20px; scrollbar-width: none; }
   .mh-shortcuts::-webkit-scrollbar { display: none; }
@@ -84,15 +84,15 @@
   .mh-block { display: flex; flex-direction: column; align-items: stretch; gap: 6px; width: 100%; padding: 24px; border: 0; border-top: 1px solid var(--border); background: none; color: var(--text); text-align: left; -webkit-tap-highlight-color: transparent; }
   .mh-block:not(.static):active { background: var(--bg-hover); }
   .mh-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-  .mh-row b { font-size: 18px; font-weight: 600; }
+  .mh-row b { font-size: 20px; font-weight: 600; }
   .mh-row svg { color: var(--text-dim); }
-  .mh-big { font-size: 22px; font-weight: 600; margin-top: 6px; }
-  .mh-mid { font-size: 17px; font-weight: 600; }
+  .mh-big { font-size: 24px; font-weight: 600; margin-top: 6px; }
+  .mh-mid { font-size: 16px; font-weight: 600; }
   .mh-block small { font-size: 14px; color: var(--text-dim); }
-  .mh-line { display: flex; align-items: center; gap: 10px; padding: 6px 0; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mh-line { display: flex; align-items: center; gap: 10px; padding: 6px 0; font-size: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .mh-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; background: var(--text-dim); }
-  .mh-dot.p5 { background: #d52b24; } .mh-dot.p3 { background: #faa80c; } .mh-dot.p1 { background: #4772fa; }
-  .mh-list { display: flex; align-items: center; gap: 8px; height: 48px; border: 0; background: none; color: var(--text); font-size: 15px; text-align: left; }
+  .mh-dot.p5 { background: var(--p-high); } .mh-dot.p3 { background: var(--p-med); } .mh-dot.p1 { background: var(--p-low); }
+  .mh-list { display: flex; align-items: center; gap: 8px; height: 48px; border: 0; background: none; color: var(--text); font-size: 16px; text-align: left; }
   .mh-list span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .mh-list small { font-size: 14px; color: var(--text-dim); }
   .mh-list svg { color: var(--text-dim); }
@@ -101,7 +101,7 @@
   /* folha "Mais" que sobe de baixo */
   .msheet-back { display: block; position: fixed; inset: 0 0 var(--mnav) 0; z-index: 38; background: rgba(0,0,0,.45); animation: msheet-fade .15s ease; }
   .msheet { display: block; position: fixed; left: 0; right: 0; bottom: var(--mnav); z-index: 39; padding: 8px 16px 24px; border-radius: 24px 24px 0 0; background: var(--bg-elev, var(--bg)); box-shadow: 0 -8px 28px rgba(0,0,0,.35); animation: msheet-up .2s ease; }
-  .msheet-grip { display: block; width: 36px; height: 4px; margin: 0 auto 16px; border-radius: 2px; background: var(--border); }
+  .msheet-grip { display: block; width: 36px; height: 4px; margin: 0 auto 16px; border-radius: 4px; background: var(--border); }
   .msheet-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px 8px; justify-items: center; }
   @keyframes msheet-up { from { transform: translateY(100%); } }
   @keyframes msheet-fade { from { opacity: 0; } }
