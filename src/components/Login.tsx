@@ -117,6 +117,13 @@ export function Login({ denied }: Props) {
     <div ref={root} className={'lg' + (loading ? ' lg-loading' : '')}>
       <EmblemDefs />
 
+      {/* fundo: a rosa na lapela em vídeo (o terno respira), o mesmo da tela de carregamento */}
+      <video className="lg-video" autoPlay muted loop playsInline poster="/splash/rose-splash.jpg" aria-hidden>
+        <source src="/splash/rose-splash.webm" type="video/webm" />
+        <source src="/splash/rose-splash.mp4" type="video/mp4" />
+      </video>
+      <div className="lg-video-shade" aria-hidden />
+
       {/* fundo: fumaça líquida, partículas, linhas de varredura, feixe e granulado */}
       <div className="lg-smoke" aria-hidden>
         <i className="lg-blob b1" />
@@ -172,16 +179,7 @@ export function Login({ denied }: Props) {
           </div>
         </section>
 
-        <section className="lg-hero" aria-hidden>
-          <div className="lg-stage">
-            <div className="lg-aura" />
-            <div className="lg-breathe">
-              <div className={'lg-rotor' + (glitch ? ' lg-glitch' : '')}>
-                <Emblem className="lg-big" />
-              </div>
-            </div>
-          </div>
-        </section>
+        <section className="lg-hero" aria-hidden />
       </main>
 
       <footer className="lg-copy">© Rose</footer>

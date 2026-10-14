@@ -1,6 +1,7 @@
 {
   "app": {
-    "tagline": "あなたのペースでタスク管理。"
+    "tagline": "あなたのペースでタスク管理。",
+    "loading": "今週を準備しています…"
   },
   "auth": {
     "google": "Googleでログイン",

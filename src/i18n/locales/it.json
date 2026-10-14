@@ -1,6 +1,7 @@
 {
   "app": {
-    "tagline": "Le tue attività, al tuo ritmo."
+    "tagline": "Le tue attività, al tuo ritmo.",
+    "loading": "Preparo la tua settimana…"
   },
   "auth": {
     "google": "Accedi con Google",

@@ -29,6 +29,7 @@ import { DialogHost } from './components/Dialogs'
 import { TaskContextHost } from './components/TaskContextMenu'
 import { Login } from './components/Login'
 import { Emblem, EmblemDefs } from './components/RoseEmblem'
+import { Splash } from './components/Splash'
 import { MobileHome, MobileNav, MoreSheet, type MoreItem } from './components/Mobile'
 import { fromPath, toPath, type Section } from './lib/routes'
 
@@ -70,7 +71,7 @@ export default function App() {
     return () => data.subscription.unsubscribe()
   }, [])
 
-  if (!ready) return null
+  if (!ready) return <Splash />
 
   if (!session) {
     return <Login />
@@ -246,7 +247,7 @@ function Shell({ session, theme, setTheme }: { session: Session; theme: Theme; s
     return () => window.removeEventListener('keydown', onKey)
   }, [])
 
-  if (!data.ready) return null
+  if (!data.ready) return /^#sticky=/.test(location.hash) ? null : <Splash /> // a nota destacada abre direto, sem tela de carregamento
 
   const stickyId = /^#sticky=([0-9a-f-]{36})/.exec(location.hash)?.[1]
   if (stickyId) return <StickyWindow id={stickyId} />

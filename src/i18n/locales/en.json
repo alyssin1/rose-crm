@@ -1,6 +1,7 @@
 {
   "app": {
-    "tagline": "Your tasks, at your pace."
+    "tagline": "Your tasks, at your pace.",
+    "loading": "Getting your week ready…"
   },
   "auth": {
     "google": "Sign in with Google",
