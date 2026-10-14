@@ -64,7 +64,7 @@
   /* barra de baixo: 4 abas com ícone e nome */
   .mnav { display: flex; order: 3; flex: none; height: var(--mnav); padding: 4px 8px env(safe-area-inset-bottom); background: var(--bg); border-top: 1px solid var(--border); z-index: 40; }
   .mnav button { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; border: 0; background: none; color: var(--text-dim); font-size: 11px; font-weight: 500; -webkit-tap-highlight-color: transparent; }
-  .mnav button.on { color: var(--accent); }
+  .mnav button.on { color: var(--accent-ink); }
   .mnav button.on span { font-weight: 600; }
 
   /* Início */

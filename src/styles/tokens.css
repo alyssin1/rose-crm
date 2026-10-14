@@ -12,28 +12,35 @@
   --rail-w: 50px;
 }
 
+/* Noir profundo: preto do terno (#070708 na foto) e o carmim da rosa. --accent preenche (botão, check);
+   --accent-ink é o carmim claro para texto e ícone, legível no preto (6,3:1) */
 :root,
 :root[data-theme='dark'] {
-  --bg: #1b1b20;
-  --bg-elev: #232329;
-  --bg-hover: #2c2c34;
-  --border: #33333c;
-  --text: #ececf1;
-  --text-dim: #9a9aa6;
-  --accent: var(--rose-500);
+  --bg: #060507;
+  --bg-elev: #0f0d10;
+  --bg-hover: #18151a;
+  --border: #26222a;
+  --text: #ecebef;
+  --text-dim: #9b97a0;
+  --accent: #c8102e;
+  --accent-ink: #ff4d5e;
   --accent-text: #ffffff;
+  --wine: #9d0c1e;
   color-scheme: dark;
 }
 
+/* claro: marfim da camisa com o carmim profundo */
 :root[data-theme='light'] {
-  --bg: #ffffff;
-  --bg-elev: #f6f6f8;
-  --bg-hover: #ececf0;
-  --border: #e3e3e8;
-  --text: #1d1d22;
-  --text-dim: #6b6b76;
-  --accent: var(--rose-600);
+  --bg: #faf9fb;
+  --bg-elev: #f2f1f4;
+  --bg-hover: #e9e7ec;
+  --border: #dedbe2;
+  --text: #1a181c;
+  --text-dim: #6b6770;
+  --accent: #b0122a;
+  --accent-ink: #b0122a;
   --accent-text: #ffffff;
+  --wine: #b0122a;
   color-scheme: light;
 }
 

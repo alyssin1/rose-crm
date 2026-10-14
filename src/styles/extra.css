@@ -111,7 +111,7 @@
 .person.add:hover { color: var(--text); background: var(--bg-hover); }
 .close-req { display: flex; align-items: center; gap: 10px; margin: 10px 0; padding: 10px 12px; border-radius: 12px; background: color-mix(in srgb, var(--accent) 12%, transparent); font-size: 13px; }
 .close-req .btn-primary, .close-req .btn-ghost { height: 30px; padding: 0 12px; }
-.close-flag { font-size: 11px; color: var(--accent); }
+.close-flag { font-size: 11px; color: var(--accent-ink); }
 .row-people { display: inline-flex; gap: 2px; }
 .sticky-bar .at { font-size: 13px; line-height: 1; }
 .sticky.mention { position: fixed; box-shadow: 0 12px 36px rgba(0,0,0,.45); animation: mention-in .25s ease; }

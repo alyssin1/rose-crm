@@ -42,7 +42,7 @@ export function Login({ denied }: Props) {
   useEffect(() => {
     const meta = document.querySelector('meta[name="theme-color"]')
     const prev = meta?.getAttribute('content')
-    meta?.setAttribute('content', '#1b1b20')
+    meta?.setAttribute('content', '#060507')
     return () => {
       if (prev) meta?.setAttribute('content', prev)
     }

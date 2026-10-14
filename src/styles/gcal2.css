@@ -70,7 +70,7 @@
 .gcal .cs-date small { font-size: 11px; font-weight: 500; letter-spacing: .8px; text-transform: uppercase; color: var(--text-dim); }
 .gcal .cs-date:hover b { background: var(--bg-hover); }
 .gcal .cs-day.today .cs-date b { background: var(--accent); color: var(--accent-text); }
-.gcal .cs-day.today .cs-date small { color: var(--accent); }
+.gcal .cs-day.today .cs-date small { color: var(--accent-ink); }
 .gcal .cs-list { flex: 1; min-width: 0; }
 .gcal .cs-item { display: grid; grid-template-columns: 28px 170px minmax(0, auto) minmax(0, 1fr); align-items: center; gap: 0 8px; height: 28px; padding: 0 8px; border-radius: 4px; font-size: 14px; color: var(--text); cursor: pointer; }
 :root[data-theme="light"] .gcal .cs-item, :root[data-theme="light"] .gcal .cs-date { color: var(--text); }
@@ -132,7 +132,7 @@
 .gq-row { display: flex; align-items: center; gap: 16px; font-size: 14px; color: inherit; }
 .gq-row svg { color: var(--text-dim); flex: none; }
 .gq-foot { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
-.gq-more { height: 36px; padding: 0 12px; border: 0; border-radius: 18px; background: none; color: var(--accent); font-size: 14px; font-weight: 500; }
+.gq-more { height: 36px; padding: 0 12px; border: 0; border-radius: 18px; background: none; color: var(--accent-ink); font-size: 14px; font-weight: 500; }
 .gq-more:hover { background: rgba(168,199,250,.08); }
 .gq-save { height: 36px; padding: 0 24px; border: 0; border-radius: 18px; background: var(--accent); color: var(--accent-text); font-size: 14px; font-weight: 500; }
 .gq-save:disabled { opacity: .5; }
@@ -174,7 +174,7 @@
 
   /* mês: letras dos dias, número centralizado, etiquetas pequenas */
   .gcal .gm-head .cal-wd { height: 30px; line-height: 30px; font-size: 12px; font-weight: 500; letter-spacing: 0; color: var(--text-dim); text-transform: uppercase; }
-  .gcal .gm-head .cal-wd.today { color: var(--accent); }
+  .gcal .gm-head .cal-wd.today { color: var(--accent-ink); }
   .gcal .gm-week .cal-cell { padding-top: 2px; }
   .gcal .gm-week .cal-daynum { width: 22px; min-width: 22px; height: 22px; line-height: 22px; margin: 0; padding: 0; font-size: 12px; font-weight: 500; }
   .gcal .gm-week .cal-chip { height: 13px; line-height: 13px; margin: 1px 1px 0; padding: 0 3px; gap: 0; border-radius: 4px; font-size: 10px; font-weight: 500; }
@@ -189,7 +189,7 @@
   /* gaveta: marca, visões, conta, agendas */
   .gcal .cal-aside { scrollbar-width: none; width: min(78vw, 330px); padding: calc(28px + env(safe-area-inset-top)) 0 16px; gap: 0; background: var(--bg); }
   :root[data-theme="light"] .gcal .cal-aside { background: var(--bg); }
-  .mcal-brand { padding: 0 24px 22px; font-size: 24px; font-weight: 500; color: var(--accent); }
+  .mcal-brand { padding: 0 24px 22px; font-size: 24px; font-weight: 500; color: var(--accent-ink); }
   .mcal-brand span { color: var(--text); font-weight: 400; margin-left: 4px; }
   :root[data-theme="light"] .mcal-brand span { color: var(--text); }
   .mcal-views { display: flex; flex-direction: column; padding-bottom: 8px; border-bottom: 1px solid var(--border); margin-right: 12px; }

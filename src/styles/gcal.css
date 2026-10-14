@@ -15,7 +15,7 @@
 .mini-grid button { width: 28px; height: 28px; padding: 0; border: 0; border-radius: 50%; background: none; font-size: 12px; color: var(--text); }
 .mini-grid button:hover { background: var(--bg-hover); }
 .mini-grid button.out { color: color-mix(in srgb, var(--text) 40%, transparent); }
-.mini-grid button.cur { background: color-mix(in srgb, var(--accent) 22%, transparent); color: var(--accent); }
+.mini-grid button.cur { background: color-mix(in srgb, var(--accent) 22%, transparent); color: var(--accent-ink); }
 .mini-grid button.today { background: var(--accent); color: var(--accent-text); font-weight: 600; }
 .cal-cals h4 { margin: 14px 0 4px; font-size: 14px; font-weight: 500; }
 .cal-cals h4:first-child { margin-top: 0; }
@@ -66,7 +66,7 @@
 .gcal .cal-th { border-left: 0; gap: 0; padding: 6px 0 4px; }
 .gcal .cal-th small { font-size: 11px; font-weight: 500; letter-spacing: .8px; text-transform: uppercase; color: var(--text-dim); }
 .gcal .cal-th b { width: 46px; height: 46px; line-height: 46px; margin-top: 2px; font-size: 24px; font-weight: 400; border-radius: 50%; text-align: center; padding: 0; }
-.gcal .cal-th.today small { color: var(--accent); }
+.gcal .cal-th.today small { color: var(--accent-ink); }
 .gcal .cal-th.today b { background: var(--accent); color: var(--accent-text); }
 .gcal .cal-allday-label { font-size: 10px; color: var(--text-dim); align-self: end; padding: 0 8px 4px 0; }
 .gcal .cal-allday { border-left: 1px solid var(--border); padding: 2px; gap: 2px; min-height: 28px; }
@@ -114,7 +114,7 @@
 .mini-grid i { font-size: 10px; font-weight: 500; color: var(--text-dim); }
 .mini-grid button { width: 28px; height: 28px; font-size: 12px; }
 .mini-grid button.today { background: var(--accent); color: var(--accent-text); font-weight: 500; }
-.mini-grid button.cur { background: color-mix(in srgb, var(--accent) 24%, transparent); color: var(--accent); }
+.mini-grid button.cur { background: color-mix(in srgb, var(--accent) 24%, transparent); color: var(--accent-ink); }
 .cal-cals h4 { font-size: 14px; font-weight: 500; margin: 16px 0 4px; }
 .cal-chk { height: 32px; gap: 14px; font-size: 14px; }
 .cal-chk i { width: 18px; height: 18px; border-radius: 4px; border-width: 2px; }
@@ -128,7 +128,7 @@
 .gcal .cal-th { padding: 8px 0 4px; }
 .gcal .cal-th small { font-size: 11px; font-weight: 500; letter-spacing: .8px; color: var(--text-dim); }
 .gcal .cal-th b { width: 46px; height: 46px; line-height: 46px; font-size: 24px; font-weight: 400; color: var(--text); }
-.gcal .cal-th.today small { color: var(--accent); }
+.gcal .cal-th.today small { color: var(--accent-ink); }
 .gcal .cal-th.today b { background: var(--accent); color: var(--accent-text); }
 .gcal .cal-hours span { font-size: 11px; font-weight: 500; color: var(--text-dim); right: 8px; }
 .gcal .cal-col { border-left: 1px solid var(--border); }
@@ -149,7 +149,7 @@
 /* linha do horário atual */
 .gcal .cal-now { height: 2px; background: var(--accent); overflow: visible; }
 .gcal .cal-now::before { background: var(--accent); left: -6px; }
-.gcal .cal-now em { position: absolute; left: -64px; top: -9px; width: 54px; text-align: right; font-style: normal; font-size: 11px; font-weight: 500; color: var(--accent); background: var(--bg-elev); padding-right: 2px; }
+.gcal .cal-now em { position: absolute; left: -64px; top: -9px; width: 54px; text-align: right; font-style: normal; font-size: 11px; font-weight: 500; color: var(--accent-ink); background: var(--bg-elev); padding-right: 2px; }
 
 
 /* ===== pop-up do evento (Google Calendar) ===== */
@@ -174,7 +174,7 @@
 .evp-ic.meet { color: #fbbc04; }
 .evp-row .grow { flex: 1; }
 .evp-row small { font-size: 12px; line-height: 16px; color: var(--text-dim); margin-top: 2px; word-break: break-all; }
-.evp-link { color: var(--accent); font-weight: 500; text-decoration: none; }
+.evp-link { color: var(--accent-ink); font-weight: 500; text-decoration: none; }
 .evp-link:hover { text-decoration: underline; }
 .evp-ibtn { width: 40px; height: 40px; border: 0; border-radius: 50%; background: none; color: var(--text-dim); display: grid; place-items: center; flex: none; margin-right: -8px; }
 .evp-ibtn:hover { background: rgba(255,255,255,.08); }
