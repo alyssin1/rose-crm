@@ -68,8 +68,14 @@ export function Select<V extends string | number>({ value, options, onChange, pl
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open])
 
+  // rola só a lista até a opção ativa: scrollIntoView rolava também a página atrás, e o "fecha ao rolar" fechava o seletor na hora
   useEffect(() => {
-    panel.current?.querySelector<HTMLElement>('.sel-opt.act')?.scrollIntoView({ block: 'nearest' })
+    const opt = panel.current?.querySelector<HTMLElement>('.sel-opt.act')
+    const box = opt?.closest<HTMLElement>('.sel-list')
+    if (!opt || !box) return
+    const o = opt.getBoundingClientRect(), b = box.getBoundingClientRect()
+    if (o.top < b.top) box.scrollTop -= b.top - o.top
+    else if (o.bottom > b.bottom) box.scrollTop += o.bottom - b.bottom
   }, [active, open])
 
   const choose = (o: Option<V>) => {
